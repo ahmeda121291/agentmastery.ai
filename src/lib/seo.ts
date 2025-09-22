@@ -123,3 +123,23 @@ export function formatDate(date: string): string {
     day: 'numeric'
   })
 }
+
+export function buildAffiliateUrl(
+  url: string,
+  source: 'tool' | 'blog' | 'quiz' | 'calculator',
+  slug: string
+): string {
+  // Don't modify if URL already has UTM params
+  if (url.includes('utm_')) {
+    return url
+  }
+
+  const separator = url.includes('?') ? '&' : '?'
+  const utmParams = new URLSearchParams({
+    utm_source: 'agentmastery',
+    utm_medium: source,
+    utm_campaign: slug
+  })
+
+  return `${url}${separator}${utmParams.toString()}`
+}

@@ -8,6 +8,10 @@ export interface Tool {
   cons: string[]
   pricingNote: string
   badges?: string[]
+  promo?: string
+  nearestCompetitorSlug?: string
+  riskWarnings?: string[]
+  editorNote?: string
 }
 
 export const tools: Tool[] = [
@@ -24,11 +28,12 @@ export const tools: Tool[] = [
     ],
     cons: [
       'Generated content may need editing for brand voice',
-      'Limited customization for technical topics',
-      'Higher tier needed for advanced features'
+      'Limited customization for technical topics'
     ],
-    pricingNote: 'From $19/month for basic plan, scales with usage',
-    badges: ['SEO-Optimized', 'Multi-language']
+    pricingNote: '$19-$99/month',
+    badges: ['SEO-Optimized', 'Multi-language'],
+    nearestCompetitorSlug: 'jasper',
+    editorNote: 'Best for SEO-focused content creators who need quick, optimized articles. The built-in SEO scoring saves hours of optimization work.'
   },
   {
     slug: 'synthesia',
@@ -43,11 +48,13 @@ export const tools: Tool[] = [
     ],
     cons: [
       'Avatars can feel less personal than real presenters',
-      'Limited gesture and expression variety',
       'Expensive for frequent video production'
     ],
-    pricingNote: 'Starts at $22/month for personal use',
-    badges: ['Enterprise-Ready', 'No-Camera']
+    pricingNote: '$22-$67/month',
+    badges: ['Enterprise-Ready', 'No-Camera'],
+    nearestCompetitorSlug: 'd-id',
+    promo: 'Get 20% off first 3 months',
+    editorNote: 'Industry leader in AI video generation. Perfect for training videos, product demos, and multilingual content at scale.'
   },
   {
     slug: 'smartlead',
@@ -62,11 +69,12 @@ export const tools: Tool[] = [
     ],
     cons: [
       'Learning curve for advanced features',
-      'Limited CRM integrations',
-      'Support response times can vary'
+      'Limited CRM integrations'
     ],
-    pricingNote: 'From $39/month for 2000 leads',
-    badges: ['Unlimited Warmup', 'Multi-Inbox']
+    pricingNote: '$39-$94/month',
+    badges: ['Unlimited Warmup', 'Multi-Inbox'],
+    nearestCompetitorSlug: 'instantly',
+    editorNote: 'Top choice for cold email outreach. The unlimited warmup and multi-inbox rotation give you a real edge in deliverability.'
   },
   {
     slug: 'lovable',
@@ -81,11 +89,12 @@ export const tools: Tool[] = [
     ],
     cons: [
       'Limited to web applications',
-      'Complex logic may require manual coding',
-      'Dependency on platform for updates'
+      'Complex logic may require manual coding'
     ],
-    pricingNote: 'Free tier available, paid plans from $20/month',
-    badges: ['No-Code', 'Full-Stack']
+    pricingNote: 'Free tier, $20+/month',
+    badges: ['No-Code', 'Full-Stack'],
+    nearestCompetitorSlug: 'v0',
+    editorNote: 'Revolutionary for rapid prototyping. Builds surprisingly sophisticated apps from simple prompts - perfect for MVPs.'
   },
   {
     slug: 'customgpt',
@@ -100,11 +109,12 @@ export const tools: Tool[] = [
     ],
     cons: [
       'Limited conversation flow customization',
-      'Can struggle with highly technical content',
       'Token limits on lower tiers'
     ],
-    pricingNote: 'Starts at $89/month for basic chatbot',
-    badges: ['GPT-Powered', 'No-Code']
+    pricingNote: '$89-$449/month',
+    badges: ['GPT-Powered', 'No-Code'],
+    nearestCompetitorSlug: 'chatsimple',
+    editorNote: 'Best for knowledge-heavy businesses. Excels at ingesting documentation and providing accurate, context-aware responses.'
   },
   {
     slug: 'chatsimple',
@@ -119,11 +129,13 @@ export const tools: Tool[] = [
     ],
     cons: [
       'Template designs could be more modern',
-      'Analytics dashboard is basic',
-      'Limited customization on lower plans'
+      'Analytics dashboard is basic'
     ],
-    pricingNote: 'From $29/month for small businesses',
-    badges: ['175+ Languages', 'Quick Setup']
+    pricingNote: '$29-$99/month',
+    badges: ['175+ Languages', 'Quick Setup'],
+    nearestCompetitorSlug: 'customgpt',
+    promo: 'First month 50% off',
+    editorNote: 'Fastest setup in the category. Great for SMBs who need multilingual support without complexity.'
   },
   {
     slug: 'outranking',
