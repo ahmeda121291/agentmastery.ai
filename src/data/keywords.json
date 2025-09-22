@@ -1,0 +1,78 @@
+{
+  "keywords": [
+    {
+      "keyword": "ai sales automation tools comparison",
+      "priority": "high",
+      "category": "Sales & Outreach",
+      "suggestedPushLevel": "heavy"
+    },
+    {
+      "keyword": "how to improve cold email deliverability",
+      "priority": "high",
+      "category": "Email/Newsletters",
+      "suggestedPushLevel": "medium"
+    },
+    {
+      "keyword": "best ai video generators for marketing",
+      "priority": "medium",
+      "category": "Video",
+      "suggestedPushLevel": "heavy"
+    },
+    {
+      "keyword": "b2b lead generation strategies 2025",
+      "priority": "high",
+      "category": "Data/Prospecting",
+      "suggestedPushLevel": "medium"
+    },
+    {
+      "keyword": "email warmup best practices",
+      "priority": "medium",
+      "category": "Email/Warmup",
+      "suggestedPushLevel": "light"
+    },
+    {
+      "keyword": "ai chatbot implementation guide",
+      "priority": "medium",
+      "category": "Chatbots",
+      "suggestedPushLevel": "light"
+    },
+    {
+      "keyword": "crm migration checklist",
+      "priority": "low",
+      "category": "CRM",
+      "suggestedPushLevel": "none"
+    },
+    {
+      "keyword": "top ai writing tools for seo content",
+      "priority": "high",
+      "category": "Writing/SEO",
+      "suggestedPushLevel": "heavy"
+    },
+    {
+      "keyword": "sales team productivity metrics",
+      "priority": "low",
+      "category": "Calendar/PM",
+      "suggestedPushLevel": "none"
+    },
+    {
+      "keyword": "voice cloning technology explained",
+      "priority": "medium",
+      "category": "Audio",
+      "suggestedPushLevel": "medium"
+    }
+  ],
+  "processed": [],
+  "lastProcessedDate": null,
+  "config": {
+    "postsPerRun": {
+      "min": 1,
+      "max": 3
+    },
+    "pushLevelDistribution": {
+      "heavy": 0.4,
+      "medium": 0.3,
+      "light": 0.2,
+      "none": 0.1
+    }
+  }
+}
