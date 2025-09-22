@@ -487,3 +487,11 @@ export const tools: Tool[] = [
     badges: ['Text-Edit Video', 'Transcription']
   }
 ]
+
+export const featuredWeekly: Tool[] = [
+  tools.find(t => t.slug === 'synthesia')!,
+  tools.find(t => t.slug === 'smartlead')!,
+  tools.find(t => t.slug === 'elevenlabs')!,
+  tools.find(t => t.slug === 'motion')!,
+  tools.find(t => t.slug === 'apollo')!,
+]
