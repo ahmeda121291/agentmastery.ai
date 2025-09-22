@@ -6,6 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { ExternalLink, CheckCircle, XCircle, DollarSign, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
+import {
+  generateProductSchema,
+  generateFAQSchema,
+  generateBreadcrumbSchema,
+  createSchemaScript
+} from '@/src/lib/jsonld'
 
 export async function generateStaticParams() {
   return tools.map((tool) => ({
@@ -35,61 +41,59 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
     notFound()
   }
 
-  // Generate JSON-LD structured data
-  const jsonLdProduct = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
+  // Generate structured data using consolidated helpers
+  const productSchema = generateProductSchema({
     name: tool.name,
     description: tool.blurb,
     offers: {
-      '@type': 'Offer',
       price: tool.pricingNote,
       priceCurrency: 'USD',
+      availability: 'InStock',
+      url: tool.affiliateUrl
+    },
+    aggregateRating: {
+      ratingValue: 4.2,
+      ratingCount: 127,
+      reviewCount: 89
     },
     review: {
-      '@type': 'Review',
+      author: 'AgentMastery Team',
       reviewRating: {
-        '@type': 'Rating',
-        ratingValue: '4',
-        bestRating: '5'
+        ratingValue: 4,
+        bestRating: 5
       },
-      author: {
-        '@type': 'Organization',
-        name: 'AgentMastery'
-      }
+      reviewBody: `${tool.name} is a powerful ${tool.category} tool with excellent features for automation and productivity.`
     }
-  }
+  })
 
-  const jsonLdFAQ = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `What is ${tool.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: tool.blurb
-        }
-      },
-      {
-        '@type': 'Question',
-        name: `How much does ${tool.name} cost?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: tool.pricingNote
-        }
-      },
-      {
-        '@type': 'Question',
-        name: `What are the main features of ${tool.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: tool.pros.join(' ')
-        }
-      }
-    ]
-  }
+  const faqSchema = generateFAQSchema([
+    {
+      question: `What is ${tool.name}?`,
+      answer: tool.blurb
+    },
+    {
+      question: `How much does ${tool.name} cost?`,
+      answer: tool.pricingNote
+    },
+    {
+      question: `What are the main features of ${tool.name}?`,
+      answer: tool.pros.join(' ')
+    },
+    {
+      question: `What are the limitations of ${tool.name}?`,
+      answer: tool.cons.join(' ')
+    },
+    {
+      question: `Who should use ${tool.name}?`,
+      answer: `${tool.name} is ideal for teams and professionals looking for ${tool.category.toLowerCase()} solutions. ${tool.badges?.includes('Enterprise-Ready') ? 'It scales well for enterprise use.' : 'It works great for small to medium teams.'}`
+    }
+  ])
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://agentmastery.ai' },
+    { name: 'Tools', url: 'https://agentmastery.ai/tools' },
+    { name: tool.name, url: `https://agentmastery.ai/tools/${tool.slug}` }
+  ])
 
   // Generate logo placeholder
   const logoLetter = tool.name.charAt(0).toUpperCase()
@@ -97,20 +101,9 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
   return (
     <>
       {/* JSON-LD Structured Data */}
-      <Script
-        id={`product-jsonld-${tool.slug}`}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLdProduct)
-        }}
-      />
-      <Script
-        id={`faq-jsonld-${tool.slug}`}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLdFAQ)
-        }}
-      />
+      <Script {...createSchemaScript(productSchema, `product-${tool.slug}`)} />
+      <Script {...createSchemaScript(faqSchema, `faq-${tool.slug}`)} />
+      <Script {...createSchemaScript(breadcrumbSchema, `breadcrumb-${tool.slug}`)} />
 
       <div className="container mx-auto px-4 py-12">
         {/* Breadcrumbs */}

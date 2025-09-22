@@ -1,6 +1,12 @@
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPosts, getRelatedPosts } from '@/src/lib/blog'
-import { generateBlogMetadata, generateFAQSchema, generateArticleSchema, formatDate } from '@/src/lib/seo'
+import { generateBlogMetadata, formatDate } from '@/src/lib/seo'
+import {
+  generateArticleSchema,
+  generateFAQSchema,
+  generateBreadcrumbSchema,
+  createSchemaScript
+} from '@/src/lib/jsonld'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -94,21 +100,27 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   }
 
   const relatedPosts = getRelatedPosts(params.slug)
-  const faqSchema = post.faq ? generateFAQSchema(post.faq, params.slug) : null
-  const articleSchema = generateArticleSchema(
-    {
-      title: post.title,
-      description: post.description,
-      date: post.date,
-      author: post.author,
-      category: post.category,
-      tags: post.tags,
-      image: post.image,
-      faq: post.faq
-    },
-    params.slug,
-    post.content
-  )
+
+  // Generate structured data using consolidated helpers
+  const articleSchema = generateArticleSchema({
+    headline: post.title,
+    description: post.description,
+    author: post.author,
+    datePublished: post.date,
+    dateModified: post.date,
+    image: post.image,
+    keywords: post.tags,
+    articleBody: post.content,
+    url: `https://agentmastery.ai/blog/${params.slug}`
+  })
+
+  const faqSchema = post.faq ? generateFAQSchema(post.faq) : null
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://agentmastery.ai' },
+    { name: 'Blog', url: 'https://agentmastery.ai/blog' },
+    { name: post.title, url: `https://agentmastery.ai/blog/${params.slug}` }
+  ])
 
   // Generate TOC from content
   const headings = post.content.match(/^#{2,3}\s.+$/gm) || []
@@ -122,22 +134,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   return (
     <>
       {/* Structured Data */}
-      {faqSchema && (
-        <Script
-          id={`faq-jsonld-${params.slug}`}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqSchema)
-          }}
-        />
-      )}
-      <Script
-        id={`article-jsonld-${params.slug}`}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleSchema)
-        }}
-      />
+      <Script {...createSchemaScript(articleSchema, `article-${params.slug}`)} />
+      {faqSchema && <Script {...createSchemaScript(faqSchema, `faq-${params.slug}`)} />}
+      <Script {...createSchemaScript(breadcrumbSchema, `breadcrumb-${params.slug}`)} />
 
       <article className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
