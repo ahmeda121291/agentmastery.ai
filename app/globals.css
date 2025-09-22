@@ -12,12 +12,226 @@
   .btn {
     @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green bg-green text-paper hover:bg-forest;
   }
-  
+
   .card {
     @apply bg-paper rounded-xl2 shadow-card p-6;
   }
-  
+
   .leaderboard-gradient {
     @apply bg-gradient-to-br from-forest to-green;
+  }
+}
+
+/* Living Gradient Background */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.living-gradient {
+  background: linear-gradient(
+    120deg,
+    #014421,
+    #28A745,
+    #014421
+  );
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .living-gradient {
+    animation: none;
+  }
+}
+
+/* Magnetic Button Effect */
+.magnet {
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.magnet:hover {
+  transform: var(--magnet-transform, translate(0, 0));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magnet:hover {
+    transform: none;
+  }
+}
+
+/* Spark Effect */
+@keyframes spark {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.spark {
+  position: relative;
+  overflow: visible;
+}
+
+.spark:active::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  animation: spark 0.5s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark:active::after {
+    animation: none;
+  }
+}
+
+/* Ticker Animation */
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-content {
+  display: flex;
+  animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker-content > * {
+  flex-shrink: 0;
+  padding: 0 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-content {
+    animation: ticker-scroll 60s linear infinite;
+  }
+}
+
+/* Animated Blob */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(30px, 10px) scale(1.05);
+  }
+}
+
+.blob {
+  background: radial-gradient(
+    circle at center,
+    rgba(40, 167, 69, 0.4) 0%,
+    transparent 70%
+  );
+  filter: blur(40px);
+  opacity: 0.3;
+  animation: blob 20s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+  }
+}
+
+/* Diagonal Split */
+.diagonal-split {
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.diagonal-split-reverse {
+  clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Section Divider */
+.section-divider {
+  position: relative;
+  margin-top: -1px;
+}
+
+.section-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: inherit;
+  transform: skewY(-2deg);
+  transform-origin: top left;
+}
+
+/* Card Tilt Effect */
+.card-tilt {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-tilt:hover {
+  transform: perspective(1000px) rotateX(-5deg) rotateY(5deg) translateZ(10px);
+  box-shadow:
+    0 20px 40px -15px rgba(0, 0, 0, 0.3),
+    0 0 25px -5px rgba(40, 167, 69, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-tilt:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Card Lift Effect */
+.card-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-lift:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 20px 40px -15px rgba(0, 0, 0, 0.3),
+    0 0 25px -5px rgba(40, 167, 69, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Floating Animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float {
+    animation: none;
   }
 }

@@ -1,14 +1,33 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/src/components/ui/Button'
+import { Card } from '@/src/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
-import { ArrowRight, ExternalLink, Star, TrendingUp } from 'lucide-react'
+import {
+  ArrowRight,
+  ExternalLink,
+  Star,
+  TrendingUp,
+  Zap,
+  Shield,
+  Users,
+  ChevronRight,
+  Sparkles,
+  Target,
+  Rocket,
+} from 'lucide-react'
 import { tools, featuredWeekly } from '@/src/data/tools'
 import { stats } from '@/src/data/stats'
+
+// Dynamic import for blob field to improve initial load
+const BlobField = dynamic(() =>
+  import('@/src/components/home/BlobField').then(mod => mod.BlobField),
+  { ssr: false }
+)
 
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [count, setCount] = useState(0)
@@ -52,93 +71,105 @@ function ToolOfTheWeek() {
   const currentTool = featuredWeekly[currentIndex]
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={currentTool.slug}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                <CardTitle className="text-lg">Tool of the Week</CardTitle>
+    <div className="relative">
+      {/* Stacked cards effect */}
+      <div className="absolute inset-0 rotate-3 bg-mist rounded-2xl" />
+      <div className="absolute inset-0 -rotate-3 bg-paper rounded-2xl shadow-lg" />
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentTool.slug}
+          initial={{ opacity: 0, y: 20, rotate: -6 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          exit={{ opacity: 0, y: -20, rotate: 6 }}
+          transition={{ duration: 0.5 }}
+          className="relative"
+        >
+          <Card variant="lift" className="border-green/20 bg-gradient-to-br from-green/5 to-transparent">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                  <span className="text-sm font-medium text-muted-foreground">Tool of the Week</span>
+                </div>
+                <Badge className="bg-green/10 text-green border-green/20">
+                  {currentTool.category}
+                </Badge>
               </div>
-              <Badge variant="secondary">{currentTool.category}</Badge>
+
+              <h3 className="font-bold text-2xl mb-3">{currentTool.name}</h3>
+              <p className="text-muted-foreground mb-4 line-clamp-3">
+                {currentTool.blurb}
+              </p>
+
+              {currentTool.badges && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {currentTool.badges.slice(0, 3).map((badge, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs">
+                      {badge}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{currentTool.pricingNote}</span>
+                <Button size="sm" variant="primary" magnetic asChild>
+                  <a
+                    href={currentTool.affiliateUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    Try Now
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </Button>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <h3 className="font-semibold text-xl mb-2">{currentTool.name}</h3>
-            <CardDescription className="mb-4 line-clamp-2">
-              {currentTool.blurb}
-            </CardDescription>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{currentTool.pricingNote}</span>
-              <Button size="sm" asChild>
-                <a
-                  href={currentTool.affiliateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  Try Now
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </AnimatePresence>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Dots indicator */}
+      <div className="flex gap-1 justify-center mt-6">
+        {featuredWeekly.map((_, idx) => (
+          <button
+            key={idx}
+            className={`h-2 w-2 rounded-full transition-all ${
+              idx === currentIndex ? 'bg-green w-6' : 'bg-muted-foreground/30'
+            }`}
+            onClick={() => setCurrentIndex(idx)}
+          />
+        ))}
+      </div>
+    </div>
   )
 }
 
-function LeaderboardTicker() {
-  const topTools = [
-    { name: 'Synthesia', category: 'Video', rank: 1 },
-    { name: 'ElevenLabs', category: 'Audio', rank: 1 },
-    { name: 'SmartLead', category: 'Outbound', rank: 1 },
-    { name: 'Apollo', category: 'Data/Prospecting', rank: 1 },
-    { name: 'Motion', category: 'Calendar/PM', rank: 1 },
-    { name: 'AISEO', category: 'Writing/SEO', rank: 1 },
-    { name: 'CustomGPT', category: 'Chatbots', rank: 1 },
-    { name: 'Lovable', category: 'Dev/Builders', rank: 1 },
+function StatsMarquee() {
+  const marqueeItems = [
+    { label: 'Tools Reviewed', value: '250+', icon: Zap },
+    { label: 'Active Users', value: '15K+', icon: Users },
+    { label: 'Saved in Costs', value: '$2.5M', icon: TrendingUp },
+    { label: 'Success Rate', value: '94%', icon: Target },
+    { label: 'New Tools Weekly', value: '12+', icon: Rocket },
+    { label: 'Enterprise Clients', value: '180+', icon: Shield },
   ]
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-transparent to-primary/5 rounded-lg py-3">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 px-4 shrink-0">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">Top Tools</span>
-        </div>
-        <div className="relative flex overflow-hidden">
-          <motion.div
-            className="flex gap-8 whitespace-nowrap"
-            animate={{
-              x: ['0%', '-50%'],
-            }}
-            transition={{
-              x: {
-                duration: 30,
-                repeat: Infinity,
-                ease: 'linear',
-              },
-            }}
-          >
-            {[...topTools, ...topTools].map((tool, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs">
-                  #{tool.rank} in {tool.category}
-                </Badge>
-                <span className="font-medium text-sm">{tool.name}</span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
+    <div className="ticker bg-gradient-to-r from-forest to-green text-paper py-4">
+      <div className="ticker-content">
+        {/* Duplicate for seamless loop */}
+        {[...marqueeItems, ...marqueeItems].map((item, idx) => (
+          <div key={idx} className="flex items-center gap-3 px-8">
+            <item.icon className="h-5 w-5" />
+            <div className="flex items-baseline gap-2">
+              <span className="font-bold text-xl">{item.value}</span>
+              <span className="text-sm opacity-90">{item.label}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -146,205 +177,208 @@ function LeaderboardTicker() {
 
 export default function HomePage() {
   return (
-    <div className="relative overflow-hidden">
-      {/* Animated Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-48 -left-48 w-96 h-96 bg-green-400/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-48 -right-48 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-300/5 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-        />
-      </div>
+    <div className="min-h-screen">
+      {/* Split-Diagonal Hero Section */}
+      <section className="relative overflow-hidden">
+        {/* Background with blob field */}
+        <div className="absolute inset-0 bg-gradient-to-br from-mist via-paper to-mist">
+          <Suspense fallback={null}>
+            <BlobField />
+          </Suspense>
+        </div>
 
-      {/* Hero Section */}
-      <section className="relative container mx-auto px-4 py-20 lg:py-32">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-4xl mx-auto"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Master the Best AI Tools.
-            <br />
-            <span className="bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
-              Learn, Compare, and Stay Ahead.
-            </span>
-          </h1>
+        {/* Diagonal split container */}
+        <div className="relative">
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh] py-20">
+              {/* Left side - Content */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                className="relative z-10"
+              >
+                <Badge className="mb-6 bg-green/10 text-green border-green/20">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI Tools Mastery Platform
+                </Badge>
 
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Independent rankings, practical playbooks, and interactive tools.
-          </p>
+                <h1 className="text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-br from-forest to-green bg-clip-text text-transparent">
+                  Master the Best AI Tools.
+                  <br />
+                  Learn, Compare,
+                  <br />
+                  and Stay Ahead.
+                </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" asChild>
+                <p className="text-xl text-muted-foreground mb-8 max-w-lg">
+                  Independent rankings, practical playbooks, and real ROI calculators.
+                  Find the perfect AI tools for your workflow in minutes, not hours.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button size="lg" variant="primary" magnetic asChild>
+                    <Link href="/tools" className="flex items-center gap-2">
+                      Explore Tools
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="white" magnetic asChild>
+                    <Link href="/quiz" className="flex items-center gap-2">
+                      Take the Quiz
+                      <Sparkles className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+
+                {/* Quick stats */}
+                <div className="flex gap-6 mt-12 pt-12 border-t border-mist">
+                  <div>
+                    <div className="text-3xl font-bold text-forest">
+                      <AnimatedCounter value={250} suffix="+" />
+                    </div>
+                    <div className="text-sm text-muted-foreground">Tools Ranked</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-forest">
+                      <AnimatedCounter value={94} suffix="%" />
+                    </div>
+                    <div className="text-sm text-muted-foreground">Success Rate</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-forest">
+                      <AnimatedCounter value={15} suffix="K+" />
+                    </div>
+                    <div className="text-sm text-muted-foreground">Active Users</div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Right side - Tool of the Week */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="relative lg:pl-12"
+              >
+                <div className="relative">
+                  <ToolOfTheWeek />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Diagonal divider */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-paper transform -skew-y-3 origin-bottom-left" />
+        </div>
+      </section>
+
+      {/* Stats Marquee */}
+      <section className="relative z-10 -mt-16">
+        <StatsMarquee />
+      </section>
+
+      {/* Featured Tools Grid */}
+      <section className="py-20 bg-paper relative">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green/20 to-transparent" />
+
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <Badge className="mb-4">Featured Tools</Badge>
+            <h2 className="text-4xl font-bold mb-4">Top-Ranked AI Solutions</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Discover tools that consistently deliver results, backed by our rigorous testing
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tools.slice(0, 6).map((tool, idx) => (
+              <motion.div
+                key={tool.slug}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+              >
+                <Card variant="tilt" className="h-full">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="secondary">{tool.category}</Badge>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                        <span className="text-sm font-medium">4.5</span>
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold mb-2">{tool.name}</h3>
+                    <p className="text-muted-foreground mb-4 line-clamp-2">{tool.blurb}</p>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{tool.pricingNote}</span>
+                      <Button size="sm" variant="ghost" asChild>
+                        <Link href={`/tools/${tool.slug}`} className="flex items-center gap-1">
+                          Learn More
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button size="lg" variant="primary" magnetic asChild>
               <Link href="/tools" className="flex items-center gap-2">
-                Explore Tools
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/quiz" className="flex items-center gap-2">
-                Take the Quiz
-                <ArrowRight className="h-4 w-4" />
+                View All Tools
+                <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
           </div>
+        </div>
+      </section>
 
-          {/* Stats */}
+      {/* CTA Section with angle */}
+      <section className="relative py-20 bg-gradient-to-br from-forest to-green text-paper overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-32 bg-paper transform skew-y-3 origin-top-right" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-3xl mx-auto"
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary">
-                <AnimatedCounter value={stats.toolsReviewed} suffix="+" />
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">tools reviewed</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary">
-                <AnimatedCounter value={stats.tacticsTested} suffix="+" />
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">tactics tested</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary">
-                <AnimatedCounter value={stats.usersHelped} suffix="+" />
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">users helped</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary">
-                <AnimatedCounter value={stats.hoursResearched} suffix="+" />
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">hours researched</div>
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Tool of the Week */}
-      <section className="container mx-auto px-4 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="max-w-md mx-auto"
-        >
-          <ToolOfTheWeek />
-        </motion.div>
-      </section>
-
-      {/* Leaderboard Ticker */}
-      <section className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <LeaderboardTicker />
-        </motion.div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="grid md:grid-cols-3 gap-6"
-        >
-          <Card className="group hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>Independent Rankings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Unbiased tool comparisons based on real-world testing and user feedback.
-              </CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>Practical Playbooks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Step-by-step guides to implement AI tools in your workflow effectively.
-              </CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>Interactive Tools</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Quizzes, calculators, and comparison tools to find your perfect AI stack.
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="text-center py-12">
-              <h2 className="text-3xl font-bold mb-4">Ready to Master AI Tools?</h2>
-              <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Join thousands of professionals who are staying ahead with the latest AI tools and strategies.
-              </p>
-              <Button size="lg" asChild>
-                <Link href="/tools">
-                  Start Exploring
-                  <ArrowRight className="ml-2 h-4 w-4" />
+            <h2 className="text-4xl font-bold mb-4">
+              Ready to Find Your Perfect AI Stack?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Take our 2-minute quiz and get personalized tool recommendations
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" variant="white" magnetic asChild>
+                <Link href="/quiz" className="flex items-center gap-2">
+                  Start Tool Matcher
+                  <Sparkles className="h-5 w-5" />
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <Button size="lg" variant="ghost" className="text-paper hover:bg-paper/10" asChild>
+                <Link href="/calculators/roi" className="flex items-center gap-2">
+                  Calculate ROI
+                  <TrendingUp className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
       </section>
     </div>
   )
