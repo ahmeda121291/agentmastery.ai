@@ -69,19 +69,19 @@ export default function AboutPage() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           {/* Mission Section */}
-          <div className="mb-16">
-            <div className="text-center mb-12">
+          <section className="mx-auto max-w-5xl px-6 md:px-8 py-16 md:py-24" data-testid="about-mission">
+            <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
                 <Target className="h-8 w-8 text-primary" />
                 Our Mission
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-xl text-muted-foreground">
                 Cut through the noise. Find tools that actually work.
               </p>
             </div>
 
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardContent className="p-8">
+            <div className="mt-8 max-w-3xl mx-auto">
+              <Card className="p-6 md:p-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
                 <div className="text-center space-y-4">
                   <p className="text-lg leading-relaxed">
                     <strong>AgentMastery is the first AI blog with proprietary scoring.</strong> We don't just write about tools—we rank them systematically, transparently, and fairly.
@@ -90,9 +90,9 @@ export default function AboutPage() {
                     No pay-to-play rankings. No hidden biases. Just data-driven assessments that help you make informed decisions in the chaotic world of AI tools.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </Card>
+            </div>
+          </section>
 
           {/* Proprietary Method Section */}
           <div className="mb-16">
@@ -390,25 +390,27 @@ export default function AboutPage() {
           </div>
 
           {/* CTA Section */}
-          <div className="text-center space-y-6">
-            <h2 className="text-3xl font-bold">Ready to Find Your Perfect AI Tools?</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Explore our transparent rankings and discover tools that will actually transform your workflow
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button size="lg" magnetic asChild>
-                <Link href="/leaderboards" className="flex items-center gap-2">
-                  View Leaderboards
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/quiz" className="flex items-center gap-2">
-                  Take Tool Matcher Quiz
-                </Link>
-              </Button>
+          <section className="mx-auto max-w-5xl px-6 md:px-8 py-16 md:py-20" data-testid="about-cta">
+            <div className="text-center max-w-3xl mx-auto">
+              <h3 className="text-2xl md:text-3xl font-semibold">Ready to Find Your Perfect AI Tools?</h3>
+              <p className="mt-3 text-muted-foreground">
+                Explore our transparent rankings and discover tools that will actually transform your workflow.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Button size="lg" magnetic asChild>
+                  <Link href="/leaderboards" className="flex items-center gap-2">
+                    View Leaderboards
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/quiz">
+                    Take Tool Matcher Quiz
+                  </Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          </section>
 
           {/* Contact */}
           <div className="mt-16 pt-8 border-t text-center">
