@@ -9,12 +9,42 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   
   const navLinks = [
-    { href: '/tools', label: 'Tools' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/answers', label: 'Answers' },
-    { href: '/leaderboards', label: 'Leaderboards' },
-    { href: '/quiz', label: 'Quiz' },
-    { href: '/about', label: 'About' },
+    {
+      href: '/tools',
+      label: 'AI Stack',
+      title: 'Explore the most loved AI tools all in one place.',
+      ariaLabel: 'AI Stack (Tools)'
+    },
+    {
+      href: '/blog',
+      label: 'Deep Dives',
+      title: 'In-depth reviews, manuals, and trends shaping AI.',
+      ariaLabel: 'Deep Dives (Blog)'
+    },
+    {
+      href: '/answers',
+      label: 'Quick Takes',
+      title: 'Fast, 3-sentence answers to AI questions.',
+      ariaLabel: 'Quick Takes (Answers)'
+    },
+    {
+      href: '/leaderboards',
+      label: 'Rankings',
+      title: 'See which AI tools are topping the charts.',
+      ariaLabel: 'Rankings (Leaderboards)'
+    },
+    {
+      href: '/quiz',
+      label: 'Find Your Fit',
+      title: 'Discover the AI tool you need most.',
+      ariaLabel: 'Find Your Fit (Quiz)'
+    },
+    {
+      href: '/about',
+      label: 'Our Story',
+      title: 'Why we built AgentMastery and how our algorithms work.',
+      ariaLabel: 'Our Story (About)'
+    },
   ]
   
   return (
@@ -30,6 +60,8 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                title={link.title}
+                aria-label={link.ariaLabel}
                 className="text-ink hover:text-green transition-colors duration-200"
               >
                 {link.label}
@@ -70,6 +102,8 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  title={link.title}
+                  aria-label={link.ariaLabel}
                   className="text-ink hover:text-green transition-colors duration-200 py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >

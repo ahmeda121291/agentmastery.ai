@@ -253,14 +253,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
         {faqSchema && <Script {...createSchemaScript(faqSchema, `faq-${params.slug}`)} />}
 
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div className="bg-gradient-to-r from-forest to-green text-white">
           <div className="container mx-auto px-4 py-12 md:py-20">
             <div className="max-w-4xl mx-auto">
               {/* Breadcrumb */}
-              <nav className="flex items-center gap-2 text-sm text-blue-100 mb-6">
+              <nav className="flex items-center gap-2 text-sm text-white/70 mb-6">
                 <Link href="/" className="hover:text-white">Home</Link>
                 <ChevronRight className="h-3 w-3" />
-                <Link href="/blog" className="hover:text-white">Blog</Link>
+                <Link href="/blog" className="hover:text-white">Deep Dives</Link>
                 <ChevronRight className="h-3 w-3" />
                 <span className="text-white truncate max-w-[200px]">{post.meta.title}</span>
               </nav>
@@ -279,13 +279,13 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
               {/* Description */}
               {(post.meta.description || post.meta.excerpt) && (
-                <p className="text-xl text-blue-100 mb-6">
+                <p className="text-xl text-white/90 mb-6">
                   {post.meta.description || post.meta.excerpt}
                 </p>
               )}
 
               {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-blue-100">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-white/70">
                 <span className="flex items-center">
                   <User className="h-4 w-4 mr-1" />
                   {post.meta.author || 'AgentMastery Team'}
@@ -337,7 +337,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
             {relatedPosts.length > 0 && (
               <div className="mt-12">
                 <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <BookOpen className="h-6 w-6 mr-2 text-blue-600" />
+                  <BookOpen className="h-6 w-6 mr-2 text-green" />
                   Related Articles
                 </h2>
                 <div className="grid md:grid-cols-3 gap-6">
@@ -363,11 +363,11 @@ export default async function BlogPost({ params }: { params: { slug: string } })
             )}
 
             {/* CTA Section */}
-            <div className="mt-12 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg p-8 text-white text-center">
+            <div className="mt-12 bg-gradient-to-r from-forest to-green rounded-lg p-8 text-white text-center">
               <h2 className="text-2xl font-bold mb-4">
                 Ready to Master AI Agents?
               </h2>
-              <p className="mb-6 text-blue-100">
+              <p className="mb-6 text-white/90">
                 Find the perfect AI tools for your business needs
               </p>
               <div className="flex gap-4 justify-center">

@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'AI Tools Q&A Hub | Quick Answers About AI Automation',
-  description: 'Find quick answers to your questions about AI tools, automation, and productivity. Comprehensive FAQ hub with expert insights.',
+  title: 'Quick Takes | Fast AI Answers - Clear & Bias-Free',
+  description: 'Your AI questions, answered fast. Clear, practical, and bias-free. Get 3-sentence answers to your questions about AI agents and automation.',
   alternates: {
     canonical: 'https://agentmastery.ai/answers',
   },
   openGraph: {
-    title: 'AI Tools Answers Hub',
-    description: 'Quick answers about AI tools and automation',
+    title: 'Quick Takes - AI Answers Hub',
+    description: 'Fast, 3-sentence answers to AI questions.',
     url: 'https://agentmastery.ai/answers',
   },
 }

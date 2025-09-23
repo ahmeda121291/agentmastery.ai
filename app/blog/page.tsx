@@ -2,6 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
 import { formatDate } from '@/lib/seo'
+import { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,15 @@ import { MobileStickyQuizCTA } from '@/components/layout/MobileStickyQuizCTA'
 import BlogFilters from './BlogFilters'
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog')
+
+export const metadata: Metadata = {
+  title: 'Deep Dives | AI Tool Reviews & Industry Insights',
+  description: 'In-depth reviews, manuals, and trends shaping AI. Expert analysis on AI agents, automation tools, and emerging technologies.',
+  openGraph: {
+    title: 'Deep Dives - AgentMastery',
+    description: 'In-depth reviews, manuals, and trends shaping AI.',
+  }
+}
 
 type PostMeta = {
   slug: string
@@ -91,18 +101,18 @@ export default async function BlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <div className="bg-gradient-to-br from-forest to-green text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="bg-white/20 text-white border-white/30 mb-4">
               <Sparkles className="h-3 w-3 mr-1" />
               AI-Powered Insights
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              AgentMastery Blog
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
+              Deep Dives
             </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-8">
-              Master AI agents with expert insights, tutorials, and industry trends
+            <p className="text-xl md:text-2xl text-white/90 mb-8">
+              In-depth reviews, manuals, and trends shaping AI
             </p>
           </div>
         </div>
@@ -140,13 +150,13 @@ export default async function BlogPage() {
             {featuredPost && (
               <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
+                  <TrendingUp className="h-6 w-6 mr-2 text-green" />
                   Featured Post
                 </h2>
                 <Link href={`/blog/${featuredPost.slug}`}>
                   <Card className="hover:shadow-xl transition-shadow overflow-hidden">
                     {featuredPost.image && (
-                      <div className="h-64 bg-gradient-to-r from-blue-600 to-indigo-700" />
+                      <div className="h-64 bg-gradient-to-r from-forest to-green" />
                     )}
                     <CardHeader>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
