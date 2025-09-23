@@ -1,0 +1,111 @@
+name: Bulk Content Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      posts_count:
+        description: 'Number of blog posts to generate'
+        required: false
+        default: '20'
+        type: string
+      answers_count:
+        description: 'Number of Q&A pairs to generate'
+        required: false
+        default: '50'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bulk-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable corepack for pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate bulk blog posts
+        run: |
+          echo "📝 Generating ${{ github.event.inputs.posts_count }} blog posts..."
+          # Temporarily modify config to generate more posts
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const keywordsPath = path.join(process.cwd(), 'src/data/keywords.json');
+          if (fs.existsSync(keywordsPath)) {
+            const data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'));
+            data.config = data.config || {};
+            data.config.postsPerRun = { min: ${{ github.event.inputs.posts_count }}, max: ${{ github.event.inputs.posts_count }} };
+            fs.writeFileSync(keywordsPath, JSON.stringify(data, null, 2));
+          }
+          "
+          pnpm run generate:posts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL || 'gpt-4o-mini' }}
+
+      - name: Generate bulk answers
+        run: |
+          echo "❓ Generating ${{ github.event.inputs.answers_count }} Q&A pairs..."
+          pnpm run generate:answers --count=${{ github.event.inputs.answers_count }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL || 'gpt-4o-mini' }}
+
+      - name: Reset config
+        run: |
+          # Reset config back to normal
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const keywordsPath = path.join(process.cwd(), 'src/data/keywords.json');
+          if (fs.existsSync(keywordsPath)) {
+            const data = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'));
+            data.config = data.config || {};
+            data.config.postsPerRun = { min: 5, max: 5 };
+            fs.writeFileSync(keywordsPath, JSON.stringify(data, null, 2));
+          }
+          "
+
+      - name: Commit & push all changes
+        run: |
+          git config user.name  "automation-bot"
+          git config user.email "automation@users.noreply.github.com"
+
+          # Check for blog changes
+          BLOG_CHANGES=$(git status --porcelain content/blog src/data/.posts_history.json | wc -l)
+          # Check for answers changes
+          ANSWERS_CHANGES=$(git status --porcelain src/data/answers.json | wc -l)
+
+          if [[ $BLOG_CHANGES -gt 0 ]] || [[ $ANSWERS_CHANGES -gt 0 ]]; then
+            git add content/blog src/data/.posts_history.json src/data/keywords.json src/data/answers.json
+
+            # Create detailed commit message
+            MSG="feat: bulk content generation"
+            if [[ $BLOG_CHANGES -gt 0 ]]; then
+              POSTS_COUNT=$(find content/blog -name "*.mdx" -newer .github/workflows/bulk-content.yml 2>/dev/null | wc -l || echo 0)
+              MSG="$MSG - $POSTS_COUNT blog posts"
+            fi
+            if [[ $ANSWERS_CHANGES -gt 0 ]]; then
+              MSG="$MSG - ${{ github.event.inputs.answers_count }} Q&As"
+            fi
+
+            git commit -m "$MSG"
+            git push https://x-access-token:${{ secrets.PAT_FOR_AUTOMATION }}@github.com/${{ github.repository }} HEAD:main
+
+            echo "✅ Successfully generated and pushed bulk content!"
+            echo "📊 Summary: $MSG"
+          else
+            echo "⚠️ No new content was generated (all topics may be exhausted or duplicates)"
+          fi
