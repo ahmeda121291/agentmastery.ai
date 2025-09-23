@@ -25,15 +25,13 @@ jobs:
       - name: Enable corepack for pnpm
         run: corepack enable
 
-      - name: Create .env.local from secrets
-        run: |
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env.local
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Generate blog posts
         run: pnpm run generate:posts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Check for changes
         id: check_changes

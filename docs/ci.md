@@ -52,11 +52,11 @@ When both checks pass (Preview Check ✅ and Vercel Preview ✅), the PR can be 
 - **Output**: Commits updates with message `feat: update answers hub with new Q&As [skip ci]`
 
 Both nightly workflows:
-- Create `.env.local` from GitHub Secrets at runtime
+- Load `OPENAI_API_KEY` from GitHub Secrets via `env:` in workflow
 - Use Node.js 20 with corepack enabled for pnpm
 - Require `OPENAI_API_KEY` secret configured in repository settings
 - Use `pnpm install --frozen-lockfile` for deterministic builds
-- Scripts automatically load environment via `dotenv/config`
+- Scripts check process.env first, then .env.local, then .env as fallback
 
 ## Generator Scripts
 
@@ -68,9 +68,15 @@ The answers generator (`scripts/generate_answers.ts`) is flexible with keyword i
 - Supports `--count=N` flag to control number of answers generated (default: 20)
 
 ### Running Generators Locally
-Create `.env.local` with your API key:
+Either create `.env.local` with your API key or export to environment:
 ```bash
+# Option 1: Using .env.local file
 echo "OPENAI_API_KEY=sk-..." > .env.local
+pnpm run generate:answers
+pnpm run generate:posts
+
+# Option 2: Using environment variable
+export OPENAI_API_KEY=sk-...
 pnpm run generate:answers
 pnpm run generate:posts
 ```

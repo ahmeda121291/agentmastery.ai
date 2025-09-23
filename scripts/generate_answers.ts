@@ -1,13 +1,25 @@
 #!/usr/bin/env node
 
-import 'dotenv/config'
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
+import * as dotenv from 'dotenv'
 import OpenAI from 'openai'
 import { tools } from '../src/data/tools'
 
-// Check for API key
+// Load env from process.env first, then .env.local, then .env
 if (!process.env.OPENAI_API_KEY) {
+  const root = process.cwd()
+  const envLocal = path.join(root, '.env.local')
+  const envFile = path.join(root, '.env')
+  if (fs.existsSync(envLocal)) {
+    dotenv.config({ path: envLocal })
+  } else if (fs.existsSync(envFile)) {
+    dotenv.config({ path: envFile })
+  }
+}
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+if (!OPENAI_API_KEY) {
   console.log('SKIP: No OPENAI_API_KEY')
   process.exit(0)
 }
@@ -18,7 +30,7 @@ const countArg = args.find(arg => arg.startsWith('--count='))
 const defaultCount = countArg ? parseInt(countArg.split('=')[1]) : 20
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: OPENAI_API_KEY,
 })
 
 // Helper to load topics from keywords.json with multiple format support
