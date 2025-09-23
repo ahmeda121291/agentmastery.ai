@@ -11,6 +11,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/tools', label: 'Tools' },
     { href: '/blog', label: 'Blog' },
+    { href: '/answers', label: 'Answers' },
     { href: '/leaderboards', label: 'Leaderboards' },
     { href: '/quizzes', label: 'Quizzes' },
     { href: '/about', label: 'About' },

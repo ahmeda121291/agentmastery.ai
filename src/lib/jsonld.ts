@@ -267,6 +267,76 @@ export function generateSoftwareApplicationSchema(app: {
   }
 }
 
+// Build FAQ JSON-LD with deduplication and truncation
+export function buildFaqJsonLd(
+  items: { q: string; a: string }[],
+  options: { maxItems?: number } = {}
+): string {
+  const maxItems = options.maxItems || 50
+  const seen = new Set<string>()
+  const dedupedItems: { q: string; a: string }[] = []
+
+  // Canonicalize for deduplication
+  const canonicalize = (text: string): string => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/g, '')
+  }
+
+  // Truncate answer to ~160 words without cutting mid-sentence
+  const truncateAnswer = (text: string, maxWords: number = 160): string => {
+    const words = text.split(/\s+/)
+    if (words.length <= maxWords) return text.trim()
+
+    // Find the last sentence boundary before maxWords
+    const truncated = words.slice(0, maxWords).join(' ')
+    const lastPeriod = truncated.lastIndexOf('.')
+    const lastQuestion = truncated.lastIndexOf('?')
+    const lastExclaim = truncated.lastIndexOf('!')
+
+    const lastBoundary = Math.max(lastPeriod, lastQuestion, lastExclaim)
+
+    if (lastBoundary > truncated.length * 0.5) {
+      return truncated.substring(0, lastBoundary + 1).trim()
+    }
+
+    // If no good boundary, just truncate and add ellipsis
+    return truncated.trim() + '...'
+  }
+
+  // Dedupe and process items
+  for (const item of items) {
+    if (dedupedItems.length >= maxItems) break
+
+    const canonical = canonicalize(item.q)
+    if (!seen.has(canonical)) {
+      seen.add(canonical)
+      dedupedItems.push({
+        q: item.q.trim(),
+        a: truncateAnswer(item.a)
+      })
+    }
+  }
+
+  // Build FAQ schema
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: dedupedItems.map(item => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a
+      }
+    }))
+  }
+
+  return JSON.stringify(schema)
+}
+
 // Helper to combine multiple schemas
 export function combineSchemas(...schemas: any[]) {
   return schemas.filter(Boolean)

@@ -12,6 +12,7 @@ export function Footer() {
     ],
     Resources: [
       { href: '/blog', label: 'Blog' },
+      { href: '/answers', label: 'Answers' },
       { href: '/docs', label: 'Documentation' },
       { href: '/api', label: 'API' },
     ],

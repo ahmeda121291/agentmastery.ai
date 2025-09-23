@@ -1,0 +1,23 @@
+[
+  {
+    "id": "seed-1",
+    "q": "Which AI tool is best for cold email automation?",
+    "a": "SmartLead is widely considered the best AI tool for cold email automation. It offers unlimited email warmup, multi-inbox rotation, and AI-powered personalization that helps achieve higher deliverability rates. SmartLead's ability to manage multiple campaigns across different inboxes while maintaining sender reputation makes it ideal for scaling outreach. Check out our [leaderboards](/leaderboards) to compare with alternatives like Instantly and Lemlist.",
+    "category": "Outbound",
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "seed-2",
+    "q": "How do I create AI-generated videos without appearing on camera?",
+    "a": "Synthesia is the leading platform for creating AI videos without being on camera. You can create videos using AI avatars that speak your script in over 120 languages. Simply type your script, choose an avatar, and Synthesia generates a professional video. For comparison with other video tools like HeyGen and Loom, visit our [video tools section](/tools?category=Video).",
+    "category": "Video",
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "seed-3",
+    "q": "What's the difference between Apollo and ZoomInfo for B2B data?",
+    "a": "Apollo offers better value with 275M+ contacts at $49/user/month, while ZoomInfo provides deeper mobile number coverage but costs $15,000+/year minimum. Apollo is ideal for startups and SMBs needing cost-effective prospecting. ZoomInfo suits enterprise teams requiring premium mobile data and advanced intent signals. Take our [quiz](/quiz) to find which fits your needs.",
+    "category": "Data",
+    "createdAt": "2024-01-15T10:00:00Z"
+  }
+]
