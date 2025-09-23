@@ -1,15 +1,15 @@
 import { notFound } from 'next/navigation'
-import { getPostBySlug, getAllPosts, getRelatedPosts, getEndcapVariant } from '@/src/lib/blog'
-import { generateBlogMetadata, formatDate } from '@/src/lib/seo'
+import { getPostBySlug, getAllPosts, getRelatedPosts, getEndcapVariant } from '@/lib/blog'
+import { generateBlogMetadata, formatDate } from '@/lib/seo'
 import {
   generateArticleSchema,
   generateFAQSchema,
   generateBreadcrumbSchema,
   createSchemaScript
-} from '@/src/lib/jsonld'
+} from '@/lib/jsonld'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/src/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -30,11 +30,11 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
-import { Callout, ProsCons, GlossaryTerm } from '@/src/components/mdx'
+import { Callout, ProsCons, GlossaryTerm } from '@/components/mdx'
 import dynamic from 'next/dynamic'
 
 // Dynamic import for client-side progress rail
-const ProgressRail = dynamic(() => import('@/src/components/blog/ProgressRail'), {
+const ProgressRail = dynamic(() => import('@/components/blog/ProgressRail'), {
   ssr: false,
   loading: () => null
 })

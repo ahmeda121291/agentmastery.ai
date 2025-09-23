@@ -2,13 +2,13 @@
 
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { pricingData } from '@/src/data/pricing'
+import { pricingData } from '@/data/pricing'
 import {
   CalculatorInput,
   CalculatorSection,
   MetricCard,
   formatCurrency
-} from '@/src/components/calculator'
+} from '@/components/calculator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

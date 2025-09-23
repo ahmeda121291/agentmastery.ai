@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { tools } from '@/src/data/tools'
+import { tools } from '@/data/tools'
 import {
   computeScores,
   loadLastSnapshot,
@@ -11,11 +11,11 @@ import {
   type CategoryScores,
   type ToolScore,
   EDITOR_CALLOUTS
-} from '@/src/data/scores'
+} from '@/data/scores'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card } from '@/src/components/ui/Card'
+import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/src/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { Progress } from '@/components/ui/progress'
 import {
   Collapsible,

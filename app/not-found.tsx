@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/src/components/ui/Button'
-import { Card } from '@/src/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
 import {
   Search,

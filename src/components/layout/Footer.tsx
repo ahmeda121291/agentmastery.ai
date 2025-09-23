@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Container } from '@/src/components/ui/Container'
+import { Container } from '@/components/ui/Container'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()

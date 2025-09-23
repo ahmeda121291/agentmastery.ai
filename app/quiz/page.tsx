@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { quizQuestions, calculateQuizResults } from '@/src/data/quiz'
-import { recommendTools, getMatchPercentage } from '@/src/lib/recommend'
+import { quizQuestions, calculateQuizResults } from '@/data/quiz'
+import { recommendTools, getMatchPercentage } from '@/lib/recommend'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

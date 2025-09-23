@@ -1,5 +1,5 @@
-import { Tool, tools } from '@/src/data/tools'
-import { Dimension, QuizResult } from '@/src/data/quiz'
+import { Tool, tools } from '@/data/tools'
+import { Dimension, QuizResult } from '@/data/quiz'
 
 export interface RecommendedTool extends Tool {
   score: number

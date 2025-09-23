@@ -2,14 +2,14 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { smartLeadUplift, emailBenchmarks, pricingData } from '@/src/data/pricing'
+import { smartLeadUplift, emailBenchmarks, pricingData } from '@/data/pricing'
 import {
   CalculatorInput,
   CalculatorSection,
   MetricCard,
   formatCurrency,
   formatPercentage
-} from '@/src/components/calculator'
+} from '@/components/calculator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'

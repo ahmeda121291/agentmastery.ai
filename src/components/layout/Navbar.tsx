@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Container } from '@/src/components/ui/Container'
-import { Button } from '@/src/components/ui/Button'
+import { Container } from '@/components/ui/Container'
+import { Button } from '@/components/ui/Button'
 import { useState } from 'react'
 
 export function Navbar() {

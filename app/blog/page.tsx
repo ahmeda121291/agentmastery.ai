@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { getAllPosts, getCategories } from '@/src/lib/blog'
-import { formatDate } from '@/src/lib/seo'
+import { getAllPosts, getCategories } from '@/lib/blog'
+import { formatDate } from '@/lib/seo'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/src/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/input'
 import {
   Clock,

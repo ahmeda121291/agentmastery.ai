@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
-import { tools } from '@/src/data/tools'
-import { Button } from '@/src/components/ui/Button'
-import { Card } from '@/src/components/ui/Card'
+import { tools } from '@/data/tools'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
 import {
   ExternalLink,
@@ -24,8 +24,8 @@ import {
   generateFAQSchema,
   generateBreadcrumbSchema,
   createSchemaScript
-} from '@/src/lib/jsonld'
-import { buildAffiliateUrl } from '@/src/lib/seo'
+} from '@/lib/jsonld'
+import { buildAffiliateUrl } from '@/lib/seo'
 
 export async function generateStaticParams() {
   return tools.map((tool) => ({

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
-import { tools } from '@/src/data/tools'
-import { getAllPosts } from '@/src/lib/blog'
+import { tools } from '@/data/tools'
+import { getAllPosts } from '@/lib/blog'
 
 const BASE_URL = 'https://agentmastery.ai'
 

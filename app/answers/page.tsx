@@ -1,19 +1,19 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { tools } from '@/src/data/tools'
-import { getAllPosts } from '@/src/lib/blog'
+import { tools } from '@/data/tools'
+import { getAllPosts } from '@/lib/blog'
 import { ChevronDown, Search, X, ExternalLink, Sparkles } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/src/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/badge'
 import Script from 'next/script'
-import { buildFaqJsonLd } from '@/src/lib/jsonld'
+import { buildFaqJsonLd } from '@/lib/jsonld'
 
 // Import answers data (will be generated)
 let answersData: any[] = []
 try {
-  answersData = require('@/src/data/answers.json')
+  answersData = require('@/data/answers.json')
 } catch {
   answersData = []
 }
