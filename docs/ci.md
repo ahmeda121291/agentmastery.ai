@@ -37,6 +37,26 @@ All PRs targeting the `main` branch must pass the following checks:
 
 When both checks pass (Preview Check ✅ and Vercel Preview ✅), the PR can be automatically merged using squash merge.
 
+## Nightly Workflows
+
+### Nightly Blog Generation
+- **Schedule**: Runs at 04:43 UTC daily
+- **Purpose**: Generates new blog posts using AI
+- **Uses**: `pnpm install --frozen-lockfile` for deterministic builds
+- **Output**: Commits new posts with message `chore(blog): nightly +5 posts [skip ci]`
+
+### Nightly Answers Generation
+- **Schedule**: Runs at 03:19 UTC daily
+- **Purpose**: Updates the answers hub with new Q&As
+- **Uses**: `pnpm install --frozen-lockfile` for deterministic builds
+- **Output**: Commits updates with message `feat: update answers hub with new Q&As [skip ci]`
+
+Both nightly workflows require:
+- Node.js 20
+- Corepack enabled for pnpm
+- `OPENAI_API_KEY` secret configured
+- pnpm-lock.yaml file present in the repository
+
 ## Local Development
 
 ### Adding Dependencies
