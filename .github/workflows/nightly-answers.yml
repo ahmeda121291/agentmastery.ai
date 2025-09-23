@@ -58,7 +58,7 @@ jobs:
         if: ${{ steps.answers_changes.outputs.changed != '0' }}
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.PAT_FOR_AUTOMATION || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_FOR_AUTOMATION }}
           commit-message: "chore(answers): nightly AEO Q&As"
           title: "chore(answers): nightly AEO Q&As"
           body: |
@@ -86,6 +86,8 @@ jobs:
             automation
             answers
             content
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_FOR_AUTOMATION }}
 
       - name: Log workflow result
         if: always()
