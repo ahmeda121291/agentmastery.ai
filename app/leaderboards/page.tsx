@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { tools } from '@/data/tools'
+import { PRICING } from '@/data/pricing'
 import {
   computeScores,
   loadLastSnapshot,
@@ -37,7 +38,8 @@ import {
   Zap,
   DollarSign,
   Star,
-  Users
+  Users,
+  HandshakeIcon
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -136,35 +138,50 @@ function ToolRow({ tool, isExpanded, onToggle }: {
   onToggle: () => void
 }) {
   const toolData = tools.find(t => t.slug === tool.slug)
+  const pricingData = PRICING.find(t => t.slug === tool.slug)
+  const isAffiliate = toolData?.affiliate || pricingData?.affiliateUrl
+  const affiliateUrl = toolData?.affiliateUrl || pricingData?.affiliateUrl
 
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <div className="group">
         {/* Main Row */}
-        <div className="flex items-center justify-between py-4 px-4 hover:bg-muted/50 rounded-lg transition-colors">
-          <div className="flex items-center gap-4 flex-1">
+        <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-lg transition-colors">
+          <div className="flex items-center gap-3 flex-1">
             {/* Rank */}
-            <div className="w-16">
+            <div className="min-w-[60px]">
               <RankBadge rank={tool.rank || 0} />
             </div>
 
             {/* Rank Delta */}
-            <div className="w-12">
+            <div className="min-w-[45px]">
               <RankDelta delta={tool.rankDelta} />
             </div>
 
             {/* Tool Name */}
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Link href={`/tools/${tool.slug}`} className="font-semibold hover:text-primary">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link href={`/tools/${tool.slug}`} className="font-semibold hover:text-primary truncate">
                   {tool.name}
                 </Link>
+                {isAffiliate && (
+                  <a
+                    href={affiliateUrl}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-green/10 text-green border border-green/20 rounded-full text-xs font-medium hover:bg-green/20 transition-colors"
+                    title="Partner tool - we may earn commission"
+                  >
+                    <HandshakeIcon className="h-3 w-3" />
+                    Partner
+                  </a>
+                )}
                 <ScoreDelta delta={tool.scoreDelta} />
               </div>
             </div>
 
             {/* Score */}
-            <div className="text-right w-20">
+            <div className="text-right min-w-[70px]">
               <div className="font-bold text-lg">{tool.totalScore}</div>
               <div className="text-xs text-muted-foreground">Score</div>
             </div>
@@ -201,14 +218,14 @@ function ToolRow({ tool, isExpanded, onToggle }: {
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </Button>
-              {toolData && (
+              {(toolData || pricingData) && (affiliateUrl || toolData?.siteUrl) && (
                 <Button size="sm" variant="ghost" asChild>
                   <a
-                    href={toolData.affiliate ? toolData.affiliateUrl! : toolData.siteUrl}
+                    href={affiliateUrl || toolData?.siteUrl}
                     target="_blank"
-                    rel={toolData.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
+                    rel={isAffiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                   >
-                    {toolData.affiliate ? `Try ${tool.name}` : 'Visit Website'}
+                    {isAffiliate ? `Try ${tool.name}` : 'Visit Website'}
                   </a>
                 </Button>
               )}
@@ -293,8 +310,32 @@ export default function LeaderboardsPage() {
   const [week, setWeek] = useState<string>('')
 
   useEffect(() => {
-    // Compute fresh scores
-    const freshScores = computeScores(tools)
+    // Merge tools from both sources
+    const allTools = [...tools]
+
+    // Add tools from pricing that aren't already in tools
+    PRICING.forEach(pricingTool => {
+      if (!tools.find(t => t.slug === pricingTool.slug)) {
+        allTools.push({
+          slug: pricingTool.slug,
+          name: pricingTool.name,
+          affiliateUrl: pricingTool.affiliateUrl || null,
+          affiliate: !!pricingTool.affiliateUrl,
+          category: pricingTool.category === 'Database' ? 'Data/Enrichment' :
+                    pricingTool.category === 'Sales Engagement' ? 'Outbound/Campaigns' :
+                    pricingTool.category === 'CRM' ? 'CRM/Pipeline' :
+                    pricingTool.category,
+          blurb: pricingTool.notes?.join('. ') || '',
+          pros: pricingTool.features?.slice(0, 3) || [],
+          cons: [],
+          pricingNote: `$${pricingTool.seatMonthly}/month`,
+          badges: pricingTool.features?.slice(0, 2) || []
+        })
+      }
+    })
+
+    // Compute fresh scores with all tools
+    const freshScores = computeScores(allTools)
 
     // Try to load last snapshot and compute deltas
     const lastSnapshot = loadLastSnapshot()
@@ -328,16 +369,16 @@ export default function LeaderboardsPage() {
 
   const getToolsForCategory = (category: string) => {
     if (category === 'all') {
-      // Show top 3 from each category
+      // Show top tools from all categories
       const allTopTools: ToolScore[] = []
       scores.forEach(cat => {
-        allTopTools.push(...cat.tools.slice(0, 3))
+        allTopTools.push(...cat.tools)
       })
-      return allTopTools.sort((a, b) => b.totalScore - a.totalScore).slice(0, 15)
+      return allTopTools.sort((a, b) => b.totalScore - a.totalScore).slice(0, 30)
     }
 
     const categoryData = scores.find(s => s.category === category)
-    return categoryData?.tools.slice(0, 10) || []
+    return categoryData?.tools || []
   }
 
   return (
@@ -356,7 +397,7 @@ export default function LeaderboardsPage() {
         </p>
         <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted-foreground/20 max-w-3xl mx-auto">
           <p className="text-sm text-muted-foreground">
-            <strong>Transparency Note:</strong> Rankings include affiliate and non-affiliate tools. Affiliate status does not affect scoring.
+            <strong>Transparency Note:</strong> Rankings are algorithm-based and unbiased. Partner tools are clearly marked with <HandshakeIcon className="inline h-3 w-3 mx-1" /> badges but this does not affect their ranking.
           </p>
         </div>
       </div>
@@ -391,9 +432,9 @@ export default function LeaderboardsPage() {
               )}
 
               {/* Leaderboard Table */}
-              <Card>
-                <div className="p-6">
-                  <div className="space-y-2">
+              <Card className="overflow-hidden">
+                <div className="p-4 sm:p-6">
+                  <div className="space-y-1">
                     {categoryTools.map(tool => (
                       <ToolRow
                         key={tool.slug}
