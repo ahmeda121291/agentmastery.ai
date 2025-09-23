@@ -34,7 +34,10 @@ import { Callout, ProsCons, GlossaryTerm } from '@/src/components/mdx'
 import dynamic from 'next/dynamic'
 
 // Dynamic import for client-side progress rail
-const ProgressRail = dynamic(() => import('@/src/components/blog/ProgressRail'), { ssr: false })
+const ProgressRail = dynamic(() => import('@/src/components/blog/ProgressRail'), {
+  ssr: false,
+  loading: () => null
+})
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -154,8 +157,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       <article className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Split Header with Related Posts */}
-          <header className="mb-12">
-            <div className="grid lg:grid-cols-[1fr,380px] gap-8">
+          <header className="mb-12 overflow-hidden">
+            <div className="grid lg:grid-cols-[1fr,380px] gap-8 safe-area-padding">
               {/* Left: Main Article Header */}
               <div>
                 {/* Breadcrumbs */}
@@ -217,7 +220,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
               {/* Right: Related Posts */}
               {relatedPosts.length > 0 && (
-                <div className="lg:border-l lg:pl-8">
+                <div className="lg:border-l lg:pl-8 overflow-x-hidden">
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                     Continue Reading
                   </h3>
@@ -226,7 +229,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                       <Link
                         key={relatedPost.slug}
                         href={`/blog/${relatedPost.slug}`}
-                        className="block group"
+                        className="block group touch-target p-2 -m-2 rounded"
                       >
                         <div className="space-y-1">
                           <Badge variant="outline" className="text-xs mb-1">

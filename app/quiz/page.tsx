@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { quizQuestions, calculateQuizResults } from '@/src/data/quiz'
 import { recommendTools, getMatchPercentage } from '@/src/lib/recommend'
 import { Button } from '@/components/ui/button'
@@ -50,6 +50,7 @@ const BADGE_MILESTONES = {
 }
 
 export default function QuizPage() {
+  const shouldReduceMotion = useReducedMotion()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
@@ -151,14 +152,16 @@ export default function QuizPage() {
       // Last question - show results
       setShowResults(true)
       updateStreak()
-      // Fire confetti
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        })
-      }, 500)
+      // Fire confetti if motion is allowed
+      if (!shouldReduceMotion) {
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          })
+        }, 500)
+      }
     } else {
       setCurrentQuestion(currentQuestion + 1)
     }
@@ -285,10 +288,10 @@ export default function QuizPage() {
           // Quiz Questions
           <motion.div
             key={currentQuestion}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={shouldReduceMotion ? {} : { opacity: 0, x: 20 }}
+            animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
+            exit={shouldReduceMotion ? {} : { opacity: 0, x: -20 }}
+            transition={shouldReduceMotion ? {} : { duration: 0.3 }}
           >
             <Card className="mb-8">
               <CardHeader>
@@ -303,9 +306,9 @@ export default function QuizPage() {
                 {question.answers.map((answer, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
+                    animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                    transition={shouldReduceMotion ? {} : { delay: index * 0.05 }}
                   >
                     <Card
                       className={`cursor-pointer transition-all hover:shadow-md ${
@@ -349,9 +352,9 @@ export default function QuizPage() {
         ) : (
           // Results
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            initial={shouldReduceMotion ? {} : { opacity: 0, scale: 0.95 }}
+            animate={shouldReduceMotion ? {} : { opacity: 1, scale: 1 }}
+            transition={shouldReduceMotion ? {} : { duration: 0.5 }}
           >
             {/* Results Header with Share */}
             <Card className="mb-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">

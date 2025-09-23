@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import dynamic from 'next/dynamic'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/src/components/ui/Button'
 import { Card } from '@/src/components/ui/Card'
@@ -148,6 +148,7 @@ function ToolOfTheWeek() {
 }
 
 function StatsMarquee() {
+  const shouldReduceMotion = useReducedMotion()
   const marqueeItems = [
     { label: 'Tools Reviewed', value: '250+', icon: Zap },
     { label: 'Active Users', value: '15K+', icon: Users },
@@ -158,12 +159,12 @@ function StatsMarquee() {
   ]
 
   return (
-    <div className="ticker bg-gradient-to-r from-forest to-green text-paper py-4">
-      <div className="ticker-content">
+    <div className="ticker bg-gradient-to-r from-forest to-green text-paper py-4 overflow-hidden">
+      <div className={`ticker-content ${shouldReduceMotion ? '' : 'animate-ticker'}`}>
         {/* Duplicate for seamless loop */}
         {[...marqueeItems, ...marqueeItems].map((item, idx) => (
-          <div key={idx} className="flex items-center gap-3 px-8">
-            <item.icon className="h-5 w-5" />
+          <div key={idx} className="flex items-center gap-3 px-8 whitespace-nowrap">
+            <item.icon className="h-5 w-5 flex-shrink-0" />
             <div className="flex items-baseline gap-2">
               <span className="font-bold text-xl">{item.value}</span>
               <span className="text-sm opacity-90">{item.label}</span>
@@ -179,9 +180,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Split-Diagonal Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden safe-area-padding">
         {/* Background with blob field */}
-        <div className="absolute inset-0 bg-gradient-to-br from-mist via-paper to-mist">
+        <div className="absolute inset-0 bg-gradient-to-br from-mist via-paper to-mist overflow-hidden">
           <Suspense fallback={null}>
             <BlobField />
           </Suspense>
@@ -218,13 +219,13 @@ export default function HomePage() {
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button size="lg" variant="primary" magnetic asChild>
-                    <Link href="/tools" className="flex items-center gap-2">
+                    <Link href="/tools" className="flex items-center gap-2 touch-target">
                       Explore Tools
                       <ArrowRight className="h-5 w-5" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="white" magnetic asChild>
-                    <Link href="/quiz" className="flex items-center gap-2">
+                    <Link href="/quiz" className="flex items-center gap-2 touch-target">
                       Take the Quiz
                       <Sparkles className="h-5 w-5" />
                     </Link>

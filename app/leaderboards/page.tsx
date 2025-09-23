@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { tools } from '@/src/data/tools'
 import {
   computeScores,
@@ -217,10 +217,31 @@ function ToolRow({ tool, isExpanded, onToggle }: {
 }
 
 function MoversSection({ movers }: { movers: ToolScore[] }) {
+  const [isVisible, setIsVisible] = useState(false)
+  const sectionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   if (movers.length === 0) return null
 
   return (
-    <Card className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card ref={sectionRef} className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Zap className="h-5 w-5 text-primary" />
@@ -228,8 +249,16 @@ function MoversSection({ movers }: { movers: ToolScore[] }) {
           <Badge variant="secondary">This Week</Badge>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {movers.map(tool => (
-            <div key={tool.slug} className="flex items-center justify-between p-3 bg-background rounded-lg">
+          {movers.map((tool, index) => (
+            <div
+              key={tool.slug}
+              className="flex items-center justify-between p-3 bg-background rounded-lg transition-all duration-500"
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
+              }}
+            >
               <div>
                 <Link href={`/tools/${tool.slug}`} className="font-medium hover:text-primary">
                   {tool.name}
