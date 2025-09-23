@@ -13,7 +13,7 @@ export function Navbar() {
     { href: '/blog', label: 'Blog' },
     { href: '/answers', label: 'Answers' },
     { href: '/leaderboards', label: 'Leaderboards' },
-    { href: '/quizzes', label: 'Quizzes' },
+    { href: '/quiz', label: 'Quiz' },
     { href: '/about', label: 'About' },
   ]
   
