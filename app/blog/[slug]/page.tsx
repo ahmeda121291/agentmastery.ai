@@ -8,6 +8,8 @@ import {
   createSchemaScript
 } from '@/lib/jsonld'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import { processMDXContent } from '@/lib/mdxSanitize'
+import { buildAffiliateUrl } from '@/lib/affiliate'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -74,6 +76,39 @@ const components = {
   ProsCons,
   GlossaryTerm,
   a: ({ href, children, ...props }: any) => {
+    // Handle internal tool links with UTM parameters
+    if (href?.startsWith('INTERNAL_TOOL:')) {
+      const [, slug, source] = href.split(':')
+
+      // Find the tool to get its affiliate URL
+      const tools = require('@/data/tools').tools
+      const tool = tools.find((t: any) => t.slug === slug)
+
+      if (tool?.affiliateUrl) {
+        const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, source || 'blog', slug)
+        return (
+          <Link
+            href={affiliateUrl}
+            className="text-primary hover:underline font-medium"
+            {...props}
+          >
+            {children}
+          </Link>
+        )
+      }
+
+      // Fallback to regular tool page if no affiliate URL
+      return (
+        <Link
+          href={`/tools/${slug}`}
+          className="text-primary hover:underline font-medium"
+          {...props}
+        >
+          {children}
+        </Link>
+      )
+    }
+
     // Add affiliate link attributes
     const isAffiliate = href?.includes('?') && (
       href.includes('fpr=') ||
@@ -96,14 +131,30 @@ const components = {
       )
     }
 
+    // External links
+    if (href?.startsWith('http')) {
+      return (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+          {...props}
+        >
+          {children}
+        </a>
+      )
+    }
+
+    // Internal links
     return (
-      <a
+      <Link
         href={href}
         className="text-primary hover:underline"
         {...props}
       >
         {children}
-      </a>
+      </Link>
     )
   }
 }
@@ -263,7 +314,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           <div className="grid lg:grid-cols-[1fr,300px] gap-8">
             {/* Main Content */}
             <div className="prose prose-lg max-w-none">
-              <MDXRemote source={post.content} components={components} />
+              <MDXRemote source={processMDXContent(post.content, 'blog')} components={components} />
 
               {/* FAQ Section */}
               {post.faq && post.faq.length > 0 && (

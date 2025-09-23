@@ -1,4 +1,3 @@
-import { SiteLayout } from '@/components/layout/SiteLayout'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -50,9 +49,5 @@ export default function ToolsLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <SiteLayout>
-      {children}
-    </SiteLayout>
-  )
+  return children
 }
