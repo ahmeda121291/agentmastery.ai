@@ -2,21 +2,19 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import * as dotenv from 'dotenv'
+import dotenv from 'dotenv'
 import OpenAI from 'openai'
 
-// Load env from process.env first (CI), then .env/.env.local if present (dev)
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || (() => {
+// Standardized env loading
+if (!process.env.OPENAI_API_KEY) {
   const root = process.cwd()
   const envLocal = path.join(root, '.env.local')
   const envFile = path.join(root, '.env')
-  if (fs.existsSync(envLocal)) {
-    dotenv.config({ path: envLocal })
-  } else if (fs.existsSync(envFile)) {
-    dotenv.config({ path: envFile })
-  }
-  return process.env.OPENAI_API_KEY
-})()
+  if (fs.existsSync(envLocal)) dotenv.config({ path: envLocal })
+  else if (fs.existsSync(envFile)) dotenv.config({ path: envFile })
+}
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
