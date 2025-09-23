@@ -19,6 +19,15 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     highlight: true
   },
   {
+    slug: '/quiz/personality',
+    title: 'AI Tool Personality Quiz',
+    blurb: 'Discover if you are a Claude Bro, ChatGPT Hustler, or MidJourney Dreamer.',
+    kind: 'Quiz',
+    tags: ['Personality', 'Fun'],
+    cta: 'Find Your Type',
+    highlight: true
+  },
+  {
     slug: '/calculators/roi',
     title: 'Cold Email ROI',
     blurb: 'Estimate revenue uplift from SmartLead improvements.',
