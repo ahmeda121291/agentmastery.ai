@@ -262,7 +262,7 @@ function MoversSection({ movers }: { movers: ToolScore[] }) {
   if (movers.length === 0) return null
 
   return (
-    <Card ref={sectionRef} className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card ref={sectionRef} className="mb-6 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Zap className="h-5 w-5 text-primary" />
@@ -384,20 +384,20 @@ export default function LeaderboardsPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Header */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-6">
         <Badge className="mb-4 bg-green/10 text-green border-green/20">
           <Sparkles className="h-3 w-3 mr-1" />
           AI-Ranked • Week {week}
         </Badge>
-        <h1 className="text-4xl font-bold tracking-tight mb-4">
+        <h1 className="text-4xl font-bold tracking-tight mb-4 text-center">
           AI Tool Leaderboards
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-center">
           Weekly rankings powered by our AI scoring algorithm. Tracking value, quality, adoption, and user experience.
         </p>
-        <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted-foreground/20 max-w-3xl mx-auto">
-          <p className="text-sm text-muted-foreground">
-            <strong>Transparency Note:</strong> Rankings are algorithm-based and unbiased. Partner tools are clearly marked with <HandshakeIcon className="inline h-3 w-3 mx-1" /> badges but this does not affect their ranking.
+        <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200 max-w-2xl mx-auto">
+          <p className="text-sm text-green-900 text-center">
+            <strong className="font-semibold">Transparency Note:</strong> Rankings are algorithm-based and unbiased. Partner tools are clearly marked with <HandshakeIcon className="inline h-3 w-3 mx-1" /> badges but this does not affect their ranking.
           </p>
         </div>
       </div>
@@ -407,7 +407,7 @@ export default function LeaderboardsPage() {
 
       {/* Category Tabs */}
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-8">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-6">
           {categories.slice(0, 6).map(cat => (
             <TabsTrigger key={cat} value={cat} className="capitalize">
               {cat === 'all' ? 'All Tools' : cat}
