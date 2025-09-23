@@ -13,11 +13,12 @@ import {
   Target,
   BarChart3,
   Zap,
-  Clock,
   Award,
-  Info
+  Info,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface CalculatorInputs {
   dials: number
@@ -27,8 +28,6 @@ interface CalculatorInputs {
   winRate: number
   avgDealSize: number
   revenueGoal: number
-  costPerDial: number
-  avgSalesCycle: number
 }
 
 type TimeHorizon = 'day' | 'week' | 'month'
@@ -41,75 +40,85 @@ export function ColdCallCalculator() {
     meetingBookedRate: 30,
     winRate: 20,
     avgDealSize: 10000,
-    revenueGoal: 100000,
-    costPerDial: 2,
-    avgSalesCycle: 30
+    revenueGoal: 100000
   })
 
-  const [timeHorizon, setTimeHorizon] = useState<TimeHorizon>('day')
+  const [timeHorizon, setTimeHorizon] = useState<TimeHorizon>('month')
 
-  // Core calculations
+  // Core calculations - all dynamic based on inputs
   const calculations = useMemo(() => {
-    const connects = Math.round((inputs.dials * inputs.connectRate) / 100)
-    const conversations = Math.round((connects * inputs.conversationRate) / 100)
-    const meetings = Math.round((conversations * inputs.meetingBookedRate) / 100)
+    // Forward calculations from dials
+    const connects = (inputs.dials * inputs.connectRate) / 100
+    const conversations = (connects * inputs.conversationRate) / 100
+    const meetings = (conversations * inputs.meetingBookedRate) / 100
     const deals = (meetings * inputs.winRate) / 100
     const revenue = deals * inputs.avgDealSize
 
-    // Value metrics
-    const valuePerDial = revenue / inputs.dials
-    const costPerAcquisition = deals > 0 ? (inputs.dials * inputs.costPerDial) / deals : 0
-    const roi = inputs.dials * inputs.costPerDial > 0
-      ? ((revenue - (inputs.dials * inputs.costPerDial)) / (inputs.dials * inputs.costPerDial)) * 100
-      : 0
-
-    // Goal calculations
-    const dealsNeededForGoal = Math.ceil(inputs.revenueGoal / inputs.avgDealSize)
-    const meetingsNeededForGoal = Math.ceil((dealsNeededForGoal * 100) / inputs.winRate)
-    const conversationsNeededForGoal = Math.ceil((meetingsNeededForGoal * 100) / inputs.meetingBookedRate)
-    const connectsNeededForGoal = Math.ceil((conversationsNeededForGoal * 100) / inputs.conversationRate)
-    const dialsNeededForGoal = Math.ceil((connectsNeededForGoal * 100) / inputs.connectRate)
+    // Reverse calculations from revenue goal
+    const dealsNeededForGoal = inputs.avgDealSize > 0 ? inputs.revenueGoal / inputs.avgDealSize : 0
+    const meetingsNeededForGoal = inputs.winRate > 0 ? (dealsNeededForGoal * 100) / inputs.winRate : 0
+    const conversationsNeededForGoal = inputs.meetingBookedRate > 0 ? (meetingsNeededForGoal * 100) / inputs.meetingBookedRate : 0
+    const connectsNeededForGoal = inputs.conversationRate > 0 ? (conversationsNeededForGoal * 100) / inputs.conversationRate : 0
+    const dialsNeededForGoal = inputs.connectRate > 0 ? (connectsNeededForGoal * 100) / inputs.connectRate : 0
 
     // Time-based calculations
     const workDaysPerMonth = 22
     const workDaysPerWeek = 5
 
     let dialsPerPeriod = dialsNeededForGoal
+    let periodLabel = 'Per Month'
+
     if (timeHorizon === 'day') {
-      dialsPerPeriod = Math.ceil(dialsNeededForGoal / workDaysPerMonth)
+      dialsPerPeriod = dialsNeededForGoal / workDaysPerMonth
+      periodLabel = 'Per Day'
     } else if (timeHorizon === 'week') {
-      dialsPerPeriod = Math.ceil(dialsNeededForGoal / (workDaysPerMonth / workDaysPerWeek))
+      dialsPerPeriod = dialsNeededForGoal / (workDaysPerMonth / workDaysPerWeek)
+      periodLabel = 'Per Week'
     }
 
+    // Value metrics
+    const valuePerDial = inputs.dials > 0 ? revenue / inputs.dials : 0
+    const valuePerMeeting = meetings > 0 ? revenue / meetings : 0
+    const conversionRate = inputs.dials > 0 ? (deals / inputs.dials) * 100 : 0
+
     // Efficiency metrics
-    const conversionVelocity = inputs.avgSalesCycle
-    const activityEfficiencyScore = Math.min(100, Math.round(
-      ((inputs.connectRate * 0.3) +
-       (inputs.conversationRate * 0.2) +
-       (inputs.meetingBookedRate * 0.3) +
-       (inputs.winRate * 0.2)) * 2
-    ))
+    const activityEfficiencyScore = Math.round(
+      ((inputs.connectRate * 0.25) +
+       (inputs.conversationRate * 0.25) +
+       (inputs.meetingBookedRate * 0.25) +
+       (inputs.winRate * 0.25))
+    )
 
     // Pipeline metrics
     const pipelineValue = meetings * inputs.avgDealSize * (inputs.winRate / 100)
     const pipelineCoverage = inputs.revenueGoal > 0 ? (pipelineValue / inputs.revenueGoal) * 100 : 0
+    const revenueGap = Math.max(0, inputs.revenueGoal - revenue)
+
+    // Scenario comparisons - what changes would be needed to hit goal
+    const scenarios = {
+      dialIncrease: dialsNeededForGoal > inputs.dials ? ((dialsNeededForGoal - inputs.dials) / inputs.dials) * 100 : 0,
+      connectRateNeeded: inputs.dials > 0 && dialsNeededForGoal > 0 ? (dialsNeededForGoal / inputs.dials) * inputs.connectRate : inputs.connectRate,
+      winRateNeeded: meetings > 0 && dealsNeededForGoal > 0 ? (dealsNeededForGoal / meetings) * 100 : inputs.winRate
+    }
 
     return {
-      connects,
-      conversations,
-      meetings,
-      deals,
-      revenue,
-      valuePerDial,
-      costPerAcquisition,
-      roi,
-      dialsNeededForGoal,
-      meetingsNeededForGoal,
-      dialsPerPeriod,
-      conversionVelocity,
+      connects: Math.round(connects * 10) / 10,
+      conversations: Math.round(conversations * 10) / 10,
+      meetings: Math.round(meetings * 10) / 10,
+      deals: Math.round(deals * 100) / 100,
+      revenue: Math.round(revenue),
+      valuePerDial: Math.round(valuePerDial * 100) / 100,
+      valuePerMeeting: Math.round(valuePerMeeting),
+      conversionRate: Math.round(conversionRate * 100) / 100,
+      dialsNeededForGoal: Math.ceil(dialsNeededForGoal),
+      meetingsNeededForGoal: Math.ceil(meetingsNeededForGoal),
+      dialsPerPeriod: Math.ceil(dialsPerPeriod),
+      periodLabel,
       activityEfficiencyScore,
-      pipelineValue,
-      pipelineCoverage
+      pipelineValue: Math.round(pipelineValue),
+      pipelineCoverage: Math.round(pipelineCoverage),
+      revenueGap: Math.round(revenueGap),
+      scenarios
     }
   }, [inputs, timeHorizon])
 
@@ -117,13 +126,13 @@ export function ColdCallCalculator() {
     setInputs(prev => ({ ...prev, [field]: value }))
   }
 
-  // Funnel data for visualization
+  // Funnel data for visualization - fully dynamic
   const funnelData = [
-    { stage: 'Dials', value: inputs.dials, color: 'bg-blue-500' },
-    { stage: 'Connects', value: calculations.connects, color: 'bg-cyan-500' },
-    { stage: 'Conversations', value: calculations.conversations, color: 'bg-green-500' },
-    { stage: 'Meetings', value: calculations.meetings, color: 'bg-yellow-500' },
-    { stage: 'Deals', value: calculations.deals.toFixed(1), color: 'bg-orange-500' },
+    { stage: 'Dials', value: inputs.dials, maxValue: inputs.dials, color: 'from-blue-500 to-blue-600' },
+    { stage: 'Connects', value: calculations.connects, maxValue: inputs.dials, color: 'from-cyan-500 to-cyan-600' },
+    { stage: 'Conversations', value: calculations.conversations, maxValue: inputs.dials, color: 'from-green-500 to-green-600' },
+    { stage: 'Meetings', value: calculations.meetings, maxValue: inputs.dials, color: 'from-yellow-500 to-yellow-600' },
+    { stage: 'Deals Won', value: calculations.deals, maxValue: inputs.dials, color: 'from-orange-500 to-orange-600' },
   ]
 
   return (
@@ -132,9 +141,36 @@ export function ColdCallCalculator() {
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">Cold Call Calculator</h1>
         <p className="text-muted-foreground">
-          Turn dials into dollars. Forecast pipeline and deal value.
+          See how changes in activity and conversion rates impact revenue
         </p>
       </div>
+
+      {/* Current vs Goal */}
+      <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">Current Pipeline</p>
+            <p className="text-2xl font-bold text-green-700">${calculations.revenue.toLocaleString()}</p>
+          </div>
+          <div className="text-center px-4">
+            <ArrowUp className="h-5 w-5 text-green-600 mx-auto" />
+            <p className="text-xs text-muted-foreground mt-1">
+              {calculations.pipelineCoverage}% of goal
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-muted-foreground">Revenue Goal</p>
+            <p className="text-2xl font-bold text-green-700">${inputs.revenueGoal.toLocaleString()}</p>
+          </div>
+        </div>
+        {calculations.revenueGap > 0 && (
+          <div className="mt-3 pt-3 border-t border-green-200">
+            <p className="text-sm text-orange-600 font-medium">
+              Gap to goal: ${calculations.revenueGap.toLocaleString()}
+            </p>
+          </div>
+        )}
+      </Card>
 
       {/* Input Section */}
       <Card className="p-6">
@@ -146,10 +182,7 @@ export function ColdCallCalculator() {
         <div className="grid md:grid-cols-2 gap-4">
           {/* Dials */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Number of Dials
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Number of Dials</label>
             <input
               type="number"
               value={inputs.dials}
@@ -164,18 +197,18 @@ export function ColdCallCalculator() {
               onChange={(e) => handleInputChange('dials', parseInt(e.target.value))}
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">
+              Currently: {inputs.dials} → {calculations.connects} connects
+            </p>
           </div>
 
           {/* Connect Rate */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Connect Rate (%)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Connect Rate (%)</label>
             <input
               type="number"
               value={inputs.connectRate}
-              onChange={(e) => handleInputChange('connectRate', parseInt(e.target.value) || 0)}
+              onChange={(e) => handleInputChange('connectRate', Math.min(100, parseInt(e.target.value) || 0))}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
               min="0"
               max="100"
@@ -188,18 +221,18 @@ export function ColdCallCalculator() {
               onChange={(e) => handleInputChange('connectRate', parseInt(e.target.value))}
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">
+              Industry avg: 8-15%
+            </p>
           </div>
 
           {/* Conversation Rate */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Conversation Rate (%)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Connect → Conversation (%)</label>
             <input
               type="number"
               value={inputs.conversationRate}
-              onChange={(e) => handleInputChange('conversationRate', parseInt(e.target.value) || 0)}
+              onChange={(e) => handleInputChange('conversationRate', Math.min(100, parseInt(e.target.value) || 0))}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
               min="0"
               max="100"
@@ -212,18 +245,18 @@ export function ColdCallCalculator() {
               onChange={(e) => handleInputChange('conversationRate', parseInt(e.target.value))}
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">
+              Currently: {calculations.connects} → {calculations.conversations} conversations
+            </p>
           </div>
 
           {/* Meeting Booked Rate */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Meeting Booked Rate (%)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Conversation → Meeting (%)</label>
             <input
               type="number"
               value={inputs.meetingBookedRate}
-              onChange={(e) => handleInputChange('meetingBookedRate', parseInt(e.target.value) || 0)}
+              onChange={(e) => handleInputChange('meetingBookedRate', Math.min(100, parseInt(e.target.value) || 0))}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
               min="0"
               max="100"
@@ -236,18 +269,18 @@ export function ColdCallCalculator() {
               onChange={(e) => handleInputChange('meetingBookedRate', parseInt(e.target.value))}
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">
+              Currently: {calculations.conversations} → {calculations.meetings} meetings
+            </p>
           </div>
 
           {/* Win Rate */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Win Rate (%)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Meeting → Close Rate (%)</label>
             <input
               type="number"
               value={inputs.winRate}
-              onChange={(e) => handleInputChange('winRate', parseInt(e.target.value) || 0)}
+              onChange={(e) => handleInputChange('winRate', Math.min(100, parseInt(e.target.value) || 0))}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
               min="0"
               max="100"
@@ -260,90 +293,136 @@ export function ColdCallCalculator() {
               onChange={(e) => handleInputChange('winRate', parseInt(e.target.value))}
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">
+              Currently: {calculations.meetings} → {calculations.deals} deals
+            </p>
           </div>
 
           {/* Average Deal Size */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Average Deal Size ($)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Average Deal Size ($)</label>
             <input
               type="number"
               value={inputs.avgDealSize}
               onChange={(e) => handleInputChange('avgDealSize', parseInt(e.target.value) || 0)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
             />
+            <p className="text-xs text-muted-foreground">
+              {calculations.deals} deals × ${inputs.avgDealSize.toLocaleString()} = ${calculations.revenue.toLocaleString()}
+            </p>
           </div>
 
           {/* Revenue Goal */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Revenue Goal ($)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
+            <label className="text-sm font-medium">Revenue Goal ($)</label>
             <input
               type="number"
               value={inputs.revenueGoal}
               onChange={(e) => handleInputChange('revenueGoal', parseInt(e.target.value) || 0)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
             />
-          </div>
-
-          {/* Cost Per Dial */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              Cost Per Dial ($)
-              <Info className="h-3 w-3 text-muted-foreground" />
-            </label>
-            <input
-              type="number"
-              value={inputs.costPerDial}
-              onChange={(e) => handleInputChange('costPerDial', parseFloat(e.target.value) || 0)}
-              step="0.1"
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
-            />
+            <p className="text-xs text-muted-foreground">
+              Need {calculations.dialsNeededForGoal} total dials
+            </p>
           </div>
         </div>
       </Card>
 
-      {/* Funnel Visualization */}
+      {/* Live Funnel Visualization */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <BarChart3 className="h-5 w-5" />
-          Sales Funnel
+          Live Sales Funnel
         </h2>
         <div className="space-y-3">
-          {funnelData.map((item, index) => (
-            <motion.div
-              key={item.stage}
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium">{item.stage}</span>
-                <span className="text-sm font-bold">{item.value}</span>
+          {funnelData.map((item, index) => {
+            const percentage = item.maxValue > 0 ? (item.value / item.maxValue) * 100 : 0
+            return (
+              <div key={item.stage}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">{item.stage}</span>
+                  <span className="text-sm font-bold">
+                    {item.value < 1 ? item.value.toFixed(2) : Math.round(item.value).toLocaleString()}
+                  </span>
+                </div>
+                <div className="h-8 bg-gray-200 rounded-lg overflow-hidden relative">
+                  <div
+                    className={`h-full bg-gradient-to-r ${item.color} rounded-lg transition-all duration-500 ease-out`}
+                    style={{ width: `${Math.max(2, percentage)}%` }}
+                  />
+                  {percentage > 20 && (
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-xs font-medium">
+                      {percentage.toFixed(1)}%
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="h-8 bg-gray-200 rounded-lg overflow-hidden">
-                <motion.div
-                  className={`h-full ${item.color} rounded-lg`}
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: `${Math.max(5, (parseFloat(item.value.toString()) / inputs.dials) * 100)}%`
-                  }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                />
-              </div>
-            </motion.div>
-          ))}
+            )
+          })}
+        </div>
+      </Card>
+
+      {/* Scenario Analysis */}
+      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Zap className="h-5 w-5" />
+          Ways to Hit Your Goal
+        </h2>
+        <div className="grid md:grid-cols-3 gap-4">
+          {/* Scenario 1: Increase Dials */}
+          <div className="p-4 bg-white rounded-lg">
+            <h3 className="font-medium text-sm mb-2">Option 1: More Dials</h3>
+            <p className="text-2xl font-bold text-blue-600">
+              {calculations.dialsNeededForGoal}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Total dials needed
+            </p>
+            {calculations.dialsNeededForGoal > inputs.dials && (
+              <Badge className="mt-2 bg-orange-100 text-orange-700">
+                +{calculations.scenarios.dialIncrease.toFixed(0)}% increase
+              </Badge>
+            )}
+          </div>
+
+          {/* Scenario 2: Improve Connect Rate */}
+          <div className="p-4 bg-white rounded-lg">
+            <h3 className="font-medium text-sm mb-2">Option 2: Better Connect Rate</h3>
+            <p className="text-2xl font-bold text-green-600">
+              {calculations.scenarios.connectRateNeeded.toFixed(1)}%
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Connect rate needed
+            </p>
+            {calculations.scenarios.connectRateNeeded > inputs.connectRate && (
+              <Badge className="mt-2 bg-green-100 text-green-700">
+                +{(calculations.scenarios.connectRateNeeded - inputs.connectRate).toFixed(1)}% points
+              </Badge>
+            )}
+          </div>
+
+          {/* Scenario 3: Improve Win Rate */}
+          <div className="p-4 bg-white rounded-lg">
+            <h3 className="font-medium text-sm mb-2">Option 3: Better Win Rate</h3>
+            <p className="text-2xl font-bold text-purple-600">
+              {calculations.scenarios.winRateNeeded.toFixed(1)}%
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Win rate needed
+            </p>
+            {calculations.scenarios.winRateNeeded > inputs.winRate && (
+              <Badge className="mt-2 bg-purple-100 text-purple-700">
+                +{(calculations.scenarios.winRateNeeded - inputs.winRate).toFixed(1)}% points
+              </Badge>
+            )}
+          </div>
         </div>
       </Card>
 
       {/* Time Horizon Toggle */}
       <Card className="p-4">
         <div className="flex items-center justify-center gap-2">
-          <span className="text-sm font-medium">Calculate for:</span>
+          <span className="text-sm font-medium">Activity needed:</span>
           <div className="flex gap-2">
             {(['day', 'week', 'month'] as TimeHorizon[]).map(horizon => (
               <Button
@@ -360,8 +439,8 @@ export function ColdCallCalculator() {
         </div>
       </Card>
 
-      {/* Results Section */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Key Metrics */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Value Per Dial */}
         <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
           <div className="flex items-start justify-between">
@@ -375,16 +454,18 @@ export function ColdCallCalculator() {
           </div>
         </Card>
 
-        {/* Total Revenue */}
-        <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+        {/* Dials Needed */}
+        <Card className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Expected Revenue</p>
-              <p className="text-2xl font-bold text-blue-700">
-                ${calculations.revenue.toLocaleString()}
+              <p className="text-sm text-muted-foreground mb-1">
+                {calculations.periodLabel}
+              </p>
+              <p className="text-2xl font-bold text-orange-700">
+                {calculations.dialsPerPeriod}
               </p>
             </div>
-            <TrendingUp className="h-8 w-8 text-blue-500 opacity-50" />
+            <Phone className="h-8 w-8 text-orange-500 opacity-50" />
           </div>
         </Card>
 
@@ -401,44 +482,16 @@ export function ColdCallCalculator() {
           </div>
         </Card>
 
-        {/* Dials for Goal */}
-        <Card className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+        {/* Efficiency Score */}
+        <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">
-                Dials {timeHorizon === 'day' ? 'Per Day' : timeHorizon === 'week' ? 'Per Week' : 'Per Month'}
-              </p>
-              <p className="text-2xl font-bold text-orange-700">
-                {calculations.dialsPerPeriod}
+              <p className="text-sm text-muted-foreground mb-1">Efficiency Score</p>
+              <p className="text-2xl font-bold text-blue-700">
+                {calculations.activityEfficiencyScore}%
               </p>
             </div>
-            <Phone className="h-8 w-8 text-orange-500 opacity-50" />
-          </div>
-        </Card>
-
-        {/* ROI */}
-        <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">ROI</p>
-              <p className="text-2xl font-bold text-emerald-700">
-                {calculations.roi.toFixed(0)}%
-              </p>
-            </div>
-            <Zap className="h-8 w-8 text-emerald-500 opacity-50" />
-          </div>
-        </Card>
-
-        {/* Pipeline Coverage */}
-        <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Pipeline Coverage</p>
-              <p className="text-2xl font-bold text-indigo-700">
-                {calculations.pipelineCoverage.toFixed(0)}%
-              </p>
-            </div>
-            <Target className="h-8 w-8 text-indigo-500 opacity-50" />
+            <Award className="h-8 w-8 text-blue-500 opacity-50" />
           </div>
         </Card>
       </div>
@@ -446,41 +499,41 @@ export function ColdCallCalculator() {
       {/* Advanced Metrics */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Award className="h-5 w-5" />
-          Performance Metrics
+          <TrendingUp className="h-5 w-5" />
+          Performance Insights
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Cost Per Acquisition */}
+          {/* Value Per Meeting */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Cost Per Acquisition</p>
-            <p className="text-3xl font-bold text-red-600">
-              ${calculations.costPerAcquisition.toFixed(0)}
+            <p className="text-sm text-muted-foreground mb-2">Value Per Meeting</p>
+            <p className="text-3xl font-bold text-indigo-600">
+              ${calculations.valuePerMeeting.toLocaleString()}
             </p>
-            <Badge className="mt-2" variant={calculations.costPerAcquisition < 1000 ? 'success' : 'warning'}>
-              {calculations.costPerAcquisition < 1000 ? 'Efficient' : 'Optimize'}
+            <Badge className="mt-2" variant={calculations.valuePerMeeting > 5000 ? 'success' : 'warning'}>
+              {calculations.valuePerMeeting > 5000 ? 'Strong' : 'Optimize'}
             </Badge>
           </div>
 
-          {/* Activity Efficiency Score */}
+          {/* Overall Conversion */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Efficiency Score</p>
-            <p className="text-3xl font-bold text-blue-600">
-              {calculations.activityEfficiencyScore}%
+            <p className="text-sm text-muted-foreground mb-2">Dial to Deal</p>
+            <p className="text-3xl font-bold text-green-600">
+              {calculations.conversionRate}%
             </p>
-            <Badge className="mt-2" variant={calculations.activityEfficiencyScore > 70 ? 'success' : 'warning'}>
-              {calculations.activityEfficiencyScore > 70 ? 'High Performance' : 'Room to Improve'}
+            <Badge className="mt-2" variant={calculations.conversionRate > 1 ? 'success' : 'warning'}>
+              {calculations.conversionRate > 1 ? 'Above Average' : 'Room to Grow'}
             </Badge>
           </div>
 
           {/* Pipeline Value */}
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-2">Pipeline Value</p>
-            <p className="text-3xl font-bold text-green-600">
+            <p className="text-3xl font-bold text-purple-600">
               ${calculations.pipelineValue.toLocaleString()}
             </p>
             <Badge className="mt-2" variant="default">
-              Active Pipeline
+              {calculations.pipelineCoverage}% Coverage
             </Badge>
           </div>
         </div>
@@ -491,11 +544,11 @@ export function ColdCallCalculator() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div className="text-sm text-muted-foreground">
-            <p className="font-medium mb-1">Pro Tips:</p>
+            <p className="font-medium mb-1">Key Insights:</p>
             <ul className="space-y-1">
-              <li>• Focus on improving connect rates with better data and timing</li>
-              <li>• A/B test your pitch to boost conversation-to-meeting rates</li>
-              <li>• Track these metrics weekly to identify trends</li>
+              <li>• Small improvements in connect rate have massive downstream impact</li>
+              <li>• Focus on conversation quality over quantity for better meeting rates</li>
+              <li>• Track these metrics daily to spot trends before they become problems</li>
             </ul>
           </div>
         </div>
