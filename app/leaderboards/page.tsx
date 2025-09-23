@@ -470,9 +470,6 @@ export default function LeaderboardsPage() {
 
       {/* Footer Note */}
       <div className="mt-12 p-6 bg-muted/50 rounded-lg">
-        <p className="text-sm text-muted-foreground mb-2 text-center">
-          Rankings updated weekly based on 4 key dimensions: Value, Quality, Adoption, and UX.
-        </p>
         <div className="text-center">
           <Link href="/about" className="text-sm text-primary hover:underline">
             Learn about our ranking methodology →

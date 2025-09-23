@@ -376,9 +376,6 @@ export default function ArcadePage() {
             <h2 className="text-2xl font-bold mb-4 text-white">
               Want More Interactive Tools?
             </h2>
-            <p className="mb-6 text-white/95">
-              We're always building new ways to help you master AI tools
-            </p>
             <div className="flex justify-center">
               <Link href="/about">
                 <Button size="lg" variant="secondary">
