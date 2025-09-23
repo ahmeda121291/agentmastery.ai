@@ -371,18 +371,22 @@ export default function ArcadePage() {
         )}
 
         {/* CTA Section */}
-        <div className="mt-16 bg-gradient-to-r from-forest to-green rounded-xl p-8 text-white text-center">
-          <h2 className="text-2xl font-bold mb-4">
-            Want More Interactive Tools?
-          </h2>
-          <p className="mb-6 text-green-100">
-            We're always building new ways to help you master AI tools
-          </p>
-          <Link href="/about">
-            <Button size="lg" variant="secondary">
-              Learn About Our Mission
-            </Button>
-          </Link>
+        <div className="mt-16 bg-gradient-to-r from-forest to-green rounded-xl p-8">
+          <div className="mx-auto max-w-5xl text-center">
+            <h2 className="text-2xl font-bold mb-4 text-white">
+              Want More Interactive Tools?
+            </h2>
+            <p className="mb-6 text-white/95">
+              We're always building new ways to help you master AI tools
+            </p>
+            <div className="flex justify-center">
+              <Link href="/about">
+                <Button size="lg" variant="secondary">
+                  Learn About Our Mission
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

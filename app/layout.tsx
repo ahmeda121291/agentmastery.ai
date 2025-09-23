@@ -104,6 +104,12 @@ export default function RootLayout({
           {...createSchemaScript(websiteSchema, 'website-schema')}
           strategy="afterInteractive"
         />
+        <Script
+          defer
+          data-domain="agentmastery.ai"
+          src="https://plausible.io/js/script.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body>
         <SiteLayout>{children}</SiteLayout>

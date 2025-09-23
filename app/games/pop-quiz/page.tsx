@@ -2,17 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  getRandomQuestions,
-  calculateQuizResult,
-  getAchievementLevel,
-  type QuizQuestion
-} from '@/data/popquiz'
+import { QUIZ_BANK, type QuizCategory, type QuizItem } from '@/data/quiz_bank'
+import { loadRecentIds, saveRecentIds } from '@/lib/storage'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Brain,
   Clock,
@@ -21,10 +16,11 @@ import {
   Trophy,
   Timer,
   RotateCw,
-  ExternalLink,
-  TrendingUp,
   Lightbulb,
-  ArrowRight
+  ArrowRight,
+  Zap,
+  Target,
+  TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
 import confetti from 'canvas-confetti'
@@ -32,8 +28,20 @@ import confetti from 'canvas-confetti'
 const QUIZ_DURATION = 60 // 60 seconds
 const QUESTION_COUNT = 10
 const POINTS_CORRECT = 10
-const POINTS_WRONG = -2 // Light negative marking
+const POINTS_WRONG = -2
 const POINTS_SKIP = 0
+
+const CATEGORY_ICONS: Record<QuizCategory, string> = {
+  "Cold Email": "📧",
+  "Sales Engagement": "🎯",
+  "Database": "🗄️",
+  "CRM": "📊",
+  "Video": "🎥",
+  "Writing/SEO": "✍️",
+  "Chatbots": "💬",
+  "Scheduling/PM": "📅",
+  "Audio/Voice": "🎙️"
+}
 
 interface QuizStats {
   correct: number
@@ -41,19 +49,20 @@ interface QuizStats {
   skipped: number
   score: number
   timeUsed: number
-  missedTopics: string[]
+  category: QuizCategory
 }
 
 export default function PopQuizPage() {
-  const [gameState, setGameState] = useState<'start' | 'playing' | 'finished' | 'review'>('start')
-  const [questions, setQuestions] = useState<QuizQuestion[]>([])
+  const [gameState, setGameState] = useState<'category' | 'playing' | 'finished'>('category')
+  const [selectedCategory, setSelectedCategory] = useState<QuizCategory | null>(null)
+  const [questions, setQuestions] = useState<QuizItem[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<(number | null)[]>([])
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [timeRemaining, setTimeRemaining] = useState(QUIZ_DURATION)
   const [showExplanation, setShowExplanation] = useState(false)
   const [stats, setStats] = useState<QuizStats | null>(null)
-  const [showReview, setShowReview] = useState(false)
+  const [sessionIds, setSessionIds] = useState<string[]>([])
 
   // Timer effect
   useEffect(() => {
@@ -67,10 +76,31 @@ export default function PopQuizPage() {
     }
   }, [gameState, timeRemaining])
 
-  const startQuiz = () => {
-    const quizQuestions = getRandomQuestions(QUESTION_COUNT)
+  const selectCategory = (category: QuizCategory) => {
+    setSelectedCategory(category)
+    startQuiz(category)
+  }
+
+  const getRandomQuestions = (category: QuizCategory): QuizItem[] => {
+    const categoryQuestions = QUIZ_BANK[category] || []
+    const recentIds = loadRecentIds(category)
+
+    // Filter out recently seen questions
+    const unseenQuestions = categoryQuestions.filter(q => !recentIds.includes(q.id))
+    const availableQuestions = unseenQuestions.length >= QUESTION_COUNT
+      ? unseenQuestions
+      : [...unseenQuestions, ...categoryQuestions.filter(q => recentIds.includes(q.id))]
+
+    // Shuffle and take QUESTION_COUNT
+    const shuffled = [...availableQuestions].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, Math.min(QUESTION_COUNT, shuffled.length))
+  }
+
+  const startQuiz = (category: QuizCategory) => {
+    const quizQuestions = getRandomQuestions(category)
     setQuestions(quizQuestions)
-    setAnswers(new Array(QUESTION_COUNT).fill(null))
+    setAnswers(new Array(quizQuestions.length).fill(null))
+    setSessionIds(quizQuestions.map(q => q.id))
     setCurrentQuestionIndex(0)
     setSelectedAnswer(null)
     setTimeRemaining(QUIZ_DURATION)
@@ -91,7 +121,8 @@ export default function PopQuizPage() {
     newAnswers[currentQuestionIndex] = selectedAnswer
     setAnswers(newAnswers)
 
-    // Show explanation briefly
+    // Show explanation briefly with reduced motion support
+    const motionOk = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     setShowExplanation(true)
 
     setTimeout(() => {
@@ -102,7 +133,21 @@ export default function PopQuizPage() {
       } else {
         finishQuiz()
       }
-    }, 2000)
+    }, motionOk ? 2000 : 500)
+  }
+
+  const skipQuestion = () => {
+    const newAnswers = [...answers]
+    newAnswers[currentQuestionIndex] = null
+    setAnswers(newAnswers)
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setSelectedAnswer(null)
+      setShowExplanation(false)
+    } else {
+      finishQuiz()
+    }
   }
 
   const calculateStats = (): QuizStats => {
@@ -110,20 +155,17 @@ export default function PopQuizPage() {
     let wrong = 0
     let skipped = 0
     let score = 0
-    const missedTopics = new Set<string>()
 
     questions.forEach((q, index) => {
       const answer = answers[index]
       if (answer === null) {
         skipped++
-        if (q.category) missedTopics.add(q.category)
-      } else if (answer === q.correctAnswer) {
+      } else if (answer === q.answerIdx) {
         correct++
         score += POINTS_CORRECT
       } else {
         wrong++
         score += POINTS_WRONG
-        if (q.category) missedTopics.add(q.category)
       }
     })
 
@@ -131,9 +173,9 @@ export default function PopQuizPage() {
       correct,
       wrong,
       skipped,
-      score: Math.max(0, score), // Don't go below 0
+      score: Math.max(0, score),
       timeUsed: QUIZ_DURATION - timeRemaining,
-      missedTopics: Array.from(missedTopics)
+      category: selectedCategory!
     }
   }
 
@@ -142,8 +184,14 @@ export default function PopQuizPage() {
     setStats(finalStats)
     setGameState('finished')
 
-    // Calculate score for confetti
-    const percentage = (finalStats.score / (QUESTION_COUNT * POINTS_CORRECT)) * 100
+    // Save recent question IDs
+    if (selectedCategory) {
+      const recentIds = loadRecentIds(selectedCategory)
+      saveRecentIds(selectedCategory, [...recentIds, ...sessionIds])
+    }
+
+    // Celebrate high scores
+    const percentage = (finalStats.score / (questions.length * POINTS_CORRECT)) * 100
     if (percentage >= 70) {
       setTimeout(() => {
         confetti({
@@ -153,6 +201,19 @@ export default function PopQuizPage() {
         })
       }, 300)
     }
+  }
+
+  const resetQuiz = () => {
+    setGameState('category')
+    setSelectedCategory(null)
+    setQuestions([])
+    setAnswers([])
+    setCurrentQuestionIndex(0)
+    setSelectedAnswer(null)
+    setTimeRemaining(QUIZ_DURATION)
+    setShowExplanation(false)
+    setStats(null)
+    setSessionIds([])
   }
 
   const formatTime = (seconds: number) => {
@@ -166,69 +227,64 @@ export default function PopQuizPage() {
     ? ((currentQuestionIndex + 1) / questions.length) * 100
     : 100
 
-  const result = gameState === 'finished' ? calculateQuizResult(questions, answers) : null
-  const achievement = result ? getAchievementLevel(result.percentage) : null
-
   return (
-    <div className="container mx-auto px-4 py-12 max-w-3xl">
+    <div className="max-w-3xl mx-auto px-6 md:px-8 py-12">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Brain className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl md:text-4xl font-bold">AI Sales Pop Quiz</h1>
+          <Brain className="h-8 w-8 text-green" />
+          <h1 className="text-3xl md:text-4xl font-bold text-ink">AI Pop Quiz</h1>
         </div>
-        <p className="text-lg text-muted-foreground">
-          Test your knowledge of AI sales tools in this 2-minute challenge!
+        <p className="text-lg text-ink/70">
+          10 questions, 60 seconds—test your tool IQ!
         </p>
       </div>
 
       <AnimatePresence mode="wait">
-        {/* Start Screen */}
-        {gameState === 'start' && (
+        {/* Category Selection */}
+        {gameState === 'category' && (
           <motion.div
-            key="start"
+            key="category"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <Card>
+            <Card className="border-forest/20">
               <CardHeader>
-                <CardTitle>Ready to Test Your Knowledge?</CardTitle>
-                <CardDescription>
-                  10 questions • 2 minutes • Multiple choice
+                <CardTitle className="text-2xl text-center">Choose Your Category</CardTitle>
+                <CardDescription className="text-center">
+                  Select a topic to test your expertise
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert>
-                  <Lightbulb className="h-4 w-4" />
-                  <AlertDescription>
-                    Answer questions about AI sales tools, best practices, and industry stats.
-                    We'll recommend tools based on what you might not know!
-                  </AlertDescription>
-                </Alert>
-
-                <div className="grid grid-cols-3 gap-4 py-4">
-                  <div className="text-center">
-                    <Timer className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm font-medium">Timed</p>
-                    <p className="text-xs text-muted-foreground">2 minutes</p>
-                  </div>
-                  <div className="text-center">
-                    <Brain className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm font-medium">10 Questions</p>
-                    <p className="text-xs text-muted-foreground">Random selection</p>
-                  </div>
-                  <div className="text-center">
-                    <Trophy className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm font-medium">Get Ranked</p>
-                    <p className="text-xs text-muted-foreground">See your level</p>
-                  </div>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {(Object.keys(QUIZ_BANK) as QuizCategory[]).map((category) => (
+                    <motion.button
+                      key={category}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => selectCategory(category)}
+                      className="p-6 bg-mist hover:bg-green/10 rounded-lg border border-forest/20 hover:border-green transition-all group"
+                    >
+                      <div className="text-3xl mb-2">{CATEGORY_ICONS[category]}</div>
+                      <div className="font-semibold text-ink group-hover:text-green transition-colors">
+                        {category}
+                      </div>
+                      <div className="text-xs text-ink/60 mt-1">
+                        {QUIZ_BANK[category]?.length || 0} questions
+                      </div>
+                    </motion.button>
+                  ))}
                 </div>
 
-                <Button onClick={startQuiz} size="lg" className="w-full">
-                  Start Quiz
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <div className="mt-6 text-center">
+                  <Link href="/arcade">
+                    <Button variant="outline" size="sm">
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      Back to Arcade
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -242,205 +298,172 @@ export default function PopQuizPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Timer and Progress */}
-            <Card className="mb-6">
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Clock className={`h-4 w-4 ${timeRemaining < 30 ? 'text-red-500' : 'text-muted-foreground'}`} />
-                    <span className={`font-mono text-lg ${timeRemaining < 30 ? 'text-red-500 font-bold' : ''}`}>
+            <Card className="mb-6 border-forest/20">
+              <CardHeader>
+                <div className="flex justify-between items-center mb-4">
+                  <Badge variant="secondary" className="text-sm">
+                    {CATEGORY_ICONS[selectedCategory!]} {selectedCategory}
+                  </Badge>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-sm text-ink/70">
+                      <Target className="h-4 w-4" />
+                      Question {currentQuestionIndex + 1}/{questions.length}
+                    </div>
+                    <Badge
+                      variant={timeRemaining <= 10 ? "warning" : "outline"}
+                      className={`flex items-center gap-1 ${timeRemaining <= 10 ? 'bg-red-100 text-red-700 border-red-300' : ''}`}
+                    >
+                      <Clock className="h-3 w-3" />
                       {formatTime(timeRemaining)}
-                    </span>
+                    </Badge>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    Question {currentQuestionIndex + 1} of {questions.length}
-                  </span>
                 </div>
                 <Progress value={progress} className="h-2" />
-              </CardContent>
-            </Card>
-
-            {/* Question */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">{currentQuestion.question}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {currentQuestion.options.map((option, index) => {
-                  const isCorrect = index === currentQuestion.correctAnswer
-                  const isSelected = index === selectedAnswer
-                  const showResult = showExplanation
 
-                  return (
-                    <motion.div
+              <CardContent>
+                <h2 className="text-xl font-semibold mb-6">{currentQuestion.q}</h2>
+
+                <div className="space-y-3">
+                  {currentQuestion.choices.map((choice, index) => (
+                    <motion.button
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                       onClick={() => handleAnswerSelect(index)}
-                      className="cursor-pointer"
+                      disabled={showExplanation}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                        showExplanation
+                          ? index === currentQuestion.answerIdx
+                            ? 'border-green bg-green/10'
+                            : index === selectedAnswer && index !== currentQuestion.answerIdx
+                            ? 'border-red-500 bg-red-50'
+                            : 'border-gray-200'
+                          : selectedAnswer === index
+                          ? 'border-forest bg-mist'
+                          : 'border-gray-200 hover:border-green hover:bg-mist/50'
+                      }`}
                     >
-                      <Card
-                        className={`transition-all ${
-                          !showResult && isSelected
-                            ? 'ring-2 ring-primary border-primary'
-                            : !showResult
-                            ? 'hover:border-primary/50'
-                            : ''
-                        } ${
-                          showResult && isCorrect
-                            ? 'bg-green-50 dark:bg-green-950/20 border-green-500'
-                            : showResult && isSelected && !isCorrect
-                            ? 'bg-red-50 dark:bg-red-950/20 border-red-500'
-                            : ''
-                        }`}
-                      >
-                        <CardContent className="p-4 flex items-center justify-between">
-                          <span>{option}</span>
-                          {showResult && isCorrect && (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                          )}
-                          {showResult && isSelected && !isCorrect && (
-                            <XCircle className="h-5 w-5 text-red-600" />
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )
-                })}
+                      <div className="flex items-center justify-between">
+                        <span>{choice}</span>
+                        {showExplanation && (
+                          <>
+                            {index === currentQuestion.answerIdx && (
+                              <CheckCircle className="h-5 w-5 text-green" />
+                            )}
+                            {index === selectedAnswer && index !== currentQuestion.answerIdx && (
+                              <XCircle className="h-5 w-5 text-red-500" />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
 
-                {/* Explanation */}
-                {showExplanation && (
+                {showExplanation && currentQuestion.explain && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg"
                   >
-                    <Alert className="mt-4">
-                      <Lightbulb className="h-4 w-4" />
-                      <AlertDescription>{currentQuestion.explanation}</AlertDescription>
-                    </Alert>
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                      <p className="text-sm text-blue-900">{currentQuestion.explain}</p>
+                    </div>
                   </motion.div>
                 )}
 
-                {/* Next Button */}
-                {!showExplanation && (
+                <div className="flex justify-between mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={skipQuestion}
+                    disabled={showExplanation}
+                  >
+                    Skip
+                  </Button>
                   <Button
                     onClick={handleNextQuestion}
-                    disabled={selectedAnswer === null}
-                    className="w-full"
+                    disabled={selectedAnswer === null || showExplanation}
                   >
-                    {currentQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next'}
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
-                )}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
         {/* Results Screen */}
-        {gameState === 'finished' && result && achievement && (
+        {gameState === 'finished' && stats && (
           <motion.div
             key="finished"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
           >
-            {/* Score Card */}
-            <Card className="mb-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-              <CardContent className="py-8 text-center">
-                <div className="text-6xl mb-2">{achievement.emoji}</div>
-                <h2 className="text-2xl font-bold mb-2">{achievement.level}</h2>
-                <p className="text-muted-foreground mb-4">{achievement.message}</p>
+            <Card className="border-forest/20">
+              <CardHeader className="text-center">
+                <div className="mb-4">
+                  {stats.score >= 70 ? (
+                    <Trophy className="h-16 w-16 text-yellow-500 mx-auto" />
+                  ) : stats.score >= 50 ? (
+                    <TrendingUp className="h-16 w-16 text-green mx-auto" />
+                  ) : (
+                    <Zap className="h-16 w-16 text-blue-500 mx-auto" />
+                  )}
+                </div>
+                <CardTitle className="text-2xl">
+                  {stats.score >= 70
+                    ? `${stats.category} Master!`
+                    : stats.score >= 50
+                    ? `${stats.category} Proficient!`
+                    : `Keep Learning ${stats.category}!`}
+                </CardTitle>
+                <CardDescription>
+                  You scored {stats.score} points in {formatTime(stats.timeUsed)}
+                </CardDescription>
+              </CardHeader>
 
-                <div className="flex justify-center gap-8 mb-4">
-                  <div>
-                    <p className="text-3xl font-bold">{result.score}/{result.totalQuestions}</p>
-                    <p className="text-sm text-muted-foreground">Correct</p>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="text-center p-4 bg-green/10 rounded-lg">
+                    <CheckCircle className="h-8 w-8 text-green mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-green">{stats.correct}</div>
+                    <div className="text-sm text-ink/70">Correct</div>
                   </div>
-                  <div>
-                    <p className="text-3xl font-bold">{result.percentage}%</p>
-                    <p className="text-sm text-muted-foreground">Score</p>
+                  <div className="text-center p-4 bg-red-50 rounded-lg">
+                    <XCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-red-500">{stats.wrong}</div>
+                    <div className="text-sm text-ink/70">Wrong</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <Timer className="h-8 w-8 text-gray-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-gray-500">{stats.skipped}</div>
+                    <div className="text-sm text-ink/70">Skipped</div>
                   </div>
                 </div>
 
-                <Button onClick={startQuiz} variant="outline">
-                  <RotateCw className="mr-2 h-4 w-4" />
-                  Try Again
-                </Button>
-              </CardContent>
-            </Card>
+                <div className="bg-mist p-4 rounded-lg mb-6">
+                  <div className="text-sm text-ink/70 mb-2">Performance Summary</div>
+                  <div className="text-lg">
+                    You mastered <strong>{stats.category}</strong> questions with{' '}
+                    <strong>{Math.round((stats.correct / questions.length) * 100)}%</strong> accuracy
+                    in <strong>{formatTime(stats.timeUsed)}</strong>
+                  </div>
+                </div>
 
-            {/* Recommended Tools */}
-            {result.recommendedTools.length > 0 && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Recommended Tools Based on Your Answers
-                  </CardTitle>
-                  <CardDescription>
-                    These tools can help you master the areas you missed
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {result.recommendedTools.map((tool) => (
-                    <div key={tool.slug} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold">{tool.name}</h4>
-                        <Button size="sm" variant="outline" asChild>
-                          <Link href={`/tools/${tool.slug}`}>
-                            Learn More
-                            <ExternalLink className="ml-2 h-3 w-3" />
-                          </Link>
-                        </Button>
-                      </div>
-                      <ul className="space-y-1">
-                        {tool.reasons.map((reason, i) => (
-                          <li key={i} className="text-sm text-muted-foreground">
-                            • {reason}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Questions Review */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Review Your Answers</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {questions.map((question, index) => {
-                  const userAnswer = answers[index]
-                  const isCorrect = userAnswer === question.correctAnswer
-
-                  return (
-                    <div key={question.id} className="space-y-2">
-                      <div className="flex items-start gap-2">
-                        {isCorrect ? (
-                          <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        )}
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{question.question}</p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Your answer: {userAnswer !== null ? question.options[userAnswer] : 'Not answered'}
-                          </p>
-                          {!isCorrect && (
-                            <p className="text-sm text-green-600 mt-1">
-                              Correct: {question.options[question.correctAnswer]}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button onClick={resetQuiz} className="flex-1">
+                    <RotateCw className="h-4 w-4 mr-2" />
+                    Try Another Category
+                  </Button>
+                  <Link href="/arcade" className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      Back to Arcade
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
