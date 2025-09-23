@@ -37,6 +37,15 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     highlight: true
   },
   {
+    slug: '/arcade/cold-call-calculator',
+    title: 'Cold Call Calculator',
+    blurb: 'Forecast deal value and dials required to hit quota.',
+    kind: 'Calculator',
+    tags: ['Outbound', 'Sales'],
+    cta: 'Calculate →',
+    highlight: true
+  },
+  {
     slug: '/calculators/switch-savings',
     title: 'Switch & Save: Data Tools',
     blurb: 'Compare ZoomInfo vs Apollo seat costs and savings.',
