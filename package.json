@@ -12,8 +12,8 @@
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
     "generate:answers": "tsx scripts/generate_answers.ts",
-    "answers:seed:17": "tsx scripts/generate_answers.ts --count=17",
-    "generate:posts": "tsx scripts/generate_posts.ts"
+    "answers:seed:17": "node --env-file=.env.local ./node_modules/.bin/tsx scripts/generate_answers.ts --count=17",
+    "generate:posts": "node --env-file=.env.local ./node_modules/.bin/tsx scripts/generate_posts.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
