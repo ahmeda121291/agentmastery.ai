@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getPostBySlug, getAllPosts, getRelatedPosts } from '@/src/lib/blog'
+import { getPostBySlug, getAllPosts, getRelatedPosts, getEndcapVariant } from '@/src/lib/blog'
 import { generateBlogMetadata, formatDate } from '@/src/lib/seo'
 import {
   generateArticleSchema,
@@ -9,7 +9,7 @@ import {
 } from '@/src/lib/jsonld'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/src/components/ui/Button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -22,11 +22,19 @@ import {
   Linkedin,
   Link2,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  TrendingUp,
+  Sparkles,
+  ArrowRight,
+  BarChart3
 } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
-import { Callout, ProsCons } from '@/src/components/mdx'
+import { Callout, ProsCons, GlossaryTerm } from '@/src/components/mdx'
+import dynamic from 'next/dynamic'
+
+// Dynamic import for client-side progress rail
+const ProgressRail = dynamic(() => import('@/src/components/blog/ProgressRail'), { ssr: false })
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -57,6 +65,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 const components = {
   Callout,
   ProsCons,
+  GlossaryTerm,
   a: ({ href, children, ...props }: any) => {
     // Add affiliate link attributes
     const isAffiliate = href?.includes('?') && (
@@ -100,6 +109,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   }
 
   const relatedPosts = getRelatedPosts(params.slug)
+  const endcapVariant = getEndcapVariant(params.slug)
 
   // Generate structured data using consolidated helpers
   const articleSchema = generateArticleSchema({
@@ -138,67 +148,109 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       {faqSchema && <Script {...createSchemaScript(faqSchema, `faq-${params.slug}`)} />}
       <Script {...createSchemaScript(breadcrumbSchema, `breadcrumb-${params.slug}`)} />
 
+      {/* Progress Rail */}
+      <ProgressRail />
+
       <article className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <header className="mb-8">
-            {/* Breadcrumbs */}
-            <nav className="mb-6">
-              <ol className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/" className="hover:text-foreground">Home</Link>
-                </li>
-                <li>/</li>
-                <li>
-                  <Link href="/blog" className="hover:text-foreground">Blog</Link>
-                </li>
-                <li>/</li>
-                <li className="text-foreground font-medium line-clamp-1">{post.title}</li>
-              </ol>
-            </nav>
+        <div className="max-w-6xl mx-auto">
+          {/* Split Header with Related Posts */}
+          <header className="mb-12">
+            <div className="grid lg:grid-cols-[1fr,380px] gap-8">
+              {/* Left: Main Article Header */}
+              <div>
+                {/* Breadcrumbs */}
+                <nav className="mb-6">
+                  <ol className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <li>
+                      <Link href="/" className="hover:text-foreground">Home</Link>
+                    </li>
+                    <li>/</li>
+                    <li>
+                      <Link href="/blog" className="hover:text-foreground">Blog</Link>
+                    </li>
+                    <li>/</li>
+                    <li className="text-foreground font-medium line-clamp-1">{post.title}</li>
+                  </ol>
+                </nav>
 
-            {/* Category & Reading Time */}
-            <div className="flex items-center gap-4 mb-4">
-              <Badge>{post.category}</Badge>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>{post.readingTime}</span>
+                {/* Category & Reading Time */}
+                <div className="flex items-center gap-4 mb-4">
+                  <Badge>{post.category}</Badge>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{post.readingTime}</span>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                  {post.title}
+                </h1>
+
+                {/* Description */}
+                <p className="text-xl text-muted-foreground mb-6">
+                  {post.description}
+                </p>
+
+                {/* Meta Info */}
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    <span>{post.author}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(post.date)}</span>
+                  </div>
+                  {post.tags.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Tag className="h-4 w-4" />
+                      <div className="flex gap-1">
+                        {post.tags.slice(0, 2).map(tag => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-              {post.title}
-            </h1>
-
-            {/* Description */}
-            <p className="text-xl text-muted-foreground mb-6">
-              {post.description}
-            </p>
-
-            {/* Meta Info */}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-              <div className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                <span>{post.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>{formatDate(post.date)}</span>
-              </div>
-              {post.tags.length > 0 && (
-                <div className="flex items-center gap-1">
-                  <Tag className="h-4 w-4" />
-                  <div className="flex gap-1">
-                    {post.tags.map(tag => (
-                      <span key={tag}>{tag}</span>
+              {/* Right: Related Posts */}
+              {relatedPosts.length > 0 && (
+                <div className="lg:border-l lg:pl-8">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+                    Continue Reading
+                  </h3>
+                  <div className="space-y-4">
+                    {relatedPosts.map(relatedPost => (
+                      <Link
+                        key={relatedPost.slug}
+                        href={`/blog/${relatedPost.slug}`}
+                        className="block group"
+                      >
+                        <div className="space-y-1">
+                          <Badge variant="outline" className="text-xs mb-1">
+                            {relatedPost.category}
+                          </Badge>
+                          <h4 className="font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                            {relatedPost.title}
+                          </h4>
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {relatedPost.description}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{relatedPost.readingTime}</span>
+                          </div>
+                        </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
               )}
             </div>
 
-            <Separator />
+            <Separator className="mt-8" />
           </header>
 
           <div className="grid lg:grid-cols-[1fr,300px] gap-8">
@@ -220,13 +272,149 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                   </div>
                 </div>
               )}
+
+              {/* Rotating Endcap */}
+              <div className="mt-16 not-prose">
+                <Separator className="mb-8" />
+
+                {endcapVariant === 'topic-cluster' && relatedPosts.length > 0 && (
+                  <div className="p-8 bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg">
+                    <h3 className="text-2xl font-bold mb-2">Continue Your Journey</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Deepen your understanding with these related guides
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                      {relatedPosts.slice(0, 2).map(post => (
+                        <Card key={post.slug} className="hover:shadow-md transition-shadow">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-lg line-clamp-2">
+                              {post.title}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <CardDescription className="line-clamp-2 mb-3">
+                              {post.description}
+                            </CardDescription>
+                            <Button asChild variant="ghost" size="sm" className="group">
+                              <Link href={`/blog/${post.slug}`} className="flex items-center gap-1">
+                                Read Article
+                                <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                              </Link>
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link href="/blog">
+                        View All Articles
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+
+                {endcapVariant === 'compare-tools' && (
+                  <div className="p-8 bg-gradient-to-br from-primary/5 to-green/5 rounded-lg border border-primary/10">
+                    <div className="flex items-start gap-4 mb-6">
+                      <BarChart3 className="h-8 w-8 text-primary mt-1" />
+                      <div>
+                        <h3 className="text-2xl font-bold mb-2">Compare AI Tools Side-by-Side</h3>
+                        <p className="text-muted-foreground">
+                          See how top tools stack up in our AI-powered rankings
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid sm:grid-cols-3 gap-3 mb-6">
+                      <div className="text-center p-4 bg-background rounded-lg">
+                        <TrendingUp className="h-8 w-8 text-green mx-auto mb-2" />
+                        <div className="font-bold text-2xl mb-1">200+</div>
+                        <div className="text-sm text-muted-foreground">Tools Ranked</div>
+                      </div>
+                      <div className="text-center p-4 bg-background rounded-lg">
+                        <Sparkles className="h-8 w-8 text-primary mx-auto mb-2" />
+                        <div className="font-bold text-2xl mb-1">4</div>
+                        <div className="text-sm text-muted-foreground">Scoring Dimensions</div>
+                      </div>
+                      <div className="text-center p-4 bg-background rounded-lg">
+                        <Clock className="h-8 w-8 text-orange-500 mx-auto mb-2" />
+                        <div className="font-bold text-2xl mb-1">Weekly</div>
+                        <div className="text-sm text-muted-foreground">Updates</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button asChild variant="primary" className="flex-1" magnetic>
+                        <Link href="/leaderboards">
+                          View Leaderboards
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="flex-1">
+                        <Link href="/tools">
+                          Browse All Tools
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {endcapVariant === 'quiz-cta' && (
+                  <div className="relative overflow-hidden p-8 bg-gradient-to-br from-forest to-green rounded-lg text-white">
+                    <div className="absolute inset-0 bg-black/20" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkles className="h-6 w-6" />
+                        <Badge className="bg-white/20 text-white border-white/30">
+                          Personalized Recommendations
+                        </Badge>
+                      </div>
+                      <h3 className="text-3xl font-bold mb-3">
+                        Find Your Perfect AI Tool Match
+                      </h3>
+                      <p className="text-lg text-white/90 mb-6 max-w-2xl">
+                        Take our 6-question quiz and get personalized tool recommendations
+                        based on your specific needs and use case.
+                      </p>
+                      <div className="flex flex-wrap gap-4 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                            ✓
+                          </div>
+                          <span>6 Quick Questions</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                            ✓
+                          </div>
+                          <span>Personalized Results</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                            ✓
+                          </div>
+                          <span>No Email Required</span>
+                        </div>
+                      </div>
+                      <Button
+                        asChild
+                        size="lg"
+                        className="bg-white text-forest hover:bg-white/90"
+                        magnetic
+                      >
+                        <Link href="/quiz" className="flex items-center gap-2">
+                          <Sparkles className="h-5 w-5" />
+                          Take the Tool Matcher Quiz
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Sidebar */}
             <aside className="space-y-6">
               {/* Table of Contents */}
               {toc.length > 0 && (
-                <Card className="sticky top-4">
+                <Card className="sticky top-20">
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
                       <BookOpen className="h-4 w-4" />
@@ -309,36 +497,6 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               </Card>
             </aside>
           </div>
-
-          {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <div className="mt-16">
-              <h2 className="text-2xl font-bold mb-6">Related Articles</h2>
-              <div className="grid md:grid-cols-3 gap-4">
-                {relatedPosts.map(relatedPost => (
-                  <Card key={relatedPost.slug} className="group hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <Badge variant="outline" className="mb-2 w-fit">{relatedPost.category}</Badge>
-                      <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
-                        {relatedPost.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="line-clamp-2 mb-4">
-                        {relatedPost.description}
-                      </CardDescription>
-                      <Button asChild variant="ghost" size="sm" className="group">
-                        <Link href={`/blog/${relatedPost.slug}`} className="flex items-center gap-1">
-                          Read More
-                          <ChevronRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </article>
     </>

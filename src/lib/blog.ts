@@ -99,11 +99,63 @@ export function getRelatedPosts(currentSlug: string, limit = 3): BlogPost[] {
   const currentPost = getPostBySlug(currentSlug)
   if (!currentPost) return []
 
-  return getAllPosts()
+  const allPosts = getAllPosts()
+
+  // Calculate similarity scores for each post
+  const scoredPosts = allPosts
     .filter(post => post.slug !== currentSlug)
-    .filter(post =>
-      post.category === currentPost.category ||
-      post.tags.some(tag => currentPost.tags.includes(tag))
-    )
+    .map(post => {
+      let score = 0
+
+      // Same category = 10 points
+      if (post.category === currentPost.category) {
+        score += 10
+      }
+
+      // Each matching tag = 5 points
+      const matchingTags = post.tags.filter(tag => currentPost.tags.includes(tag))
+      score += matchingTags.length * 5
+
+      // Recent posts get a slight boost (1-3 points based on recency)
+      const postDate = new Date(post.date).getTime()
+      const currentDate = Date.now()
+      const daysOld = (currentDate - postDate) / (1000 * 60 * 60 * 24)
+      if (daysOld < 7) score += 3
+      else if (daysOld < 30) score += 2
+      else if (daysOld < 60) score += 1
+
+      return { post, score }
+    })
+    .filter(item => item.score > 0) // Only posts with some relevance
+    .sort((a, b) => b.score - a.score)
     .slice(0, limit)
+    .map(item => item.post)
+
+  // If not enough related posts, fill with recent posts from same category
+  if (scoredPosts.length < limit) {
+    const additionalPosts = allPosts
+      .filter(post =>
+        post.slug !== currentSlug &&
+        !scoredPosts.some(p => p.slug === post.slug)
+      )
+      .slice(0, limit - scoredPosts.length)
+
+    return [...scoredPosts, ...additionalPosts]
+  }
+
+  return scoredPosts
+}
+
+export type EndcapVariant = 'topic-cluster' | 'compare-tools' | 'quiz-cta'
+
+export function getEndcapVariant(slug: string): EndcapVariant {
+  // Use slug hash to deterministically rotate between variants
+  const hash = slug.split('').reduce((acc, char) => {
+    return ((acc << 5) - acc) + char.charCodeAt(0)
+  }, 0)
+
+  const variants: EndcapVariant[] = ['topic-cluster', 'compare-tools', 'quiz-cta']
+  const index = Math.abs(hash) % variants.length
+
+  return variants[index]
 }

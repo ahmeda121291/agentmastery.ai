@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react'
+export { GlossaryTerm, glossaryTerms } from './mdx/GlossaryTerm'
 
 interface CalloutProps {
   type?: 'info' | 'warning' | 'success' | 'error'

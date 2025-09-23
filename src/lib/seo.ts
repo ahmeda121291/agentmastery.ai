@@ -20,6 +20,16 @@ export function generateBlogMetadata(
 ): Metadata {
   const url = `https://agentmastery.ai/blog/${slug}`
 
+  // Generate dynamic OG image URL
+  const ogImageUrl = frontmatter.image || `/api/og?${new URLSearchParams({
+    title: frontmatter.title,
+    description: frontmatter.description,
+    type: 'blog',
+    category: frontmatter.category || '',
+    author: frontmatter.author || 'AgentMastery Team',
+    readingTime: '' // Will be added if we have reading time
+  }).toString()}`
+
   return {
     title: frontmatter.title,
     description: frontmatter.description,
@@ -32,20 +42,20 @@ export function generateBlogMetadata(
       publishedTime: frontmatter.date,
       authors: frontmatter.author ? [frontmatter.author] : undefined,
       url,
-      images: frontmatter.image ? [
+      images: [
         {
-          url: frontmatter.image,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: frontmatter.title
         }
-      ] : undefined,
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: frontmatter.title,
       description: frontmatter.description,
-      images: frontmatter.image ? [frontmatter.image] : undefined,
+      images: [ogImageUrl],
     },
     alternates: {
       canonical: url
