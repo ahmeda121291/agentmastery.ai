@@ -160,8 +160,8 @@ function StatsMarquee() {
   ]
 
   return (
-    <div className="ticker bg-gradient-to-r from-forest to-green text-paper py-4 overflow-hidden">
-      <div className={`ticker-content ${shouldReduceMotion ? '' : 'animate-ticker'}`}>
+    <div className="stats-marquee bg-gradient-to-r from-forest to-green text-paper py-4 overflow-hidden">
+      <div className={`stats-marquee-content ${shouldReduceMotion ? '' : 'animate-stats-marquee'}`}>
         {/* Duplicate for seamless loop */}
         {[...marqueeItems, ...marqueeItems].map((item, idx) => (
           <div key={idx} className="flex items-center gap-3 px-8 whitespace-nowrap">

@@ -5,15 +5,18 @@ import { Ticker } from './Ticker'
 
 interface SiteLayoutProps {
   children: ReactNode
+  hideTicker?: boolean
 }
 
-export function SiteLayout({ children }: SiteLayoutProps) {
+export function SiteLayout({ children, hideTicker = false }: SiteLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="hidden md:block">
-        <Ticker />
-      </div>
+      {!hideTicker && (
+        <div className="overflow-hidden">
+          <Ticker />
+        </div>
+      )}
       <main className="flex-grow">
         {children}
       </main>
