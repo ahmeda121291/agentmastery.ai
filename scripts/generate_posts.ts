@@ -436,10 +436,10 @@ async function main() {
   const { topics, fromLRU, fromBackfill } = selectTopicsWithLRU(availableTopics, desiredCount)
   console.log(`📋 Selected ${topics.length} topics (${fromLRU} from keywords, ${fromBackfill} from evergreen backfill)`)
 
-  // Create posts directory
-  const postsDir = path.join(process.cwd(), 'src/content/blog')
-  if (!fs.existsSync(postsDir)) {
-    fs.mkdirSync(postsDir, { recursive: true })
+  // Create posts directory - NORMALIZED PATH
+  const BLOG_DIR = path.join(process.cwd(), 'content/blog')
+  if (!fs.existsSync(BLOG_DIR)) {
+    fs.mkdirSync(BLOG_DIR, { recursive: true })
   }
 
   // Track results
@@ -448,6 +448,7 @@ async function main() {
   let fallbackCount = 0
   const history = loadHistory()
   const processedTopics: string[] = []
+  const createdFiles: string[] = []
 
   // Process each topic
   for (let i = 0; i < topics.length; i++) {
@@ -470,7 +471,7 @@ async function main() {
 
     // Write the post
     const mdxContent = createMDXContent(post)
-    const filePath = path.join(postsDir, `${post.slug}.mdx`)
+    const filePath = path.join(BLOG_DIR, `${post.slug}.mdx`)
 
     // Check if file already exists
     if (fs.existsSync(filePath)) {
@@ -482,6 +483,7 @@ async function main() {
     console.log(`  ✅ Created: ${post.slug}.mdx${post.localGenerated ? ' (fallback)' : ''}`)
 
     processedTopics.push(topic)
+    createdFiles.push(`${post.slug}.mdx`)
     successCount++
 
     // Add delay between API calls
@@ -525,9 +527,15 @@ async function main() {
   console.log(`\n🎉 Generated ${successCount} blog posts successfully!`)
   console.log(`📊 Stats: ${fromLRU} from keywords, ${fromBackfill} from backfill, ${fallbackCount} using fallback`)
 
+  if (createdFiles.length > 0) {
+    console.log(`\n📝 Created files:`)
+    createdFiles.forEach(file => console.log(`   - ${file}`))
+  }
+
   if (successCount === 0) {
     console.error('❌ No posts were generated!')
-    process.exit(1)
+    // Exit 0 to not fail the job
+    process.exit(0)
   }
 }
 

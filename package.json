@@ -16,7 +16,8 @@
     "generate:answers": "tsx scripts/generate_answers.ts",
     "answers:seed:17": "tsx scripts/generate_answers.ts --count=17",
     "generate:posts": "tsx scripts/generate_posts.ts",
-    "fix:mdx": "tsx scripts/fix_mdx_links.ts"
+    "fix:mdx": "tsx scripts/fix_mdx_links.ts",
+    "migrate:blog": "tsx scripts/migrate_blog_dir.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

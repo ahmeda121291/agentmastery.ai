@@ -39,6 +39,24 @@ When both checks pass (Preview Check ✅ and Vercel Preview ✅), the PR can be 
 
 ## Nightly Workflows
 
+### Personal Access Token (PAT) for Automation
+
+The nightly workflows use a Personal Access Token (`PAT_FOR_AUTOMATION`) to create pull requests when triggered by schedule. This is required because the default `GITHUB_TOKEN` cannot trigger other workflows from scheduled events.
+
+**Required Secret**: `PAT_FOR_AUTOMATION` with scopes:
+- `repo` - Full control of private repositories
+- `workflow` - Update GitHub Actions workflows
+
+The workflows fall back to `GITHUB_TOKEN` if PAT is not available (useful for manual triggers).
+
+### Important Path Note
+**Blog content path**: All blog posts are generated to `content/blog/` (NOT `src/content/blog/`).
+- Generator writes to: `content/blog/`
+- Workflow diffs against: `content/blog/`, `src/data/.posts_history.json`, `src/data/keywords.json`
+- If you see "0 changes" but logs show created files, verify the workflow is checking the correct path.
+
+## Nightly Workflows
+
 ### Nightly Blog Generation
 - **Schedule**: Runs at 04:43 UTC daily
 - **Purpose**: Generates 5 blog posts using AI with LRU rotation and evergreen backfill

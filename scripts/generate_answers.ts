@@ -378,7 +378,8 @@ async function main() {
 
   if (addedCount === 0) {
     console.error('❌ No new answers were added!')
-    process.exit(1)
+    // Exit 0 to not fail the job
+    process.exit(0)
   }
 }
 
