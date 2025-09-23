@@ -1,0 +1,43 @@
+name: Weekly Leaderboard Snapshot
+
+on:
+  schedule:
+    # Run every Monday at 4:27 AM UTC
+    - cron: '27 4 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate leaderboard snapshot
+        run: npx ts-node scripts/snapshot_leaderboards.ts
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push if changed
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/snapshots/*.json
+          git commit -m "Weekly leaderboard snapshot - Week $(date +%Y-%U)"
+          git push

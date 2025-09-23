@@ -1,19 +1,44 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { tools } from '@/src/data/tools'
-import { computeScores, getRankingExplanation, categories, type ScoredTool } from '@/src/data/scores'
+import {
+  computeScores,
+  loadLastSnapshot,
+  computeDeltas,
+  getTopMovers,
+  getCurrentWeek,
+  type CategoryScores,
+  type ToolScore,
+  EDITOR_CALLOUTS
+} from '@/src/data/scores'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/src/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/src/components/ui/Button'
 import { Progress } from '@/components/ui/progress'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { Trophy, Medal, Award, ChevronDown, ExternalLink, TrendingUp } from 'lucide-react'
+import {
+  Trophy,
+  Medal,
+  Award,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Info,
+  Sparkles,
+  Zap,
+  DollarSign,
+  Star,
+  Users
+} from 'lucide-react'
 import Link from 'next/link'
 
 function RankBadge({ rank }: { rank: number }) {
@@ -21,7 +46,7 @@ function RankBadge({ rank }: { rank: number }) {
     return (
       <div className="flex items-center gap-1">
         <Trophy className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-        <span className="font-bold text-yellow-600">Gold</span>
+        <span className="font-bold text-yellow-600">#1</span>
       </div>
     )
   }
@@ -29,7 +54,7 @@ function RankBadge({ rank }: { rank: number }) {
     return (
       <div className="flex items-center gap-1">
         <Medal className="h-5 w-5 text-gray-400 fill-gray-400" />
-        <span className="font-bold text-gray-600">Silver</span>
+        <span className="font-bold text-gray-600">#2</span>
       </div>
     )
   }
@@ -37,230 +62,340 @@ function RankBadge({ rank }: { rank: number }) {
     return (
       <div className="flex items-center gap-1">
         <Award className="h-5 w-5 text-orange-500 fill-orange-500" />
-        <span className="font-bold text-orange-600">Bronze</span>
+        <span className="font-bold text-orange-600">#3</span>
       </div>
     )
   }
-  return <span className="text-muted-foreground">#{rank}</span>
+  return <span className="text-muted-foreground font-medium">#{rank}</span>
 }
 
-function DimensionBar({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium">{value}</span>
+function RankDelta({ delta }: { delta?: number }) {
+  if (!delta || delta === 0) {
+    return <Minus className="h-4 w-4 text-muted-foreground" />
+  }
+  if (delta > 0) {
+    return (
+      <div className="flex items-center gap-1 text-green-600">
+        <ChevronUp className="h-4 w-4" />
+        <span className="text-xs font-medium">+{delta}</span>
       </div>
-      <Progress value={value} className="h-2" />
+    )
+  }
+  return (
+    <div className="flex items-center gap-1 text-red-600">
+      <ChevronDown className="h-4 w-4" />
+      <span className="text-xs font-medium">{delta}</span>
     </div>
   )
 }
 
-function ToolCard({ tool, category }: { tool: ScoredTool; category: string }) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const explanation = getRankingExplanation(tool, category)
+function ScoreDelta({ delta }: { delta?: number }) {
+  if (!delta || Math.abs(delta) < 1) return null
+
+  if (delta > 0) {
+    return (
+      <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">
+        +{delta}
+      </Badge>
+    )
+  }
+  return (
+    <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">
+      {delta}
+    </Badge>
+  )
+}
+
+function DimensionChips({ dimensions }: { dimensions: ToolScore['dimensions'] }) {
+  const chips = [
+    { label: 'Value', value: dimensions.value, icon: DollarSign, color: 'text-green-600' },
+    { label: 'Quality', value: dimensions.quality, icon: Star, color: 'text-blue-600' },
+    { label: 'Adoption', value: dimensions.adoption, icon: Users, color: 'text-purple-600' },
+    { label: 'UX', value: dimensions.ux, icon: Sparkles, color: 'text-orange-600' },
+  ]
 
   return (
-    <Card className={tool.rank! <= 3 ? 'border-primary/30 shadow-md' : ''}>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl font-bold text-muted-foreground">
-              {tool.rank}
+    <div className="flex flex-wrap gap-2">
+      {chips.map(chip => (
+        <div
+          key={chip.label}
+          className="flex items-center gap-1 px-2 py-1 bg-muted/50 rounded-md"
+        >
+          <chip.icon className={`h-3 w-3 ${chip.color}`} />
+          <span className="text-xs font-medium">{chip.label}</span>
+          <span className="text-xs text-muted-foreground">{chip.value}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ToolRow({ tool, isExpanded, onToggle }: {
+  tool: ToolScore
+  isExpanded: boolean
+  onToggle: () => void
+}) {
+  const toolData = tools.find(t => t.slug === tool.slug)
+
+  return (
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      <div className="group">
+        {/* Main Row */}
+        <div className="flex items-center justify-between py-4 px-4 hover:bg-muted/50 rounded-lg transition-colors">
+          <div className="flex items-center gap-4 flex-1">
+            {/* Rank */}
+            <div className="w-16">
+              <RankBadge rank={tool.rank || 0} />
             </div>
+
+            {/* Rank Delta */}
+            <div className="w-12">
+              <RankDelta delta={tool.rankDelta} />
+            </div>
+
+            {/* Tool Name */}
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <Link href={`/tools/${tool.slug}`} className="font-semibold hover:text-primary">
+                  {tool.name}
+                </Link>
+                <ScoreDelta delta={tool.scoreDelta} />
+              </div>
+            </div>
+
+            {/* Score */}
+            <div className="text-right w-20">
+              <div className="font-bold text-lg">{tool.totalScore}</div>
+              <div className="text-xs text-muted-foreground">Score</div>
+            </div>
+
+            {/* Expand Button */}
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="ml-2">
+                <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+        </div>
+
+        {/* Expanded Content */}
+        <CollapsibleContent>
+          <div className="px-4 pb-4 space-y-3">
+            {/* Dimensions */}
             <div>
-              <CardTitle className="flex items-center gap-2">
-                {tool.name}
-                {tool.rank! <= 3 && <RankBadge rank={tool.rank!} />}
-              </CardTitle>
-              <CardDescription className="mt-1">
-                Score: {tool.totalScore}/100
-              </CardDescription>
+              <p className="text-sm font-medium mb-2">Score Breakdown</p>
+              <DimensionChips dimensions={tool.dimensions} />
+            </div>
+
+            {/* Explanation */}
+            <div>
+              <p className="text-sm font-medium mb-1">Why this ranking?</p>
+              <p className="text-sm text-muted-foreground">{tool.explanation}</p>
+            </div>
+
+            {/* CTA */}
+            <div className="flex gap-2">
+              <Button size="sm" variant="primary" asChild>
+                <Link href={`/tools/${tool.slug}`} className="flex items-center gap-1">
+                  View Details
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              </Button>
+              {toolData && (
+                <Button size="sm" variant="ghost" asChild>
+                  <a href={toolData.affiliateUrl} target="_blank" rel="noopener noreferrer">
+                    Try {tool.name}
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" asChild>
-              <Link href={`/tools/${tool.slug}`}>
-                View Details
-              </Link>
-            </Button>
-            <Button size="sm" asChild>
-              <a
-                href={tool.affiliateUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1"
-              >
-                Try Now
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </Button>
-          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  )
+}
+
+function MoversSection({ movers }: { movers: ToolScore[] }) {
+  if (movers.length === 0) return null
+
+  return (
+    <Card className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+      <div className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold">Movers & Shakers</h2>
+          <Badge variant="secondary">This Week</Badge>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Dimension Scores */}
-        <div className="grid grid-cols-2 gap-4">
-          <DimensionBar label="Value" value={Math.round(tool.dimensions.value)} color="blue" />
-          <DimensionBar label="Quality" value={Math.round(tool.dimensions.quality)} color="green" />
-          <DimensionBar label="Momentum" value={Math.round(tool.dimensions.momentum)} color="purple" />
-          <DimensionBar label="User Experience" value={Math.round(tool.dimensions.ux)} color="orange" />
-        </div>
-
-        {/* Tool Description */}
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {tool.blurb}
-        </p>
-
-        {/* Badges */}
-        {tool.badges && tool.badges.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {tool.badges.map(badge => (
-              <Badge key={badge} variant="secondary" className="text-xs">
-                {badge}
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        {/* Why This Ranking */}
-        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-full justify-between">
-              Why this ranking?
-              <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-3 space-y-2">
-            <div className="rounded-lg bg-muted/50 p-4 space-y-2">
-              <h4 className="font-medium text-sm flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Ranking Factors
-              </h4>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                {explanation.map((factor, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    <span>{factor}</span>
-                  </li>
-                ))}
-              </ul>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {movers.map(tool => (
+            <div key={tool.slug} className="flex items-center justify-between p-3 bg-background rounded-lg">
+              <div>
+                <Link href={`/tools/${tool.slug}`} className="font-medium hover:text-primary">
+                  {tool.name}
+                </Link>
+                <div className="text-xs text-muted-foreground">{tool.category}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                {tool.scoreDelta && tool.scoreDelta > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-600" />
+                )}
+                <ScoreDelta delta={tool.scoreDelta} />
+              </div>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </CardContent>
+          ))}
+        </div>
+      </div>
     </Card>
   )
 }
 
 export default function LeaderboardsPage() {
-  const [selectedCategory, setSelectedCategory] = useState('Writing/SEO')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set())
+  const [scores, setScores] = useState<CategoryScores[]>([])
+  const [movers, setMovers] = useState<ToolScore[]>([])
+  const [week, setWeek] = useState<string>('')
 
-  const scoredTools = useMemo(() => {
-    return computeScores(tools)
+  useEffect(() => {
+    // Compute fresh scores
+    const freshScores = computeScores(tools)
+
+    // Try to load last snapshot and compute deltas
+    const lastSnapshot = loadLastSnapshot()
+    if (lastSnapshot) {
+      const scoresWithDeltas = computeDeltas(freshScores, lastSnapshot.categories)
+      setScores(scoresWithDeltas)
+      setMovers(getTopMovers(scoresWithDeltas, 5))
+    } else {
+      setScores(freshScores)
+    }
+
+    setWeek(getCurrentWeek())
   }, [])
 
-  // Get unique categories that have tools
-  const availableCategories = useMemo(() => {
-    return Object.keys(scoredTools).sort()
-  }, [scoredTools])
+  const categories = useMemo(() => {
+    const cats = ['all', ...new Set(scores.map(s => s.category))]
+    return cats
+  }, [scores])
 
-  const currentCategoryTools = scoredTools[selectedCategory] || []
-  const topTenTools = currentCategoryTools.slice(0, 10)
+  const toggleExpanded = (slug: string) => {
+    setExpandedTools(prev => {
+      const next = new Set(prev)
+      if (next.has(slug)) {
+        next.delete(slug)
+      } else {
+        next.add(slug)
+      }
+      return next
+    })
+  }
+
+  const getToolsForCategory = (category: string) => {
+    if (category === 'all') {
+      // Show top 3 from each category
+      const allTopTools: ToolScore[] = []
+      scores.forEach(cat => {
+        allTopTools.push(...cat.tools.slice(0, 3))
+      })
+      return allTopTools.sort((a, b) => b.totalScore - a.totalScore).slice(0, 15)
+    }
+
+    const categoryData = scores.find(s => s.category === category)
+    return categoryData?.tools.slice(0, 10) || []
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Header */}
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">AI Tools Leaderboards</h1>
+      <div className="text-center mb-12">
+        <Badge className="mb-4 bg-green/10 text-green border-green/20">
+          <Sparkles className="h-3 w-3 mr-1" />
+          AI-Ranked • Week {week}
+        </Badge>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">
+          AI Tool Leaderboards
+        </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Data-driven rankings based on value, quality, market momentum, and user experience.
-          No bias, just facts.
+          Weekly rankings powered by our AI scoring algorithm. Tracking value, quality, adoption, and user experience.
         </p>
       </div>
 
+      {/* Movers & Shakers */}
+      <MoversSection movers={movers} />
+
       {/* Category Tabs */}
-      <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-        <div className="overflow-x-auto pb-2">
-          <TabsList className="inline-flex w-max min-w-full justify-start">
-            {availableCategories.map(category => (
-              <TabsTrigger
-                key={category}
-                value={category}
-                className="whitespace-nowrap"
-              >
-                {category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+      <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-8">
+          {categories.slice(0, 6).map(cat => (
+            <TabsTrigger key={cat} value={cat} className="capitalize">
+              {cat === 'all' ? 'All Tools' : cat}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-        {availableCategories.map(category => (
-          <TabsContent key={category} value={category} className="mt-8 space-y-4">
-            {/* Category Header */}
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">
-                Top {category} Tools
-              </h2>
-              <p className="text-muted-foreground">
-                {scoredTools[category]?.length || 0} tools evaluated across 4 key dimensions
-              </p>
-            </div>
+        {categories.map(category => {
+          const categoryTools = getToolsForCategory(category)
+          const editorCallout = category !== 'all' ? EDITOR_CALLOUTS[category] : null
 
-            {/* Top 10 Rankings */}
-            <div className="space-y-4">
-              {scoredTools[category]?.slice(0, 10).map(tool => (
-                <ToolCard
-                  key={tool.slug}
-                  tool={tool}
-                  category={category}
-                />
-              ))}
-            </div>
+          return (
+            <TabsContent key={category} value={category}>
+              {/* Editor Callout */}
+              {editorCallout && (
+                <div className="mb-6 p-4 bg-muted/50 rounded-lg border-l-4 border-primary">
+                  <div className="flex gap-2">
+                    <Info className="h-4 w-4 text-primary mt-0.5" />
+                    <p className="text-sm italic">{editorCallout}</p>
+                  </div>
+                </div>
+              )}
 
-            {/* View All Tools CTA */}
-            {scoredTools[category]?.length > 10 && (
-              <div className="text-center pt-6">
-                <Button variant="outline" asChild>
-                  <Link href={`/tools?category=${encodeURIComponent(category)}`}>
-                    View All {category} Tools ({scoredTools[category].length} total)
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-        ))}
+              {/* Leaderboard Table */}
+              <Card>
+                <div className="p-6">
+                  <div className="space-y-2">
+                    {categoryTools.map(tool => (
+                      <ToolRow
+                        key={tool.slug}
+                        tool={tool}
+                        isExpanded={expandedTools.has(tool.slug)}
+                        onToggle={() => toggleExpanded(tool.slug)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+
+              {/* Bottom CTA */}
+              {category !== 'all' && (
+                <div className="mt-8 text-center">
+                  <p className="text-muted-foreground mb-4">
+                    Want to see how these tools match your needs?
+                  </p>
+                  <Button variant="primary" size="lg" magnetic asChild>
+                    <Link href="/quiz" className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5" />
+                      Take the Tool Matcher Quiz
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          )
+        })}
       </Tabs>
 
-      {/* Methodology Note */}
-      <Card className="mt-12 bg-muted/50">
-        <CardHeader>
-          <CardTitle className="text-lg">About Our Rankings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-3">
-            Our leaderboards use a deterministic scoring algorithm that evaluates tools across four key dimensions:
-          </p>
-          <div className="grid md:grid-cols-2 gap-3 text-sm">
-            <div>
-              <strong>📊 Value:</strong> Cost-effectiveness and ROI based on pricing and features
-            </div>
-            <div>
-              <strong>✨ Quality:</strong> Accuracy, reliability, and output quality indicators
-            </div>
-            <div>
-              <strong>🚀 Momentum:</strong> Market adoption, growth trajectory, and popularity
-            </div>
-            <div>
-              <strong>🎯 UX:</strong> User experience, ease of use, and setup complexity
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground mt-3">
-            Each category has custom-weighted dimensions based on what matters most for that use case.
-            Rankings are updated regularly as we add new tools and refine our scoring model.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Footer Note */}
+      <div className="mt-12 p-6 bg-muted/50 rounded-lg text-center">
+        <p className="text-sm text-muted-foreground mb-2">
+          Rankings updated weekly based on 4 key dimensions: Value, Quality, Adoption, and UX.
+        </p>
+        <Link href="/about" className="text-sm text-primary hover:underline">
+          Learn about our ranking methodology →
+        </Link>
+      </div>
     </div>
   )
 }
