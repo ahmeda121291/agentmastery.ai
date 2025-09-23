@@ -41,22 +41,42 @@ When both checks pass (Preview Check ✅ and Vercel Preview ✅), the PR can be 
 
 ### Nightly Blog Generation
 - **Schedule**: Runs at 04:43 UTC daily
-- **Purpose**: Generates new blog posts using AI
-- **Uses**: `pnpm install --frozen-lockfile` for deterministic builds
-- **Output**: Commits new posts with message `chore(blog): nightly +5 posts [skip ci]`
+- **Purpose**: Generates 5 blog posts using AI with LRU rotation and evergreen backfill
+- **Features**:
+  - LRU topic rotation (avoids reusing topics within 7 days)
+  - Evergreen backfill pool of 30 high-value topics
+  - Retry mechanism with simplified prompts (up to 2 retries)
+  - Fallback content generator when API fails
+  - Tracks topic history in `src/data/.posts_history.json`
+- **Output**:
+  - If main is unprotected: Direct commit with `chore(blog): nightly +5 posts`
+  - If main is protected: Creates PR from `automation/nightly-blog` branch
+- **Permissions**: `contents: write`, `pull-requests: write`
+- **Default Model**: `gpt-4o-mini` (configurable via `OPENAI_MODEL` secret)
 
 ### Nightly Answers Generation
 - **Schedule**: Runs at 03:19 UTC daily
-- **Purpose**: Updates the answers hub with new Q&As
-- **Uses**: `pnpm install --frozen-lockfile` for deterministic builds
-- **Output**: Commits updates with message `feat: update answers hub with new Q&As [skip ci]`
+- **Purpose**: Generates 20 Q&A pairs for the answers hub
+- **Features**:
+  - Retry mechanism with simplified prompts (up to 2 retries)
+  - Fallback Q&A generator when API fails
+  - Deduplication with canonicalization
+  - Auto-linking to tool pages
+  - Capped at 1000 most recent answers
+- **Output**:
+  - If main is unprotected: Direct commit with `chore(answers): nightly +20 AEO Q&As`
+  - If main is protected: Creates PR from `automation/nightly-answers` branch
+- **Permissions**: `contents: write`, `pull-requests: write`
+- **Default Model**: `gpt-4o-mini` (configurable via `OPENAI_MODEL` secret)
 
 Both nightly workflows:
 - Load `OPENAI_API_KEY` from GitHub Secrets via `env:` in workflow
 - Use Node.js 20 with corepack enabled for pnpm
 - Require `OPENAI_API_KEY` secret configured in repository settings
 - Use `pnpm install --frozen-lockfile` for deterministic builds
-- Scripts check process.env first, then .env.local, then .env as fallback
+- Scripts check process.env first (CI), then .env.local, then .env as fallback
+- Include QA guards to verify content generation
+- Automatically create PRs when main branch is protected
 
 ## Generator Scripts
 

@@ -6,8 +6,8 @@ import * as dotenv from 'dotenv'
 import OpenAI from 'openai'
 import { tools } from '../src/data/tools'
 
-// Load env from process.env first, then .env.local, then .env
-if (!process.env.OPENAI_API_KEY) {
+// Load env from process.env first (CI), then .env/.env.local if present (dev)
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || (() => {
   const root = process.cwd()
   const envLocal = path.join(root, '.env.local')
   const envFile = path.join(root, '.env')
@@ -16,9 +16,11 @@ if (!process.env.OPENAI_API_KEY) {
   } else if (fs.existsSync(envFile)) {
     dotenv.config({ path: envFile })
   }
-}
+  return process.env.OPENAI_API_KEY
+})()
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+
 if (!OPENAI_API_KEY) {
   console.log('SKIP: No OPENAI_API_KEY')
   process.exit(0)
@@ -32,6 +34,15 @@ const defaultCount = countArg ? parseInt(countArg.split('=')[1]) : 20
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 })
+
+// Fallback default topics (safe, evergreen)
+const DEFAULT_TOPICS = [
+  "AI writing tools", "AI video generators", "cold email deliverability",
+  "B2B data providers", "CRM migration", "chatbots for support",
+  "email warmup best practices", "lead gen automations", "voice cloning",
+  "meeting scheduling AI", "sales intelligence platforms", "content repurposing",
+  "workflow automation", "AI SEO tools", "transcription services"
+]
 
 // Helper to load topics from keywords.json with multiple format support
 function loadTopics(): string[] {
@@ -48,26 +59,18 @@ function loadTopics(): string[] {
         return raw.topics.filter(Boolean)
       }
       if (raw && Array.isArray(raw.keywords)) {
-        return raw.keywords.filter(Boolean)
+        // Handle both string and object keywords
+        return raw.keywords.map((k: any) =>
+          typeof k === 'string' ? k : k.keyword
+        ).filter(Boolean)
       }
     }
   } catch (e) {
     console.log('Note: Could not load keywords.json, using defaults')
   }
 
-  // Fallback default topics (safe, evergreen)
-  return [
-    "AI writing tools", "AI video generators", "cold email deliverability",
-    "B2B data providers", "CRM migration", "chatbots for support",
-    "email warmup best practices", "lead gen automations", "voice cloning",
-    "meeting scheduling AI", "sales intelligence platforms", "content repurposing",
-    "workflow automation", "AI SEO tools", "transcription services"
-  ]
+  return DEFAULT_TOPICS
 }
-
-// Load keywords
-const keywords = loadTopics()
-console.log(`📚 Loaded ${keywords.length} topics`)
 
 // Categories from tools
 const CATEGORIES = [
@@ -76,7 +79,6 @@ const CATEGORIES = [
 ]
 
 // Get unique tool categories and names for context
-const toolCategories = Array.from(new Set(tools.map(t => t.category)))
 const toolNames = tools.map(t => ({ name: t.name, slug: t.slug, category: t.category }))
 
 // Sanitize answer text - remove stray brackets, artifacts, and cleanup
@@ -157,19 +159,40 @@ function shuffle<T>(array: T[]): T[] {
   return arr
 }
 
+// Generate fallback Q&A when API fails
+function generateFallbackQA(topic: string, index: number): any {
+  const category = CATEGORIES[index % CATEGORIES.length]
+
+  const questions = [
+    `What are the best ${topic} for small businesses?`,
+    `How do ${topic} improve productivity?`,
+    `Which ${topic} offer the best ROI?`,
+    `How to choose between different ${topic}?`,
+    `What features should I look for in ${topic}?`
+  ]
+
+  const question = questions[index % questions.length]
+
+  const answer = `${topic.charAt(0).toUpperCase() + topic.slice(1)} can significantly enhance operational efficiency. Key considerations include integration capabilities with your existing tech stack, pricing models that align with your budget, and scalability for future growth. Top solutions in this space offer features like automation, real-time analytics, and seamless team collaboration. For personalized recommendations, take our [quiz](/quiz) or compare options on our [leaderboards](/leaderboards).`
+
+  return {
+    q: question,
+    a: answer,
+    category: category
+  }
+}
+
 // Generate Q&A prompt
-function generatePrompt(): string {
+function generatePrompt(keywords: string[]): string {
   const topicSamples = shuffle(keywords).slice(0, 20).join(', ')
   const toolSamples = toolNames.slice(0, 10).map(t => t.name).join(', ')
-
-  console.log(`🎲 Generating ${defaultCount} answers from ${keywords.length} topics`)
 
   return `Generate ${defaultCount} high-quality Q&A pairs for an AI tools knowledge base.
 
 Context:
 - Categories: ${CATEGORIES.join(', ')}
 - Sample tools: ${toolSamples}
-- Topic keywords: ${topicSamples || 'AI automation, productivity, sales, marketing, content creation'}
+- Topic keywords: ${topicSamples}
 
 Requirements:
 1. Questions MUST be phrased as natural user queries starting with: who/what/when/where/why/how/which/compare/cost/best for
@@ -195,38 +218,64 @@ Return as JSON array with this structure:
 Generate diverse questions covering different aspects: features, pricing, comparisons, use cases, integrations, best practices.`
 }
 
-async function generateAnswers(): Promise<any[]> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an AI tools expert creating AEO-optimized Q&As. Be specific, practical, and include internal links to relevant pages.'
-        },
-        {
-          role: 'user',
-          content: generatePrompt()
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 3000,
-      response_format: { type: 'json_object' }
-    })
+async function generateAnswersWithRetries(keywords: string[], maxRetries: number = 2): Promise<any[]> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`  Attempt ${attempt + 1}/${maxRetries + 1}...`)
 
-    const content = response.choices[0]?.message?.content
-    if (!content) throw new Error('No response from OpenAI')
+      const prompt = attempt > 0
+        ? `Generate ${defaultCount} Q&A pairs about AI tools and automation. Each should have: q (question), a (2-5 sentence answer), category. Focus on: ${keywords.slice(0, 10).join(', ')}. Format as JSON array.`
+        : generatePrompt(keywords)
 
-    const parsed = JSON.parse(content)
-    return Array.isArray(parsed) ? parsed : (parsed.answers || parsed.items || [])
-  } catch (error) {
-    console.error('Error generating answers:', error)
-    return []
+      const response = await openai.chat.completions.create({
+        model: OPENAI_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an AI tools expert creating AEO-optimized Q&As. Be specific, practical, and include internal links to relevant pages.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 3000,
+        response_format: { type: 'json_object' }
+      })
+
+      const content = response.choices[0]?.message?.content
+      if (!content) {
+        console.log(`  Attempt ${attempt + 1} returned empty`)
+        continue
+      }
+
+      const parsed = JSON.parse(content)
+      const results = Array.isArray(parsed) ? parsed : (parsed.answers || parsed.items || parsed.data || [])
+
+      if (results.length > 0) {
+        return results
+      }
+
+      console.log(`  Attempt ${attempt + 1} returned no valid items`)
+    } catch (error) {
+      console.log(`  Attempt ${attempt + 1} failed:`, error instanceof Error ? error.message : 'Unknown error')
+      if (attempt < maxRetries) {
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+    }
   }
+
+  return []
 }
 
 async function main() {
   console.log('🤖 Generating AEO Q&As...')
+
+  // Load keywords
+  const keywords = loadTopics()
+  console.log(`📚 Loaded ${keywords.length} topics`)
 
   // Load existing answers
   const answersPath = path.join(process.cwd(), 'src/data/answers.json')
@@ -247,9 +296,29 @@ async function main() {
     existingAnswers.map(a => canonicalize(a.q))
   )
 
-  // Generate new answers
-  const newAnswers = await generateAnswers()
-  console.log(`🎲 Generated ${newAnswers.length} candidate answers`)
+  console.log(`🎲 Generating ${defaultCount} answers from ${keywords.length} topics`)
+
+  // Try to generate with API
+  let newAnswers = await generateAnswersWithRetries(keywords)
+
+  // Track stats
+  let apiGenerated = newAnswers.length
+  let fallbackGenerated = 0
+
+  // If API didn't generate enough, use fallback
+  if (newAnswers.length < defaultCount) {
+    const needed = defaultCount - newAnswers.length
+    console.log(`📝 Using fallback generator for ${needed} additional Q&As`)
+
+    for (let i = 0; i < needed; i++) {
+      const topic = keywords[i % keywords.length]
+      const fallbackQA = generateFallbackQA(topic, i)
+      newAnswers.push(fallbackQA)
+      fallbackGenerated++
+    }
+  }
+
+  console.log(`📊 Generated ${apiGenerated} via API, ${fallbackGenerated} via fallback`)
 
   // Process and deduplicate
   let addedCount = 0
@@ -275,7 +344,8 @@ async function main() {
       q: sanitizedQuestion,
       a: processedAnswer,
       category: answer.category || 'General',
-      createdAt: timestamp
+      createdAt: timestamp,
+      localGenerated: fallbackGenerated > 0 && newAnswers.indexOf(answer) >= apiGenerated
     })
 
     existingCanonical.add(canonical)
@@ -305,6 +375,11 @@ async function main() {
   console.log(`✅ Added ${addedCount} new answers`)
   console.log(`⏭️  Skipped ${skippedCount} duplicates`)
   console.log(`📊 Total answers: ${existingAnswers.length}`)
+
+  if (addedCount === 0) {
+    console.error('❌ No new answers were added!')
+    process.exit(1)
+  }
 }
 
 // Run if called directly
