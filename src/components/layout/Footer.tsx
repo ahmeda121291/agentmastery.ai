@@ -5,27 +5,26 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
   
   const footerLinks = {
-    'AI Tools': [
-      { href: '/tools', label: 'All Tools' },
-      { href: '/tools?category=Writing', label: 'Writing Tools' },
-      { href: '/tools?category=Video', label: 'Video Tools' },
-      { href: '/tools?category=Data', label: 'Data Tools' },
-      { href: '/tools?category=Outbound', label: 'Sales Tools' },
-      { href: '/tools?category=CRM', label: 'CRM Tools' },
+    'Explore': [
+      { href: '/arcade', label: '🎮 Agent Arcade' },
+      { href: '/leaderboards', label: '🏆 Leaderboards' },
+      { href: '/tools', label: '🛠️ All AI Tools' },
+      { href: '/blog', label: '📚 Blog' },
+      { href: '/answers', label: '💬 Quick Takes' },
     ],
-    Leaderboards: [
-      { href: '/leaderboards', label: 'All Rankings' },
-      { href: '/leaderboards#writing', label: 'Writing Leaders' },
-      { href: '/leaderboards#video', label: 'Video Leaders' },
-      { href: '/leaderboards#data', label: 'Data Leaders' },
-      { href: '/leaderboards#outbound', label: 'Sales Leaders' },
+    'Interactive': [
+      { href: '/quiz', label: '🎯 Tool Matcher Quiz' },
+      { href: '/games/pop-quiz', label: '🧠 AI Pop Quiz' },
+      { href: '/games/bingo', label: '🎲 Tool Bingo' },
+      { href: '/calculators/roi', label: '📊 ROI Calculator' },
+      { href: '/calculators/switch-savings', label: '💰 Switch & Save' },
     ],
-    Resources: [
-      { href: '/blog', label: 'Blog' },
-      { href: '/blog?category=guides', label: 'How-To Guides' },
-      { href: '/blog?category=reviews', label: 'Tool Reviews' },
-      { href: '/quiz', label: 'Tool Matcher Quiz' },
-      { href: '/answers', label: 'Q&A Hub' },
+    'Comparisons': [
+      { href: '/compare/apollo-vs-zoominfo', label: 'Apollo vs ZoomInfo' },
+      { href: '/compare/hubspot-vs-salesforce', label: 'HubSpot vs Salesforce' },
+      { href: '/compare/jasper-vs-copy-ai', label: 'Jasper vs Copy.ai' },
+      { href: '/compare/loom-vs-vidyard', label: 'Loom vs Vidyard' },
+      { href: '/compare/instantly-vs-smartlead', label: 'Instantly vs SmartLead' },
     ],
     Company: [
       { href: '/about', label: 'About' },
