@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,12 +16,15 @@ import {
   Award,
   Info,
   ArrowUp,
-  ArrowDown
+  Database,
+  MessageSquare,
+  Headphones,
+  ExternalLink
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 
 interface CalculatorInputs {
-  dials: number
+  dailyDials: number
   connectRate: number
   conversationRate: number
   meetingBookedRate: number
@@ -32,23 +35,40 @@ interface CalculatorInputs {
 
 type TimeHorizon = 'day' | 'week' | 'month'
 
+const WORK_DAYS_PER_WEEK = 5
+const WORK_DAYS_PER_MONTH = 22
+
 export function ColdCallCalculator() {
   const [inputs, setInputs] = useState<CalculatorInputs>({
-    dials: 100,
+    dailyDials: 50,
     connectRate: 10,
     conversationRate: 50,
     meetingBookedRate: 30,
     winRate: 20,
-    avgDealSize: 10000,
-    revenueGoal: 100000
+    avgDealSize: 5000,
+    revenueGoal: 50000
   })
 
   const [timeHorizon, setTimeHorizon] = useState<TimeHorizon>('month')
 
-  // Core calculations - all dynamic based on inputs
+  // Calculate total dials based on time horizon
+  const totalDials = useMemo(() => {
+    switch (timeHorizon) {
+      case 'day':
+        return inputs.dailyDials
+      case 'week':
+        return inputs.dailyDials * WORK_DAYS_PER_WEEK
+      case 'month':
+        return inputs.dailyDials * WORK_DAYS_PER_MONTH
+      default:
+        return inputs.dailyDials
+    }
+  }, [inputs.dailyDials, timeHorizon])
+
+  // Core calculations - all dynamic based on total dials
   const calculations = useMemo(() => {
     // Forward calculations from dials
-    const connects = (inputs.dials * inputs.connectRate) / 100
+    const connects = (totalDials * inputs.connectRate) / 100
     const conversations = (connects * inputs.conversationRate) / 100
     const meetings = (conversations * inputs.meetingBookedRate) / 100
     const deals = (meetings * inputs.winRate) / 100
@@ -61,47 +81,76 @@ export function ColdCallCalculator() {
     const connectsNeededForGoal = inputs.conversationRate > 0 ? (conversationsNeededForGoal * 100) / inputs.conversationRate : 0
     const dialsNeededForGoal = inputs.connectRate > 0 ? (connectsNeededForGoal * 100) / inputs.connectRate : 0
 
-    // Time-based calculations
-    const workDaysPerMonth = 22
-    const workDaysPerWeek = 5
-
-    let dialsPerPeriod = dialsNeededForGoal
-    let periodLabel = 'Per Month'
-
-    if (timeHorizon === 'day') {
-      dialsPerPeriod = dialsNeededForGoal / workDaysPerMonth
-      periodLabel = 'Per Day'
-    } else if (timeHorizon === 'week') {
-      dialsPerPeriod = dialsNeededForGoal / (workDaysPerMonth / workDaysPerWeek)
-      periodLabel = 'Per Week'
+    // Calculate daily dials needed based on time horizon
+    let dailyDialsNeeded = dialsNeededForGoal
+    if (timeHorizon === 'week') {
+      dailyDialsNeeded = dialsNeededForGoal / WORK_DAYS_PER_WEEK
+    } else if (timeHorizon === 'month') {
+      dailyDialsNeeded = dialsNeededForGoal / WORK_DAYS_PER_MONTH
     }
 
     // Value metrics
-    const valuePerDial = inputs.dials > 0 ? revenue / inputs.dials : 0
+    const valuePerDial = totalDials > 0 ? revenue / totalDials : 0
     const valuePerMeeting = meetings > 0 ? revenue / meetings : 0
-    const conversionRate = inputs.dials > 0 ? (deals / inputs.dials) * 100 : 0
+    const conversionRate = totalDials > 0 ? (deals / totalDials) * 100 : 0
 
     // Efficiency metrics
     const activityEfficiencyScore = Math.round(
-      ((inputs.connectRate * 0.25) +
-       (inputs.conversationRate * 0.25) +
-       (inputs.meetingBookedRate * 0.25) +
-       (inputs.winRate * 0.25))
+      ((Math.min(inputs.connectRate, 30) / 30) * 25) +
+      ((Math.min(inputs.conversationRate, 80) / 80) * 25) +
+      ((Math.min(inputs.meetingBookedRate, 50) / 50) * 25) +
+      ((Math.min(inputs.winRate, 30) / 30) * 25) * 100
     )
 
     // Pipeline metrics
     const pipelineValue = meetings * inputs.avgDealSize * (inputs.winRate / 100)
-    const pipelineCoverage = inputs.revenueGoal > 0 ? (pipelineValue / inputs.revenueGoal) * 100 : 0
+    const pipelineCoverage = inputs.revenueGoal > 0 ? (revenue / inputs.revenueGoal) * 100 : 0
     const revenueGap = Math.max(0, inputs.revenueGoal - revenue)
 
-    // Scenario comparisons - what changes would be needed to hit goal
-    const scenarios = {
-      dialIncrease: dialsNeededForGoal > inputs.dials ? ((dialsNeededForGoal - inputs.dials) / inputs.dials) * 100 : 0,
-      connectRateNeeded: inputs.dials > 0 && dialsNeededForGoal > 0 ? (dialsNeededForGoal / inputs.dials) * inputs.connectRate : inputs.connectRate,
-      winRateNeeded: meetings > 0 && dealsNeededForGoal > 0 ? (dealsNeededForGoal / meetings) * 100 : inputs.winRate
+    // More realistic scenario comparisons
+    const currentEffectiveDials = totalDials * (inputs.connectRate / 100) * (inputs.conversationRate / 100) *
+                                  (inputs.meetingBookedRate / 100) * (inputs.winRate / 100)
+    const targetEffectiveDials = dealsNeededForGoal
+
+    // Calculate realistic improvements needed
+    let connectRateNeeded = inputs.connectRate
+    let winRateNeeded = inputs.winRate
+    let dialIncreasePercent = 0
+
+    if (revenue < inputs.revenueGoal) {
+      // Option 1: Increase dials
+      if (totalDials > 0) {
+        dialIncreasePercent = ((dialsNeededForGoal - totalDials) / totalDials) * 100
+      }
+
+      // Option 2: Improve connect rate (max realistic improvement to 20%)
+      if (currentEffectiveDials > 0 && targetEffectiveDials > 0) {
+        const multiplierNeeded = targetEffectiveDials / currentEffectiveDials
+        connectRateNeeded = Math.min(20, inputs.connectRate * Math.sqrt(multiplierNeeded))
+      }
+
+      // Option 3: Improve win rate (max realistic improvement to 35%)
+      if (meetings > 0) {
+        winRateNeeded = Math.min(35, (dealsNeededForGoal / meetings) * 100)
+      }
+    }
+
+    // Determine bottleneck for recommendations
+    let bottleneck = 'general'
+    if (inputs.connectRate < 8) {
+      bottleneck = 'connect'
+    } else if (inputs.conversationRate < 40) {
+      bottleneck = 'conversation'
+    } else if (inputs.meetingBookedRate < 20) {
+      bottleneck = 'meeting'
+    } else if (inputs.winRate < 15) {
+      bottleneck = 'closing'
+    } else if (totalDials < 100) {
+      bottleneck = 'volume'
     }
 
     return {
+      totalDials,
       connects: Math.round(connects * 10) / 10,
       conversations: Math.round(conversations * 10) / 10,
       meetings: Math.round(meetings * 10) / 10,
@@ -111,29 +160,98 @@ export function ColdCallCalculator() {
       valuePerMeeting: Math.round(valuePerMeeting),
       conversionRate: Math.round(conversionRate * 100) / 100,
       dialsNeededForGoal: Math.ceil(dialsNeededForGoal),
+      dailyDialsNeeded: Math.ceil(dailyDialsNeeded),
       meetingsNeededForGoal: Math.ceil(meetingsNeededForGoal),
-      dialsPerPeriod: Math.ceil(dialsPerPeriod),
-      periodLabel,
       activityEfficiencyScore,
       pipelineValue: Math.round(pipelineValue),
       pipelineCoverage: Math.round(pipelineCoverage),
       revenueGap: Math.round(revenueGap),
-      scenarios
+      scenarios: {
+        dialIncreasePercent: Math.max(0, dialIncreasePercent),
+        connectRateNeeded: Math.round(connectRateNeeded * 10) / 10,
+        winRateNeeded: Math.round(winRateNeeded * 10) / 10
+      },
+      bottleneck
     }
-  }, [inputs, timeHorizon])
+  }, [inputs, timeHorizon, totalDials])
 
   const handleInputChange = (field: keyof CalculatorInputs, value: number) => {
     setInputs(prev => ({ ...prev, [field]: value }))
   }
 
+  // Get time horizon label
+  const getTimeLabel = () => {
+    switch (timeHorizon) {
+      case 'day': return 'Daily'
+      case 'week': return 'Weekly'
+      case 'month': return 'Monthly'
+    }
+  }
+
   // Funnel data for visualization - fully dynamic
   const funnelData = [
-    { stage: 'Dials', value: inputs.dials, maxValue: inputs.dials, color: 'from-blue-500 to-blue-600' },
-    { stage: 'Connects', value: calculations.connects, maxValue: inputs.dials, color: 'from-cyan-500 to-cyan-600' },
-    { stage: 'Conversations', value: calculations.conversations, maxValue: inputs.dials, color: 'from-green-500 to-green-600' },
-    { stage: 'Meetings', value: calculations.meetings, maxValue: inputs.dials, color: 'from-yellow-500 to-yellow-600' },
-    { stage: 'Deals Won', value: calculations.deals, maxValue: inputs.dials, color: 'from-orange-500 to-orange-600' },
+    { stage: `${getTimeLabel()} Dials`, value: calculations.totalDials, maxValue: calculations.totalDials, color: 'from-blue-500 to-blue-600' },
+    { stage: 'Connects', value: calculations.connects, maxValue: calculations.totalDials, color: 'from-cyan-500 to-cyan-600' },
+    { stage: 'Conversations', value: calculations.conversations, maxValue: calculations.totalDials, color: 'from-green-500 to-green-600' },
+    { stage: 'Meetings', value: calculations.meetings, maxValue: calculations.totalDials, color: 'from-yellow-500 to-yellow-600' },
+    { stage: 'Deals Won', value: calculations.deals, maxValue: calculations.totalDials, color: 'from-orange-500 to-orange-600' },
   ]
+
+  // Tool recommendations based on bottleneck
+  const getToolRecommendation = () => {
+    switch (calculations.bottleneck) {
+      case 'connect':
+        return {
+          title: 'Boost Connect Rates',
+          tools: [
+            { name: 'ZoomInfo', href: '/tools/zoominfo', description: 'Better phone data = higher connect rates', affiliate: false },
+            { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'Verified contacts with direct dials', affiliate: true }
+          ]
+        }
+      case 'conversation':
+        return {
+          title: 'Improve Conversations',
+          tools: [
+            { name: 'ChatGPT', href: '/tools/chatgpt', description: 'Generate better cold call scripts', affiliate: false },
+            { name: 'Gong', href: '/tools', description: 'Call coaching and analytics', affiliate: false }
+          ]
+        }
+      case 'meeting':
+        return {
+          title: 'Book More Meetings',
+          tools: [
+            { name: 'Calendly', href: '/tools', description: 'Instant booking while on the call', affiliate: false },
+            { name: 'Chili Piper', href: '/tools', description: 'Smart routing and scheduling', affiliate: false }
+          ]
+        }
+      case 'closing':
+        return {
+          title: 'Close More Deals',
+          tools: [
+            { name: 'Close CRM', href: 'https://refer.close.com/lvdqjdm97t92-fetl0j', description: 'Built-in calling and follow-up', affiliate: true },
+            { name: 'HubSpot', href: '/tools/hubspot', description: 'Full sales automation suite', affiliate: false }
+          ]
+        }
+      case 'volume':
+        return {
+          title: 'Scale Your Outreach',
+          tools: [
+            { name: 'PhoneBurner', href: '/tools', description: '4x more dials per hour', affiliate: false },
+            { name: 'Orum', href: '/tools', description: 'AI-powered parallel dialer', affiliate: false }
+          ]
+        }
+      default:
+        return {
+          title: 'Optimize Your Stack',
+          tools: [
+            { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'All-in-one sales platform', affiliate: true },
+            { name: 'Close CRM', href: 'https://refer.close.com/lvdqjdm97t92-fetl0j', description: 'CRM with built-in calling', affiliate: true }
+          ]
+        }
+    }
+  }
+
+  const toolRecommendation = getToolRecommendation()
 
   return (
     <div className="space-y-6">
@@ -141,32 +259,66 @@ export function ColdCallCalculator() {
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">Cold Call Calculator</h1>
         <p className="text-muted-foreground">
-          See how changes in activity and conversion rates impact revenue
+          See how daily activity compounds into revenue
         </p>
       </div>
+
+      {/* Time Horizon Toggle */}
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex items-center justify-center gap-3">
+          <span className="text-sm font-medium">View results for:</span>
+          <div className="flex gap-2">
+            {(['day', 'week', 'month'] as TimeHorizon[]).map(horizon => (
+              <Button
+                key={horizon}
+                size="sm"
+                variant={timeHorizon === horizon ? 'primary' : 'outline'}
+                onClick={() => setTimeHorizon(horizon)}
+                className="capitalize"
+              >
+                {horizon === 'day' ? 'Daily' : horizon === 'week' ? 'Weekly' : 'Monthly'}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <p className="text-xs text-center text-muted-foreground mt-2">
+          {timeHorizon === 'week' && `${inputs.dailyDials} daily dials × ${WORK_DAYS_PER_WEEK} days = ${calculations.totalDials} weekly dials`}
+          {timeHorizon === 'month' && `${inputs.dailyDials} daily dials × ${WORK_DAYS_PER_MONTH} days = ${calculations.totalDials} monthly dials`}
+          {timeHorizon === 'day' && `Showing results for ${inputs.dailyDials} daily dials`}
+        </p>
+      </Card>
 
       {/* Current vs Goal */}
       <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Current Pipeline</p>
+            <p className="text-sm text-muted-foreground">{getTimeLabel()} Pipeline</p>
             <p className="text-2xl font-bold text-green-700">${calculations.revenue.toLocaleString()}</p>
           </div>
           <div className="text-center px-4">
-            <ArrowUp className="h-5 w-5 text-green-600 mx-auto" />
-            <p className="text-xs text-muted-foreground mt-1">
-              {calculations.pipelineCoverage}% of goal
-            </p>
+            {calculations.pipelineCoverage >= 100 ? (
+              <>
+                <Target className="h-5 w-5 text-green-600 mx-auto" />
+                <p className="text-xs text-green-600 font-medium mt-1">Goal achieved!</p>
+              </>
+            ) : (
+              <>
+                <ArrowUp className="h-5 w-5 text-orange-600 mx-auto" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {calculations.pipelineCoverage}% of goal
+                </p>
+              </>
+            )}
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Revenue Goal</p>
+            <p className="text-sm text-muted-foreground">{getTimeLabel()} Goal</p>
             <p className="text-2xl font-bold text-green-700">${inputs.revenueGoal.toLocaleString()}</p>
           </div>
         </div>
         {calculations.revenueGap > 0 && (
           <div className="mt-3 pt-3 border-t border-green-200">
             <p className="text-sm text-orange-600 font-medium">
-              Gap to goal: ${calculations.revenueGap.toLocaleString()}
+              Gap to goal: ${calculations.revenueGap.toLocaleString()} ({calculations.dailyDialsNeeded - inputs.dailyDials} more daily dials needed)
             </p>
           </div>
         )}
@@ -180,25 +332,25 @@ export function ColdCallCalculator() {
         </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {/* Dials */}
+          {/* Daily Dials */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Number of Dials</label>
+            <label className="text-sm font-medium">Daily Dials (per rep)</label>
             <input
               type="number"
-              value={inputs.dials}
-              onChange={(e) => handleInputChange('dials', parseInt(e.target.value) || 0)}
+              value={inputs.dailyDials}
+              onChange={(e) => handleInputChange('dailyDials', parseInt(e.target.value) || 0)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
             />
             <input
               type="range"
               min="0"
-              max="500"
-              value={inputs.dials}
-              onChange={(e) => handleInputChange('dials', parseInt(e.target.value))}
+              max="200"
+              value={inputs.dailyDials}
+              onChange={(e) => handleInputChange('dailyDials', parseInt(e.target.value))}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Currently: {inputs.dials} → {calculations.connects} connects
+              {getTimeLabel()}: {calculations.totalDials} total dials
             </p>
           </div>
 
@@ -216,13 +368,13 @@ export function ColdCallCalculator() {
             <input
               type="range"
               min="0"
-              max="50"
+              max="30"
               value={inputs.connectRate}
               onChange={(e) => handleInputChange('connectRate', parseInt(e.target.value))}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Industry avg: 8-15%
+              Industry avg: 8-12% | Good: 15%+
             </p>
           </div>
 
@@ -246,7 +398,7 @@ export function ColdCallCalculator() {
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Currently: {calculations.connects} → {calculations.conversations} conversations
+              {calculations.connects} connects → {calculations.conversations} conversations
             </p>
           </div>
 
@@ -264,13 +416,13 @@ export function ColdCallCalculator() {
             <input
               type="range"
               min="0"
-              max="100"
+              max="80"
               value={inputs.meetingBookedRate}
               onChange={(e) => handleInputChange('meetingBookedRate', parseInt(e.target.value))}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Currently: {calculations.conversations} → {calculations.meetings} meetings
+              {calculations.conversations} convos → {calculations.meetings} meetings
             </p>
           </div>
 
@@ -288,13 +440,13 @@ export function ColdCallCalculator() {
             <input
               type="range"
               min="0"
-              max="100"
+              max="50"
               value={inputs.winRate}
               onChange={(e) => handleInputChange('winRate', parseInt(e.target.value))}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Currently: {calculations.meetings} → {calculations.deals} deals
+              {calculations.meetings} meetings → {calculations.deals} deals
             </p>
           </div>
 
@@ -314,7 +466,7 @@ export function ColdCallCalculator() {
 
           {/* Revenue Goal */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Revenue Goal ($)</label>
+            <label className="text-sm font-medium">{getTimeLabel()} Revenue Goal ($)</label>
             <input
               type="number"
               value={inputs.revenueGoal}
@@ -322,7 +474,7 @@ export function ColdCallCalculator() {
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
             />
             <p className="text-xs text-muted-foreground">
-              Need {calculations.dialsNeededForGoal} total dials
+              Need {calculations.dailyDialsNeeded} daily dials
             </p>
           </div>
         </div>
@@ -332,7 +484,7 @@ export function ColdCallCalculator() {
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <BarChart3 className="h-5 w-5" />
-          Live Sales Funnel
+          {getTimeLabel()} Sales Funnel
         </h2>
         <div className="space-y-3">
           {funnelData.map((item, index) => {
@@ -362,82 +514,79 @@ export function ColdCallCalculator() {
         </div>
       </Card>
 
-      {/* Scenario Analysis */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Zap className="h-5 w-5" />
-          Ways to Hit Your Goal
-        </h2>
-        <div className="grid md:grid-cols-3 gap-4">
-          {/* Scenario 1: Increase Dials */}
-          <div className="p-4 bg-white rounded-lg">
-            <h3 className="font-medium text-sm mb-2">Option 1: More Dials</h3>
-            <p className="text-2xl font-bold text-blue-600">
-              {calculations.dialsNeededForGoal}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total dials needed
-            </p>
-            {calculations.dialsNeededForGoal > inputs.dials && (
-              <Badge className="mt-2 bg-orange-100 text-orange-700">
-                +{calculations.scenarios.dialIncrease.toFixed(0)}% increase
-              </Badge>
-            )}
-          </div>
+      {/* Realistic Scenarios */}
+      {calculations.revenueGap > 0 && (
+        <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            3 Ways to Hit Your Goal
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Scenario 1: Increase Dials */}
+            <div className="p-4 bg-white rounded-lg">
+              <h3 className="font-medium text-sm mb-2">Option 1: More Dials</h3>
+              <p className="text-2xl font-bold text-blue-600">
+                {calculations.dailyDialsNeeded}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Daily dials needed
+              </p>
+              {calculations.scenarios.dialIncreasePercent > 0 && calculations.scenarios.dialIncreasePercent < 200 && (
+                <Badge className="mt-2 bg-orange-100 text-orange-700">
+                  +{calculations.scenarios.dialIncreasePercent.toFixed(0)}% increase
+                </Badge>
+              )}
+              {calculations.scenarios.dialIncreasePercent >= 200 && (
+                <Badge className="mt-2 bg-red-100 text-red-700">
+                  Needs scaling team
+                </Badge>
+              )}
+            </div>
 
-          {/* Scenario 2: Improve Connect Rate */}
-          <div className="p-4 bg-white rounded-lg">
-            <h3 className="font-medium text-sm mb-2">Option 2: Better Connect Rate</h3>
-            <p className="text-2xl font-bold text-green-600">
-              {calculations.scenarios.connectRateNeeded.toFixed(1)}%
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Connect rate needed
-            </p>
-            {calculations.scenarios.connectRateNeeded > inputs.connectRate && (
-              <Badge className="mt-2 bg-green-100 text-green-700">
-                +{(calculations.scenarios.connectRateNeeded - inputs.connectRate).toFixed(1)}% points
-              </Badge>
-            )}
-          </div>
+            {/* Scenario 2: Improve Connect Rate */}
+            <div className="p-4 bg-white rounded-lg">
+              <h3 className="font-medium text-sm mb-2">Option 2: Better Data</h3>
+              <p className="text-2xl font-bold text-green-600">
+                {calculations.scenarios.connectRateNeeded}%
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Connect rate target
+              </p>
+              {calculations.scenarios.connectRateNeeded > inputs.connectRate && calculations.scenarios.connectRateNeeded <= 20 && (
+                <Badge className="mt-2 bg-green-100 text-green-700">
+                  +{(calculations.scenarios.connectRateNeeded - inputs.connectRate).toFixed(1)}% achievable
+                </Badge>
+              )}
+              {calculations.scenarios.connectRateNeeded > 20 && (
+                <Badge className="mt-2 bg-yellow-100 text-yellow-700">
+                  Combine with dials
+                </Badge>
+              )}
+            </div>
 
-          {/* Scenario 3: Improve Win Rate */}
-          <div className="p-4 bg-white rounded-lg">
-            <h3 className="font-medium text-sm mb-2">Option 3: Better Win Rate</h3>
-            <p className="text-2xl font-bold text-purple-600">
-              {calculations.scenarios.winRateNeeded.toFixed(1)}%
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Win rate needed
-            </p>
-            {calculations.scenarios.winRateNeeded > inputs.winRate && (
-              <Badge className="mt-2 bg-purple-100 text-purple-700">
-                +{(calculations.scenarios.winRateNeeded - inputs.winRate).toFixed(1)}% points
-              </Badge>
-            )}
+            {/* Scenario 3: Improve Win Rate */}
+            <div className="p-4 bg-white rounded-lg">
+              <h3 className="font-medium text-sm mb-2">Option 3: Close Better</h3>
+              <p className="text-2xl font-bold text-purple-600">
+                {calculations.scenarios.winRateNeeded}%
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Win rate target
+              </p>
+              {calculations.scenarios.winRateNeeded > inputs.winRate && calculations.scenarios.winRateNeeded <= 35 && (
+                <Badge className="mt-2 bg-purple-100 text-purple-700">
+                  +{(calculations.scenarios.winRateNeeded - inputs.winRate).toFixed(1)}% possible
+                </Badge>
+              )}
+              {calculations.scenarios.winRateNeeded > 35 && (
+                <Badge className="mt-2 bg-yellow-100 text-yellow-700">
+                  Needs other improvements
+                </Badge>
+              )}
+            </div>
           </div>
-        </div>
-      </Card>
-
-      {/* Time Horizon Toggle */}
-      <Card className="p-4">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-sm font-medium">Activity needed:</span>
-          <div className="flex gap-2">
-            {(['day', 'week', 'month'] as TimeHorizon[]).map(horizon => (
-              <Button
-                key={horizon}
-                size="sm"
-                variant={timeHorizon === horizon ? 'primary' : 'outline'}
-                onClick={() => setTimeHorizon(horizon)}
-                className="capitalize"
-              >
-                Per {horizon}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Key Metrics */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -454,15 +603,13 @@ export function ColdCallCalculator() {
           </div>
         </Card>
 
-        {/* Dials Needed */}
+        {/* Daily Dials Needed */}
         <Card className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">
-                {calculations.periodLabel}
-              </p>
+              <p className="text-sm text-muted-foreground mb-1">Daily Dials for Goal</p>
               <p className="text-2xl font-bold text-orange-700">
-                {calculations.dialsPerPeriod}
+                {calculations.dailyDialsNeeded}
               </p>
             </div>
             <Phone className="h-8 w-8 text-orange-500 opacity-50" />
@@ -496,7 +643,53 @@ export function ColdCallCalculator() {
         </Card>
       </div>
 
-      {/* Advanced Metrics */}
+      {/* Tool Recommendations */}
+      <Card className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Headphones className="h-5 w-5" />
+          {toolRecommendation.title}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Based on your metrics, these tools can help you improve:
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {toolRecommendation.tools.map((tool, index) => (
+            <a
+              key={index}
+              href={tool.href}
+              target={tool.affiliate ? "_blank" : undefined}
+              rel={tool.affiliate ? "noopener noreferrer sponsored" : undefined}
+              className="p-4 bg-white rounded-lg border hover:border-green-400 transition-all hover:shadow-md group"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-medium flex items-center gap-2">
+                    {tool.name}
+                    {tool.affiliate && (
+                      <Badge className="bg-green-100 text-green-700 text-xs">
+                        Partner
+                      </Badge>
+                    )}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {tool.description}
+                  </p>
+                </div>
+                <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-green-600" />
+              </div>
+            </a>
+          ))}
+        </div>
+        <div className="mt-4 text-center">
+          <Link href="/quiz">
+            <Button variant="outline" size="sm">
+              Get Full Tool Stack Recommendation →
+            </Button>
+          </Link>
+        </div>
+      </Card>
+
+      {/* Performance Insights */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
@@ -510,30 +703,30 @@ export function ColdCallCalculator() {
             <p className="text-3xl font-bold text-indigo-600">
               ${calculations.valuePerMeeting.toLocaleString()}
             </p>
-            <Badge className="mt-2" variant={calculations.valuePerMeeting > 5000 ? 'success' : 'warning'}>
-              {calculations.valuePerMeeting > 5000 ? 'Strong' : 'Optimize'}
+            <Badge className="mt-2" variant={calculations.valuePerMeeting > 3000 ? 'success' : 'warning'}>
+              {calculations.valuePerMeeting > 3000 ? 'Strong ROI' : 'Optimize Pipeline'}
             </Badge>
           </div>
 
           {/* Overall Conversion */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Dial to Deal</p>
+            <p className="text-sm text-muted-foreground mb-2">Dial → Deal Rate</p>
             <p className="text-3xl font-bold text-green-600">
               {calculations.conversionRate}%
             </p>
-            <Badge className="mt-2" variant={calculations.conversionRate > 1 ? 'success' : 'warning'}>
-              {calculations.conversionRate > 1 ? 'Above Average' : 'Room to Grow'}
+            <Badge className="mt-2" variant={calculations.conversionRate > 0.5 ? 'success' : 'warning'}>
+              {calculations.conversionRate > 0.5 ? 'Above Average' : 'Room to Improve'}
             </Badge>
           </div>
 
-          {/* Pipeline Value */}
+          {/* Pipeline Coverage */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Pipeline Value</p>
+            <p className="text-sm text-muted-foreground mb-2">Goal Coverage</p>
             <p className="text-3xl font-bold text-purple-600">
-              ${calculations.pipelineValue.toLocaleString()}
+              {calculations.pipelineCoverage}%
             </p>
-            <Badge className="mt-2" variant="default">
-              {calculations.pipelineCoverage}% Coverage
+            <Badge className="mt-2" variant={calculations.pipelineCoverage >= 100 ? 'success' : 'warning'}>
+              {calculations.pipelineCoverage >= 100 ? 'On Track!' : 'Keep Pushing'}
             </Badge>
           </div>
         </div>
@@ -544,11 +737,12 @@ export function ColdCallCalculator() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div className="text-sm text-muted-foreground">
-            <p className="font-medium mb-1">Key Insights:</p>
+            <p className="font-medium mb-1">Pro Tips:</p>
             <ul className="space-y-1">
-              <li>• Small improvements in connect rate have massive downstream impact</li>
-              <li>• Focus on conversation quality over quantity for better meeting rates</li>
-              <li>• Track these metrics daily to spot trends before they become problems</li>
+              <li>• A 2% improvement in connect rate can equal 20% more revenue</li>
+              <li>• Focus on one metric at a time for best results</li>
+              <li>• Quality conversations beat quantity every time</li>
+              <li>• Track daily, optimize weekly, celebrate monthly</li>
             </ul>
           </div>
         </div>
