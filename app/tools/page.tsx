@@ -95,7 +95,10 @@ export default function ToolsPage() {
       {filteredTools.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredTools.map(tool => {
-            const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'tool', tool.slug)
+            const ctaUrl = tool.affiliate
+              ? buildAffiliateUrl(tool.affiliateUrl!, 'tool', tool.slug)
+              : tool.siteUrl
+            const ctaText = tool.affiliate ? `Try ${tool.name}` : 'Visit Website'
 
             return (
               <Card key={tool.slug}>
@@ -140,12 +143,12 @@ export default function ToolsPage() {
                       magnetic
                     >
                       <a
-                        href={affiliateUrl}
+                        href={ctaUrl}
                         target="_blank"
-                        rel="noopener noreferrer sponsored"
+                        rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                         className="flex items-center justify-center gap-2"
                       >
-                        Try {tool.name}
+                        {ctaText}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     </Button>
@@ -192,7 +195,10 @@ export default function ToolsPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {popularPicks.map(tool => {
-                const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'tool', tool.slug)
+                const ctaUrl = tool.affiliate
+                  ? buildAffiliateUrl(tool.affiliateUrl!, 'tool', tool.slug)
+                  : tool.siteUrl
+                const ctaText = tool.affiliate ? `Try ${tool.name}` : 'Visit Website'
 
                 return (
                   <Card key={tool.slug} className="border-green/20">
@@ -233,12 +239,12 @@ export default function ToolsPage() {
                           magnetic
                         >
                           <a
-                            href={affiliateUrl}
+                            href={ctaUrl}
                             target="_blank"
-                            rel="noopener noreferrer sponsored"
+                            rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                             className="flex items-center justify-center gap-2"
                           >
-                            Try {tool.name}
+                            {ctaText}
                             <ExternalLink className="h-3 w-3" />
                           </a>
                         </Button>

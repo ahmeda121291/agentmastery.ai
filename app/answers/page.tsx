@@ -69,14 +69,17 @@ function renderAnswerWithLinks(text: string): React.ReactNode {
         const tool = tools.find(t => t.slug === toolSlug)
 
         if (tool) {
-          // Use affiliate URL with UTM tracking
-          const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'answers', toolSlug)
+          // Use appropriate URL and CTA based on affiliate status
+          const ctaUrl = tool.affiliate
+            ? buildAffiliateUrl(tool.affiliateUrl!, 'answers', toolSlug)
+            : tool.siteUrl
+          const ctaText = tool.affiliate ? `Try ${tool.name}` : 'Visit Website'
           return (
             <a
               key={index}
-              href={affiliateUrl}
+              href={ctaUrl}
               target="_blank"
-              rel="noopener noreferrer"
+              rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
               className="text-green hover:text-forest underline font-medium"
             >
               {linkText}

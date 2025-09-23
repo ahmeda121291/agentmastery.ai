@@ -525,12 +525,15 @@ export default function QuizPage() {
                       <div className="flex gap-3">
                         <Button asChild className="flex-1">
                           <a
-                            href={`${tool.affiliateUrl}${tool.affiliateUrl.includes('?') ? '&' : '?'}utm_source=agentmastery&utm_medium=quiz&utm_campaign=tool-matcher`}
+                            href={tool.affiliate
+                              ? `${tool.affiliateUrl}${tool.affiliateUrl!.includes('?') ? '&' : '?'}utm_source=agentmastery&utm_medium=quiz&utm_campaign=tool-matcher`
+                              : tool.siteUrl
+                            }
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                             className="flex items-center justify-center gap-2"
                           >
-                            Try {tool.name} Now
+                            {tool.affiliate ? `Try ${tool.name} Now` : 'Visit Website'}
                             <ExternalLink className="h-4 w-4" />
                           </a>
                         </Button>

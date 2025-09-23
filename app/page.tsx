@@ -117,12 +117,12 @@ function ToolOfTheWeek() {
                 <span className="text-sm text-muted-foreground">{currentTool.pricingNote}</span>
                 <Button size="sm" variant="primary" magnetic asChild>
                   <a
-                    href={currentTool.affiliateUrl}
+                    href={currentTool.affiliate ? currentTool.affiliateUrl! : currentTool.siteUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel={currentTool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                     className="flex items-center gap-2"
                   >
-                    Try Now
+                    {currentTool.affiliate ? 'Try Now' : 'Visit Website'}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </Button>

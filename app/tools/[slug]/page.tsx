@@ -66,8 +66,10 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
     ? tools.find(t => t.slug === tool.nearestCompetitorSlug)
     : null
 
-  // Generate UTM-tagged affiliate URL
-  const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'tool', tool.slug)
+  // Generate CTAs based on affiliate status
+  const affiliateUrl = tool.affiliate ? buildAffiliateUrl(tool.affiliateUrl!, 'tool', tool.slug) : null
+  const ctaText = tool.affiliate ? `Try ${tool.name}` : 'Visit Website'
+  const ctaUrl = tool.affiliate ? affiliateUrl! : tool.siteUrl
 
   // Calculate fake ranking (will be wired to real data later)
   const ranking = Math.floor(Math.random() * 10) + 1
@@ -81,7 +83,7 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
       price: tool.pricingNote,
       priceCurrency: 'USD',
       availability: 'InStock',
-      url: affiliateUrl
+      url: ctaUrl
     },
     aggregateRating: {
       ratingValue: 4.2,
@@ -229,12 +231,12 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
             <div className="hidden md:block">
               <Button size="lg" variant="primary" magnetic asChild>
                 <a
-                  href={affiliateUrl}
+                  href={ctaUrl}
                   target="_blank"
-                  rel="noopener noreferrer sponsored"
+                  rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                   className="flex items-center gap-2"
                 >
-                  Try {tool.name}
+                  {ctaText}
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </Button>
@@ -377,12 +379,12 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
               <p className="mb-3 font-medium">Ready to boost your {tool.category.toLowerCase()} workflow?</p>
               <Button size="lg" variant="primary" magnetic asChild>
                 <a
-                  href={affiliateUrl}
+                  href={ctaUrl}
                   target="_blank"
-                  rel="noopener noreferrer sponsored"
+                  rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
                   className="flex items-center gap-2 justify-center"
                 >
-                  Start Free with {tool.name}
+                  {tool.affiliate ? `Start Free with ${tool.name}` : ctaText}
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
               </Button>
@@ -409,12 +411,12 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
         <div className="text-center space-y-4">
           <Button size="lg" variant="primary" magnetic asChild>
             <a
-              href={affiliateUrl}
+              href={ctaUrl}
               target="_blank"
-              rel="noopener noreferrer sponsored"
+              rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
               className="flex items-center gap-2"
             >
-              Get Started with {tool.name}
+              {tool.affiliate ? `Get Started with ${tool.name}` : ctaText}
               <ExternalLink className="h-4 w-4" />
             </a>
           </Button>
@@ -430,12 +432,12 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t md:hidden z-50">
           <Button className="w-full" size="lg" variant="primary" asChild>
             <a
-              href={affiliateUrl}
+              href={ctaUrl}
               target="_blank"
-              rel="noopener noreferrer sponsored"
+              rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
               className="flex items-center justify-center gap-2"
             >
-              Try {tool.name}
+              {ctaText}
               <ExternalLink className="h-4 w-4" />
             </a>
           </Button>

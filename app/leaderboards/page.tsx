@@ -203,8 +203,12 @@ function ToolRow({ tool, isExpanded, onToggle }: {
               </Button>
               {toolData && (
                 <Button size="sm" variant="ghost" asChild>
-                  <a href={toolData.affiliateUrl} target="_blank" rel="noopener noreferrer">
-                    Try {tool.name}
+                  <a
+                    href={toolData.affiliate ? toolData.affiliateUrl! : toolData.siteUrl}
+                    target="_blank"
+                    rel={toolData.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
+                  >
+                    {toolData.affiliate ? `Try ${tool.name}` : 'Visit Website'}
                   </a>
                 </Button>
               )}
@@ -350,6 +354,11 @@ export default function LeaderboardsPage() {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Weekly rankings powered by our AI scoring algorithm. Tracking value, quality, adoption, and user experience.
         </p>
+        <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted-foreground/20 max-w-3xl mx-auto">
+          <p className="text-sm text-muted-foreground">
+            <strong>Transparency Note:</strong> Rankings include affiliate and non-affiliate tools. Affiliate status does not affect scoring.
+          </p>
+        </div>
       </div>
 
       {/* Movers & Shakers */}
