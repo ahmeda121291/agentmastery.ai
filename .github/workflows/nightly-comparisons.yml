@@ -1,0 +1,36 @@
+name: Nightly Comparisons
+
+on:
+  schedule:
+    - cron: "07 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-comparisons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Generate comparisons
+        run: pnpm run generate:comparisons
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL || 'gpt-4o-mini' }}
+      - name: Commit & push
+        run: |
+          if [[ -n "$(git status --porcelain app/compare)" ]]; then
+            git config user.name  "automation-bot"
+            git config user.email "automation@users.noreply.github.com"
+            git add app/compare
+            git commit -m "chore(comparisons): nightly tool comparisons"
+            git push https://x-access-token:${{ secrets.PAT_FOR_AUTOMATION }}@github.com/${{ github.repository }} HEAD:main
+          else
+            echo "No changes to commit."
+          fi
