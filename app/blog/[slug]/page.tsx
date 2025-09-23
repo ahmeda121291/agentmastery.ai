@@ -320,7 +320,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
               )}
 
               {/* MDX Content */}
-              <div className="prose prose-lg max-w-none">
+              <div className="prose-am max-w-none">
                 <MDXRemote source={processedContent} components={components} />
               </div>
 

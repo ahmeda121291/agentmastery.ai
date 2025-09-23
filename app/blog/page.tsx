@@ -148,32 +148,34 @@ export default async function BlogPage() {
           <>
             {/* Featured Post */}
             {featuredPost && (
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <TrendingUp className="h-6 w-6 mr-2 text-green" />
-                  Featured Post
-                </h2>
-                <Link href={`/blog/${featuredPost.slug}`}>
-                  <Card className="hover:shadow-xl transition-shadow overflow-hidden">
-                    {featuredPost.image && (
-                      <div className="h-64 bg-gradient-to-r from-forest to-green" />
-                    )}
-                    <CardHeader>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                        <span className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {featuredPost.date ? formatDate(featuredPost.date) : 'Recently'}
-                        </span>
-                        <Badge variant="secondary">{featuredPost.category}</Badge>
-                      </div>
-                      <CardTitle className="text-2xl">{featuredPost.title}</CardTitle>
-                      <CardDescription className="text-base">
-                        {featuredPost.description}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              </div>
+              <section className="mx-auto max-w-6xl px-6 md:px-8 py-10">
+                <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
+                  <article className="card relative overflow-hidden p-6 md:p-8 bg-gradient-to-br from-forest to-green text-white">
+                    <div className="absolute inset-0 opacity-[0.10] pointer-events-none animate-pulse" />
+                    <h3 className="text-2xl md:text-3xl font-bold relative z-10">{featuredPost.title}</h3>
+                    <p className="mt-2 text-white/90 line-clamp-3 relative z-10">{featuredPost.description || featuredPost.excerpt}</p>
+                    <div className="mt-6 flex flex-wrap gap-3 relative z-10">
+                      <Link className="btn bg-white text-ink hover:bg-gray-100" href={`/blog/${featuredPost.slug}`}>Read Post</Link>
+                      <Link className="btn bg-white/20 text-white border border-white/30 hover:bg-white/30" href="/rankings">View Rankings</Link>
+                    </div>
+                  </article>
+                  <aside className="card p-4 md:p-6">
+                    <h4 className="font-semibold text-ink">Latest Posts</h4>
+                    <ul className="mt-3 space-y-2">
+                      {latestPosts.slice(1, 6).map(post => (
+                        <li key={post.slug}>
+                          <Link
+                            href={`/blog/${post.slug}`}
+                            className="text-sm text-gray-600 hover:text-green transition-colors line-clamp-2"
+                          >
+                            {post.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </aside>
+                </div>
+              </section>
             )}
 
             {/* Client-side filtering component */}

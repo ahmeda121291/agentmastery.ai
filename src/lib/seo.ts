@@ -136,9 +136,14 @@ export function formatDate(date: string): string {
 
 export function buildAffiliateUrl(
   url: string,
-  source: 'tool' | 'blog' | 'quiz' | 'calculator',
+  source: 'tool' | 'blog' | 'quiz' | 'calculator' | 'answers' | 'answers-cta',
   slug: string
 ): string {
+  // If it's an internal path, return as-is
+  if (url.startsWith('/')) {
+    return url
+  }
+
   // Don't modify if URL already has UTM params
   if (url.includes('utm_')) {
     return url

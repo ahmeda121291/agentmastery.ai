@@ -96,6 +96,56 @@
   }
 }
 
+/* Prose Styles for MDX Content */
+.prose-am {
+  @apply leading-relaxed;
+}
+.prose-am h1,
+.prose-am h2,
+.prose-am h3 {
+  @apply font-semibold tracking-tight text-ink;
+}
+.prose-am p {
+  @apply my-4;
+}
+.prose-am ul {
+  @apply my-4 list-disc pl-6;
+}
+.prose-am ol {
+  @apply my-4 list-decimal pl-6;
+}
+.prose-am li {
+  @apply my-1;
+}
+.prose-am table {
+  @apply w-full border-collapse my-6 text-sm;
+}
+.prose-am th,
+.prose-am td {
+  @apply border border-mist/70 px-3 py-2 align-top;
+}
+.prose-am thead th {
+  @apply bg-mist text-ink font-semibold;
+}
+.prose-am tbody tr:nth-child(even) {
+  @apply bg-mist/30;
+}
+.prose-am blockquote {
+  @apply border-l-4 border-forest/30 pl-4 italic text-ink/80 my-4;
+}
+.prose-am a {
+  @apply underline decoration-forest/50 underline-offset-2 hover:decoration-forest text-green hover:text-forest;
+}
+.prose-am code {
+  @apply bg-mist/50 px-1 py-0.5 rounded text-sm;
+}
+.prose-am pre {
+  @apply bg-ink text-white p-4 rounded-lg overflow-x-auto my-4;
+}
+.prose-am pre code {
+  @apply bg-transparent p-0;
+}
+
 /* Spark Effect */
 @keyframes spark {
   0% {

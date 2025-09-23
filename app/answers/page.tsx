@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { tools } from '@/data/tools'
 import { buildAffiliateUrl } from '@/lib/affiliate'
+import { renderAnswer, sanitizeAnswer } from '@/lib/linkify'
 import { ChevronDown, Search, X, ExternalLink, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -39,96 +40,6 @@ const SORTED_ANSWERS = ALL_ANSWERS
   })
   .slice(0, 100) // Show up to 100 newest
 
-// Sanitize legacy answer text
-function sanitizeLegacyAnswer(text: string): string {
-  return text
-    // Remove empty brackets and artifacts
-    .replace(/\[\]/g, '')
-    .replace(/\(\)/g, '')
-    // Fix unmatched parentheses/brackets
-    .replace(/\([^)]*$/g, '')
-    .replace(/^[^(]*\)/g, '')
-    .replace(/\[[^\]]*$/g, '')
-    .replace(/^[^\[]*\]/g, '')
-    // Clean double spaces and normalize
-    .replace(/\s+/g, ' ')
-    .replace(/\*\*/g, '')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/~~([^~]+)~~/g, '$1')
-    .trim()
-}
-
-// Convert internal markdown links to Link components with UTM tracking
-function renderAnswerWithLinks(text: string): React.ReactNode {
-  const parts = text.split(/(\[([^\]]+)\]\(([^)]+)\))/g)
-
-  return parts.map((part, index) => {
-    // Check if this part is a markdown link
-    const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/)
-
-    if (linkMatch) {
-      const [, linkText, linkUrl] = linkMatch
-
-      // Check if it's an internal tool link
-      if (linkUrl.startsWith('/tools/')) {
-        const toolSlug = linkUrl.replace('/tools/', '')
-        const tool = tools.find(t => t.slug === toolSlug)
-
-        if (tool) {
-          // Use appropriate URL and CTA based on affiliate status
-          const ctaUrl = tool.affiliate
-            ? buildAffiliateUrl(tool.affiliateUrl!, 'answers', toolSlug)
-            : tool.siteUrl
-          const ctaText = tool.affiliate ? `Try ${tool.name}` : 'Visit Website'
-          return (
-            <a
-              key={index}
-              href={ctaUrl}
-              target="_blank"
-              rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
-              className="text-green hover:text-forest underline font-medium"
-            >
-              {linkText}
-            </a>
-          )
-        }
-      }
-
-      // For other internal links, use Next.js Link
-      if (linkUrl.startsWith('/')) {
-        return (
-          <Link
-            key={index}
-            href={linkUrl}
-            className="text-green hover:text-forest underline font-medium"
-          >
-            {linkText}
-          </Link>
-        )
-      }
-
-      // External links
-      return (
-        <a
-          key={index}
-          href={linkUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-green hover:text-forest underline font-medium"
-        >
-          {linkText}
-        </a>
-      )
-    }
-
-    // Check if this is the third part of a split (the actual text)
-    if (index % 4 === 0) {
-      return part
-    }
-
-    return null
-  }).filter(Boolean)
-}
 
 export default function AnswersPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -173,7 +84,7 @@ export default function AnswersPage() {
   const faqJsonLd = useMemo(() => {
     const topQuestions = filteredAnswers.slice(0, 10).map(item => ({
       q: item.q,
-      a: sanitizeLegacyAnswer(item.a) // Clean text for JSON-LD
+      a: sanitizeAnswer(item.a) // Clean text for JSON-LD
     }))
 
     return buildFaqJsonLd(topQuestions)
@@ -271,7 +182,7 @@ export default function AnswersPage() {
           </div>
 
           {/* FAQ Items */}
-          <div className="space-y-4">
+          <div className="max-w-3xl mx-auto px-6 md:px-8 space-y-4 md:space-y-6">
             {filteredAnswers.map((item) => (
               <div
                 key={item.id}
@@ -282,11 +193,11 @@ export default function AnswersPage() {
                   className="w-full px-6 py-4 text-left flex items-start justify-between gap-4"
                 >
                   <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-ink mb-1">
+                    <h2 className="text-ink font-semibold text-lg md:text-xl leading-tight">
                       {item.q}
                     </h2>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary" className="inline-flex items-center px-2.5 py-1 rounded-full border border-forest/20 text-xs text-ink/80">
                         {item.category}
                       </Badge>
                       {item.source && (
@@ -305,8 +216,8 @@ export default function AnswersPage() {
 
                 {expandedItems.has(item.id) && (
                   <div className="px-6 pb-4 border-t border-gray-100">
-                    <div className="pt-4 text-gray-700 leading-relaxed prose prose-sm max-w-none">
-                      {renderAnswerWithLinks(sanitizeLegacyAnswer(item.a))}
+                    <div className="prose-am text-ink/90 mt-2 md:mt-3">
+                      {renderAnswer(item.a, 'answers')}
                     </div>
 
                     {/* Related Tool CTA if applicable */}
