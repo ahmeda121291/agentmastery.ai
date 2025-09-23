@@ -558,7 +558,18 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
                     <a
                       href={comparisonTools.apollo?.affiliateUrl || '#'}
                       target="_blank"
-                      rel="noopener noreferrer sponsored"
+                      rel="sponsored noopener noreferrer"
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && (window as any).plausible) {
+                          (window as any).plausible('Affiliate Link Clicked', {
+                            props: {
+                              tool: 'Apollo',
+                              source: 'calculator',
+                              context: 'switch-savings'
+                            }
+                          })
+                        }
+                      }}
                       className="flex items-center justify-center gap-2"
                     >
                       Switch to Apollo.io
@@ -619,7 +630,18 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
                     <a
                       href={comparisonTools.close?.affiliateUrl || '#'}
                       target="_blank"
-                      rel="noopener noreferrer sponsored"
+                      rel="sponsored noopener noreferrer"
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && (window as any).plausible) {
+                          (window as any).plausible('Affiliate Link Clicked', {
+                            props: {
+                              tool: 'Close CRM',
+                              source: 'calculator',
+                              context: 'switch-savings'
+                            }
+                          })
+                        }
+                      }}
                       className="flex items-center justify-center gap-2"
                     >
                       Switch to Close CRM
@@ -687,7 +709,18 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
                         <a
                           href={comparisonTools.apollo?.affiliateUrl || '#'}
                           target="_blank"
-                          rel="noopener noreferrer sponsored"
+                          rel="sponsored noopener noreferrer"
+                          onClick={() => {
+                            if (typeof window !== 'undefined' && (window as any).plausible) {
+                              (window as any).plausible('Affiliate Link Clicked', {
+                                props: {
+                                  tool: 'Apollo',
+                                  source: 'calculator',
+                                  context: 'switch-savings-combined'
+                                }
+                              })
+                            }
+                          }}
                         >
                           Try Apollo
                           <ExternalLink className="h-3 w-3 ml-1" />
@@ -697,7 +730,18 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
                         <a
                           href={comparisonTools.close?.affiliateUrl || '#'}
                           target="_blank"
-                          rel="noopener noreferrer sponsored"
+                          rel="sponsored noopener noreferrer"
+                          onClick={() => {
+                            if (typeof window !== 'undefined' && (window as any).plausible) {
+                              (window as any).plausible('Affiliate Link Clicked', {
+                                props: {
+                                  tool: 'Close CRM',
+                                  source: 'calculator',
+                                  context: 'switch-savings-combined'
+                                }
+                              })
+                            }
+                          }}
                         >
                           Try Close
                           <ExternalLink className="h-3 w-3 ml-1" />

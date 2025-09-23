@@ -1,5 +1,6 @@
 import { Tool, tools } from '@/data/tools'
 import { Dimension, QuizResult } from '@/data/quiz'
+import { AFFILIATE_TOOLS } from '@/lib/affiliates'
 
 export interface RecommendedTool extends Tool {
   score: number
@@ -37,7 +38,13 @@ const dimensionBadges: Record<Dimension, string[]> = {
 }
 
 export function recommendTools(quizResult: QuizResult): RecommendedTool[] {
-  const scoredTools: RecommendedTool[] = tools.map(tool => {
+  // Filter to only include affiliate tools
+  const affiliateToolSlugs = Object.keys(AFFILIATE_TOOLS)
+  const affiliateTools = tools.filter(tool =>
+    affiliateToolSlugs.some(slug => tool.slug.toLowerCase().includes(slug) || tool.name.toLowerCase().includes(slug))
+  )
+
+  const scoredTools: RecommendedTool[] = affiliateTools.map(tool => {
     let score = 0
     const matchReasons: string[] = []
 

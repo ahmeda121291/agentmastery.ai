@@ -22,6 +22,7 @@ import {
   ExternalLink
 } from 'lucide-react'
 import Link from 'next/link'
+import { getAffiliateToolsByUseCase, trackAffiliateClick, NO_AFFILIATE_FALLBACK, type AffiliateTool } from '@/lib/affiliates'
 
 interface CalculatorInputs {
   dailyDials: number
@@ -197,58 +198,65 @@ export function ColdCallCalculator() {
     { stage: 'Deals Won', value: calculations.deals, maxValue: calculations.totalDials, color: 'from-orange-500 to-orange-600' },
   ]
 
-  // Tool recommendations based on bottleneck
-  const getToolRecommendation = () => {
+  // Tool recommendations based on bottleneck - ONLY AFFILIATE TOOLS
+  const getToolRecommendation = (): { title: string; tools: AffiliateTool[] } => {
+    let tools: AffiliateTool[] = []
+    let title = ''
+
     switch (calculations.bottleneck) {
       case 'connect':
-        return {
-          title: 'Boost Connect Rates',
-          tools: [
-            { name: 'ZoomInfo', href: '/tools/zoominfo', description: 'Better phone data = higher connect rates', affiliate: false },
-            { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'Verified contacts with direct dials', affiliate: true }
-          ]
+        title = 'Boost Connect Rates'
+        tools = getAffiliateToolsByUseCase('connect-rate')
+        if (tools.length === 0) {
+          tools = getAffiliateToolsByUseCase('data-enrichment')
         }
+        break
       case 'conversation':
-        return {
-          title: 'Improve Conversations',
-          tools: [
-            { name: 'ChatGPT', href: '/tools/chatgpt', description: 'Generate better cold call scripts', affiliate: false },
-            { name: 'Gong', href: '/tools', description: 'Call coaching and analytics', affiliate: false }
-          ]
+        title = 'Improve Conversations'
+        tools = getAffiliateToolsByUseCase('conversation')
+        if (tools.length === 0) {
+          tools = getAffiliateToolsByUseCase('coaching')
         }
+        break
       case 'meeting':
-        return {
-          title: 'Book More Meetings',
-          tools: [
-            { name: 'Calendly', href: '/tools', description: 'Instant booking while on the call', affiliate: false },
-            { name: 'Chili Piper', href: '/tools', description: 'Smart routing and scheduling', affiliate: false }
-          ]
+        title = 'Book More Meetings'
+        // For meetings, we'll recommend CRMs with scheduling features
+        tools = getAffiliateToolsByUseCase('automation').slice(0, 2)
+        if (tools.length === 0) {
+          tools = getAffiliateToolsByUseCase('crm').slice(0, 2)
         }
+        break
       case 'closing':
-        return {
-          title: 'Close More Deals',
-          tools: [
-            { name: 'Close CRM', href: 'https://refer.close.com/lvdqjdm97t92-fetl0j', description: 'Built-in calling and follow-up', affiliate: true },
-            { name: 'HubSpot', href: '/tools/hubspot', description: 'Full sales automation suite', affiliate: false }
-          ]
+        title = 'Close More Deals'
+        tools = getAffiliateToolsByUseCase('closing')
+        if (tools.length === 0) {
+          tools = getAffiliateToolsByUseCase('pipeline')
         }
+        break
       case 'volume':
-        return {
-          title: 'Scale Your Outreach',
-          tools: [
-            { name: 'PhoneBurner', href: '/tools', description: '4x more dials per hour', affiliate: false },
-            { name: 'Orum', href: '/tools', description: 'AI-powered parallel dialer', affiliate: false }
-          ]
+        title = 'Scale Your Outreach'
+        tools = getAffiliateToolsByUseCase('volume')
+        if (tools.length === 0) {
+          tools = getAffiliateToolsByUseCase('calling')
         }
+        break
       default:
-        return {
-          title: 'Optimize Your Stack',
-          tools: [
-            { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'All-in-one sales platform', affiliate: true },
-            { name: 'Close CRM', href: 'https://refer.close.com/lvdqjdm97t92-fetl0j', description: 'CRM with built-in calling', affiliate: true }
-          ]
-        }
+        title = 'Optimize Your Stack'
+        // Get mix of top affiliate tools
+        tools = [
+          ...getAffiliateToolsByUseCase('prospecting').slice(0, 1),
+          ...getAffiliateToolsByUseCase('closing').slice(0, 1)
+        ]
     }
+
+    // Ensure we always have at least 2 tools, fall back to top performers
+    if (tools.length < 2) {
+      const apollo = getAffiliateToolsByUseCase('prospecting')[0]
+      const close = getAffiliateToolsByUseCase('closing')[0]
+      tools = [apollo, close].filter(Boolean)
+    }
+
+    return { title, tools: tools.slice(0, 2) } // Max 2 tools
   }
 
   const toolRecommendation = getToolRecommendation()
@@ -643,43 +651,60 @@ export function ColdCallCalculator() {
         </Card>
       </div>
 
-      {/* Tool Recommendations */}
+      {/* Tool Recommendations - AFFILIATE ONLY */}
       <Card className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Headphones className="h-5 w-5" />
-          {toolRecommendation.title}
+          {toolRecommendation.tools.length > 0 ? toolRecommendation.title : 'Recommended Tools'}
         </h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Based on your metrics, these tools can help you improve:
-        </p>
-        <div className="grid md:grid-cols-2 gap-4">
-          {toolRecommendation.tools.map((tool, index) => (
-            <a
-              key={index}
-              href={tool.href}
-              target={tool.affiliate ? "_blank" : undefined}
-              rel={tool.affiliate ? "noopener noreferrer sponsored" : undefined}
-              className="p-4 bg-white rounded-lg border hover:border-green-400 transition-all hover:shadow-md group"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium flex items-center gap-2">
-                    {tool.name}
-                    {tool.affiliate && (
-                      <Badge className="bg-green-100 text-green-700 text-xs">
-                        Partner
-                      </Badge>
-                    )}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {tool.description}
-                  </p>
-                </div>
-                <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-green-600" />
-              </div>
-            </a>
-          ))}
-        </div>
+
+        {toolRecommendation.tools.length > 0 ? (
+          <>
+            <p className="text-sm text-muted-foreground mb-4">
+              Based on your metrics, these partner tools can help you improve:
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {toolRecommendation.tools.map((tool, index) => (
+                <a
+                  key={index}
+                  href={tool.href}
+                  target="_blank"
+                  rel="sponsored noopener noreferrer"
+                  onClick={() => trackAffiliateClick(tool.name, 'calculator', 'cold-call')}
+                  className="p-4 bg-white rounded-lg border hover:border-green-400 transition-all hover:shadow-md group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-medium flex items-center gap-2">
+                        {tool.name}
+                        <Badge className="bg-green-100 text-green-700 text-xs">
+                          Partner
+                        </Badge>
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {tool.description}
+                      </p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-green-600" />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </>
+        ) : (
+          // Fallback when no affiliate tools match
+          <div className="text-center py-6">
+            <p className="text-muted-foreground mb-4">
+              {NO_AFFILIATE_FALLBACK.message}
+            </p>
+            <Link href={NO_AFFILIATE_FALLBACK.linkHref}>
+              <Button variant="outline">
+                {NO_AFFILIATE_FALLBACK.linkText}
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <div className="mt-4 text-center">
           <Link href="/quiz">
             <Button variant="outline" size="sm">

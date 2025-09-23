@@ -23,7 +23,11 @@ export interface PersonalityResult {
   description: string
   strengths: string[]
   bestFor: string[]
-  recommendedTools: string[]
+  recommendedTools: {
+    name: string
+    href: string
+    description: string
+  }[]
   color: string
   gradient: string
   shareText: {
@@ -277,7 +281,11 @@ export const PERSONALITY_RESULTS: Record<PersonalityType, PersonalityResult> = {
       'Complex reasoning tasks',
       'Ethical considerations'
     ],
-    recommendedTools: ['Claude', 'Perplexity', 'Notion AI'],
+    recommendedTools: [
+      { name: 'Clay', href: 'https://clay.com/?ref=agentmastery', description: 'Research and enrich data at scale' },
+      { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'Deep contact research and insights' },
+      { name: 'Gong', href: 'https://gong.io/?ref=agentmastery', description: 'Conversation intelligence for research' }
+    ],
     color: 'from-purple-500 to-indigo-600',
     gradient: 'from-purple-500/20 via-indigo-500/20 to-blue-500/20',
     shareText: {
@@ -307,7 +315,11 @@ export const PERSONALITY_RESULTS: Record<PersonalityType, PersonalityResult> = {
       'Quick content generation',
       'Rapid iterations'
     ],
-    recommendedTools: ['ChatGPT', 'Jasper', 'Copy.ai'],
+    recommendedTools: [
+      { name: 'Instantly', href: 'https://instantly.ai/?fp_ref=ahmed26', description: 'Fast cold email automation' },
+      { name: 'SmartLead', href: 'https://smartlead.ai/?ref=ahmed', description: 'Multi-channel outreach at scale' },
+      { name: 'Reply.io', href: 'https://reply.io/?ref=agentmastery', description: 'AI-powered sales engagement' }
+    ],
     color: 'from-emerald-500 to-teal-600',
     gradient: 'from-emerald-500/20 via-teal-500/20 to-cyan-500/20',
     shareText: {
@@ -337,7 +349,11 @@ export const PERSONALITY_RESULTS: Record<PersonalityType, PersonalityResult> = {
       'Content visualization',
       'Creative campaigns'
     ],
-    recommendedTools: ['MidJourney', 'DALL-E', 'Synthesia'],
+    recommendedTools: [
+      { name: 'Lemlist', href: 'https://lemlist.com/?ref=agentmastery', description: 'Creative personalized outreach' },
+      { name: 'Close CRM', href: 'https://refer.close.com/lvdqjdm97t92-fetl0j', description: 'Visual pipeline management' },
+      { name: 'Pipedrive', href: 'https://pipedrive.com/?ref=agentmastery', description: 'Visual sales CRM' }
+    ],
     color: 'from-pink-500 to-rose-600',
     gradient: 'from-pink-500/20 via-rose-500/20 to-fuchsia-500/20',
     shareText: {
@@ -367,7 +383,11 @@ export const PERSONALITY_RESULTS: Record<PersonalityType, PersonalityResult> = {
       'Report automation',
       'Process documentation'
     ],
-    recommendedTools: ['Excel AI', 'Clay', 'Airtable'],
+    recommendedTools: [
+      { name: 'Clay', href: 'https://clay.com/?ref=agentmastery', description: 'Spreadsheet-powered data enrichment' },
+      { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'Data-driven prospecting platform' },
+      { name: 'HubSpot', href: 'https://hubspot.com/products/sales?ref=agentmastery', description: 'Data analytics and CRM' }
+    ],
     color: 'from-green-500 to-emerald-600',
     gradient: 'from-green-500/20 via-emerald-500/20 to-teal-500/20',
     shareText: {
@@ -397,7 +417,11 @@ export const PERSONALITY_RESULTS: Record<PersonalityType, PersonalityResult> = {
       'Tool integration',
       'Scaling operations'
     ],
-    recommendedTools: ['AutoGPT', 'Zapier AI', 'Make.com'],
+    recommendedTools: [
+      { name: 'Outreach', href: 'https://outreach.io/?ref=agentmastery', description: 'Automated sales workflows' },
+      { name: 'Orum', href: 'https://orum.com/?ref=agentmastery', description: 'AI-powered dialer automation' },
+      { name: 'SmartLead', href: 'https://smartlead.ai/?ref=ahmed', description: 'Automated multi-channel campaigns' }
+    ],
     color: 'from-orange-500 to-red-600',
     gradient: 'from-orange-500/20 via-red-500/20 to-amber-500/20',
     shareText: {
@@ -427,7 +451,11 @@ export const PERSONALITY_RESULTS: Record<PersonalityType, PersonalityResult> = {
       'Competitive analysis',
       'Knowledge management'
     ],
-    recommendedTools: ['Perplexity', 'Research Rabbit', 'Elicit'],
+    recommendedTools: [
+      { name: 'Clay', href: 'https://clay.com/?ref=agentmastery', description: 'Deep research automation' },
+      { name: 'Gong', href: 'https://gong.io/?ref=agentmastery', description: 'Call recording analysis' },
+      { name: 'Apollo', href: 'https://get.apollo.io/qq0iw5w2fskf', description: 'Contact research platform' }
+    ],
     color: 'from-indigo-500 to-purple-600',
     gradient: 'from-indigo-500/20 via-purple-500/20 to-violet-500/20',
     shareText: {

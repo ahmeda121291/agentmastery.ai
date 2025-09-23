@@ -258,9 +258,29 @@ function ResultContent() {
                   <Sparkles className="h-4 w-4" />
                   Your Tools
                 </h3>
-                <ul className="text-sm space-y-1">
+                <ul className="text-sm space-y-2">
                   {result.recommendedTools.map((tool, i) => (
-                    <li key={i}>• {tool}</li>
+                    <li key={i}>
+                      <a
+                        href={tool.href}
+                        target="_blank"
+                        rel="sponsored noopener noreferrer"
+                        onClick={() => {
+                          if (typeof window !== 'undefined' && (window as any).plausible) {
+                            (window as any).plausible('Affiliate Link Clicked', {
+                              props: {
+                                tool: tool.name,
+                                source: 'quiz',
+                                context: 'personality-result'
+                              }
+                            })
+                          }
+                        }}
+                        className="text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        {tool.name}
+                      </a>
+                    </li>
                   ))}
                 </ul>
               </div>

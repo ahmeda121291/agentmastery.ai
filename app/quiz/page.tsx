@@ -530,7 +530,18 @@ export default function QuizPage() {
                               : tool.siteUrl
                             }
                             target="_blank"
-                            rel={tool.affiliate ? "noopener noreferrer sponsored" : "noopener noreferrer"}
+                            rel={tool.affiliate ? "sponsored noopener noreferrer" : "noopener noreferrer"}
+                            onClick={() => {
+                              if (tool.affiliate && typeof window !== 'undefined' && (window as any).plausible) {
+                                (window as any).plausible('Affiliate Link Clicked', {
+                                  props: {
+                                    tool: tool.name,
+                                    source: 'quiz',
+                                    context: 'tool-matcher-result'
+                                  }
+                                })
+                              }
+                            }}
                             className="flex items-center justify-center gap-2"
                           >
                             {tool.affiliate ? `Try ${tool.name} Now` : 'Visit Website'}

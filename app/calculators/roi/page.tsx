@@ -537,7 +537,18 @@ export default function ROICalculatorPage() {
                   <a
                     href={`${pricingData.smartlead.affiliateUrl}?utm_source=agentmastery&utm_medium=calculator&utm_campaign=roi`}
                     target="_blank"
-                    rel="noopener noreferrer sponsored"
+                    rel="sponsored noopener noreferrer"
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && (window as any).plausible) {
+                        (window as any).plausible('Affiliate Link Clicked', {
+                          props: {
+                            tool: 'SmartLead',
+                            source: 'calculator',
+                            context: 'roi-calculator'
+                          }
+                        })
+                      }
+                    }}
                     className="flex items-center justify-center gap-2"
                   >
                     Try SmartLead Free
