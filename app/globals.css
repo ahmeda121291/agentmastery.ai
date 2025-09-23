@@ -98,52 +98,176 @@
 
 /* Prose Styles for MDX Content */
 .prose-am {
-  @apply leading-relaxed;
+  line-height: 1.75;
+  color: #111111;
 }
+
+/* Headings */
 .prose-am h1,
 .prose-am h2,
-.prose-am h3 {
+.prose-am h3,
+.am-h1,
+.am-h2,
+.am-h3 {
   @apply font-semibold tracking-tight text-ink;
+  letter-spacing: -0.01em;
 }
-.prose-am p {
-  @apply my-4;
+
+.prose-am h1,
+.am-h1 {
+  @apply text-3xl md:text-4xl mb-4 mt-8;
 }
-.prose-am ul {
-  @apply my-4 list-disc pl-6;
+
+.prose-am h2,
+.am-h2 {
+  @apply text-2xl md:text-3xl mb-3 mt-6;
 }
-.prose-am ol {
-  @apply my-4 list-decimal pl-6;
+
+.prose-am h3,
+.am-h3 {
+  @apply text-xl md:text-2xl mb-2 mt-4;
 }
-.prose-am li {
-  @apply my-1;
+
+/* Paragraphs */
+.prose-am p,
+.am-p {
+  margin: 1rem 0;
 }
-.prose-am table {
-  @apply w-full border-collapse my-6 text-sm;
+
+/* Lists */
+.prose-am ul,
+.am-ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 1rem 0;
 }
-.prose-am th,
-.prose-am td {
-  @apply border border-mist/70 px-3 py-2 align-top;
+
+.prose-am ol,
+.am-ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin: 1rem 0;
 }
-.prose-am thead th {
-  @apply bg-mist text-ink font-semibold;
+
+.prose-am li,
+.am-li {
+  margin: 0.25rem 0;
 }
-.prose-am tbody tr:nth-child(even) {
-  @apply bg-mist/30;
+
+/* Blockquotes */
+.prose-am blockquote,
+.am-blockquote {
+  border-left: 4px solid rgba(1, 68, 33, 0.3);
+  padding-left: 1rem;
+  color: rgba(17, 17, 17, 0.8);
+  margin: 1rem 0;
+  font-style: italic;
 }
-.prose-am blockquote {
-  @apply border-l-4 border-forest/30 pl-4 italic text-ink/80 my-4;
+
+/* Tables */
+.am-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin: 1.25rem 0;
 }
-.prose-am a {
-  @apply underline decoration-forest/50 underline-offset-2 hover:decoration-forest text-green hover:text-forest;
+
+.am-th,
+.am-td {
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  text-align: left;
 }
-.prose-am code {
-  @apply bg-mist/50 px-1 py-0.5 rounded text-sm;
+
+.am-th {
+  background: #F7F9F7;
+  font-weight: 600;
+  color: #014421;
 }
-.prose-am pre {
-  @apply bg-ink text-white p-4 rounded-lg overflow-x-auto my-4;
+
+.am-td strong {
+  font-weight: 600;
 }
-.prose-am pre code {
+
+/* Zebra stripes for tables */
+.am-table tbody tr:nth-child(even) .am-td {
+  background: rgba(247, 249, 247, 0.5);
+}
+
+/* Links */
+.am-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(1, 68, 33, 0.5);
+  color: #28A745;
+  transition: all 0.2s;
+}
+
+.am-link:hover {
+  text-decoration-color: rgba(1, 68, 33, 1);
+  color: #014421;
+}
+
+/* Code */
+.prose-am code,
+.am-code {
+  @apply bg-mist/50 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.prose-am pre,
+.am-pre {
+  @apply bg-ink text-white p-4 rounded-lg overflow-x-auto my-4 text-sm;
+}
+
+.prose-am pre code,
+.am-pre .am-code {
   @apply bg-transparent p-0;
+}
+
+/* GFM Task List Checkboxes */
+.am-checkbox {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  cursor: not-allowed;
+}
+
+.am-checkbox:checked {
+  background-color: #28A745;
+  border-color: #28A745;
+}
+
+/* Task list item styling */
+.am-li:has(.am-checkbox) {
+  list-style: none;
+  margin-left: -1.25rem;
+}
+
+/* Horizontal rules */
+.prose-am hr {
+  @apply border-t border-gray-200 my-8;
+}
+
+/* Images */
+.prose-am img {
+  @apply rounded-lg shadow-md my-6;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Strong/Bold text */
+.prose-am strong,
+.prose-am b {
+  @apply font-semibold text-ink;
+}
+
+/* Emphasis/Italic */
+.prose-am em,
+.prose-am i {
+  @apply italic;
 }
 
 /* Spark Effect */

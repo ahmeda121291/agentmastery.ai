@@ -9,7 +9,7 @@ import {
   generateBreadcrumbSchema,
   createSchemaScript
 } from '@/lib/jsonld'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import { MDX } from '@/lib/mdx'
 import { processMDXContent } from '@/lib/mdxSanitize'
 import { buildAffiliateUrl } from '@/lib/affiliate'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,7 +30,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
-import { Callout, ProsCons, GlossaryTerm } from '@/components/mdx'
 import dynamic from 'next/dynamic'
 import { ShareButtons } from '@/components/ShareButtons'
 
@@ -142,67 +141,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-const components = {
-  Callout,
-  ProsCons,
-  GlossaryTerm,
-  a: ({ href, children, ...props }: any) => {
-    // Handle internal tool links with UTM parameters
-    if (href?.startsWith('INTERNAL_TOOL:')) {
-      const [, slug, source] = href.split(':')
-
-      // Find the tool to get its affiliate URL
-      const tools = require('@/data/tools').tools
-      const tool = tools.find((t: any) => t.slug === slug)
-
-      if (tool?.affiliateUrl) {
-        const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, source || 'blog', slug)
-        return (
-          <Link
-            href={affiliateUrl}
-            className="text-primary hover:underline font-medium"
-            {...props}
-          >
-            {children}
-          </Link>
-        )
-      }
-
-      // Fallback to regular tool page if no affiliate URL
-      return (
-        <Link
-          href={`/tools/${slug}`}
-          className="text-primary hover:underline font-medium"
-          {...props}
-        >
-          {children}
-        </Link>
-      )
-    }
-
-    // External links open in new tab
-    if (href?.startsWith('http')) {
-      return (
-        <a
-          href={href}
-          className="text-primary hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-          {...props}
-        >
-          {children}
-        </a>
-      )
-    }
-
-    // Internal links
-    return (
-      <Link href={href || '#'} className="text-primary hover:underline" {...props}>
-        {children}
-      </Link>
-    )
-  },
-}
 
 // Helper to estimate reading time
 function estimateReadingTime(content: string): string {
@@ -321,7 +259,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
               {/* MDX Content */}
               <div className="prose-am max-w-none">
-                <MDXRemote source={processedContent} components={components} />
+                <MDX source={processedContent} />
               </div>
 
               {/* Share Buttons */}
