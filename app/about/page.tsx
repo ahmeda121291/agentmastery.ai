@@ -198,9 +198,11 @@ export default function AboutPage() {
                 <Shield className="h-8 w-8 text-primary" />
                 Editorial Independence & Disclosures
               </h2>
-              <p className="text-xl text-muted-foreground">
-                Transparent about relationships. Uncompromising on rankings.
-              </p>
+              <div className="mx-auto max-w-3xl px-6 md:px-8 text-center">
+                <p className="text-xl text-ink/80">
+                  Transparent about relationships. Uncompromising on rankings.
+                </p>
+              </div>
             </div>
 
             <Card className="border-green/20 bg-green/5">
@@ -347,9 +349,11 @@ export default function AboutPage() {
           <div className="mb-16">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">What Makes Us Different</h2>
-              <p className="text-xl text-muted-foreground">
-                Three pillars that set AgentMastery apart
-              </p>
+              <div className="mx-auto max-w-3xl px-6 md:px-8 text-center">
+                <p className="text-xl text-ink/80">
+                  Three pillars that set AgentMastery apart
+                </p>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
