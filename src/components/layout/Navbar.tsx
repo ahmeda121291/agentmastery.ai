@@ -67,9 +67,14 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Button variant="primary" size="sm" asChild>
-              <Link href="/quiz">Get Started</Link>
-            </Button>
+            <Link
+              href="/arcade"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-forest text-white hover:opacity-90 active:scale-95 transition font-medium"
+              title="Play with quizzes, calculators, and games"
+              aria-label="Agent Arcade"
+            >
+              Agent Arcade
+            </Link>
           </div>
           
           <button
@@ -110,9 +115,14 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Button variant="primary" className="w-full" asChild>
-                <Link href="/quiz">Get Started</Link>
-              </Button>
+              <Link
+                href="/arcade"
+                className="w-full inline-flex items-center justify-center h-10 px-4 rounded-full bg-forest text-white hover:opacity-90 active:scale-95 transition font-medium"
+                title="Play with quizzes, calculators, and games"
+                aria-label="Agent Arcade"
+              >
+                Agent Arcade
+              </Link>
             </div>
           </div>
         )}
