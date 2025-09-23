@@ -146,15 +146,15 @@ function ToolRow({ tool, isExpanded, onToggle }: {
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <div className="group">
         {/* Main Row */}
-        <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-lg transition-colors">
-          <div className="flex items-center gap-3 flex-1">
+        <div className="flex items-center justify-between py-2.5 px-3 hover:bg-muted/50 rounded-lg transition-colors">
+          <div className="flex items-center gap-2 flex-1">
             {/* Rank */}
-            <div className="min-w-[60px]">
+            <div className="w-14">
               <RankBadge rank={tool.rank || 0} />
             </div>
 
             {/* Rank Delta */}
-            <div className="min-w-[45px]">
+            <div className="w-10">
               <RankDelta delta={tool.rankDelta} />
             </div>
 
@@ -181,8 +181,8 @@ function ToolRow({ tool, isExpanded, onToggle }: {
             </div>
 
             {/* Score */}
-            <div className="text-right min-w-[70px]">
-              <div className="font-bold text-lg">{tool.totalScore}</div>
+            <div className="text-right w-16">
+              <div className="font-bold text-base">{tool.totalScore}</div>
               <div className="text-xs text-muted-foreground">Score</div>
             </div>
 
@@ -374,10 +374,12 @@ export default function LeaderboardsPage() {
       scores.forEach(cat => {
         allTopTools.push(...cat.tools)
       })
-      return allTopTools.sort((a, b) => b.totalScore - a.totalScore).slice(0, 30)
+      // Show more tools - up to 50 in the all view
+      return allTopTools.sort((a, b) => b.totalScore - a.totalScore).slice(0, 50)
     }
 
     const categoryData = scores.find(s => s.category === category)
+    // Show all tools in category, not limited
     return categoryData?.tools || []
   }
 
@@ -407,7 +409,7 @@ export default function LeaderboardsPage() {
 
       {/* Category Tabs */}
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-6">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-4">
           {categories.slice(0, 6).map(cat => (
             <TabsTrigger key={cat} value={cat} className="capitalize">
               {cat === 'all' ? 'All Tools' : cat}
@@ -433,8 +435,8 @@ export default function LeaderboardsPage() {
 
               {/* Leaderboard Table */}
               <Card className="overflow-hidden">
-                <div className="p-4 sm:p-6">
-                  <div className="space-y-1">
+                <div className="p-3 sm:p-4">
+                  <div className="space-y-0.5">
                     {categoryTools.map(tool => (
                       <ToolRow
                         key={tool.slug}
@@ -467,13 +469,15 @@ export default function LeaderboardsPage() {
       </Tabs>
 
       {/* Footer Note */}
-      <div className="mt-12 p-6 bg-muted/50 rounded-lg text-center">
-        <p className="text-sm text-muted-foreground mb-2">
+      <div className="mt-12 p-6 bg-muted/50 rounded-lg">
+        <p className="text-sm text-muted-foreground mb-2 text-center">
           Rankings updated weekly based on 4 key dimensions: Value, Quality, Adoption, and UX.
         </p>
-        <Link href="/about" className="text-sm text-primary hover:underline">
-          Learn about our ranking methodology →
-        </Link>
+        <div className="text-center">
+          <Link href="/about" className="text-sm text-primary hover:underline">
+            Learn about our ranking methodology →
+          </Link>
+        </div>
       </div>
     </div>
   )
