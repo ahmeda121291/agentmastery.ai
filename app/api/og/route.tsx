@@ -411,6 +411,100 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // About page
+    if (type === 'about') {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundImage: 'linear-gradient(135deg, #014421 0%, #28A745 100%)',
+              padding: '60px',
+            }}
+          >
+            {/* Badge */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                padding: '12px 24px',
+                borderRadius: '100px',
+                color: 'white',
+                fontSize: '24px',
+                marginBottom: '40px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+              }}
+            >
+              ✨ The First AI Blog with Proprietary Scoring
+            </div>
+
+            {/* Title */}
+            <h1
+              style={{
+                fontSize: '80px',
+                fontWeight: 'bold',
+                color: 'white',
+                textAlign: 'center',
+                lineHeight: 1.1,
+                marginBottom: '30px',
+                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
+            >
+              {title}
+            </h1>
+
+            {/* Subtitle */}
+            <p
+              style={{
+                fontSize: '32px',
+                color: 'rgba(255, 255, 255, 0.9)',
+                textAlign: 'center',
+                lineHeight: 1.4,
+                marginBottom: '40px',
+                maxWidth: '900px',
+              }}
+            >
+              Transparent methodology • Editorial independence • Weekly updates
+            </p>
+
+            {/* Features */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '20px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              {['🎯 Proprietary Scoring', '🛡️ Independent Rankings', '📊 Weekly Updates', '🔍 Fair Assessments'].map((feature, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    padding: '16px 24px',
+                    borderRadius: '12px',
+                    color: 'white',
+                    fontSize: '20px',
+                    fontWeight: 'medium',
+                  }}
+                >
+                  {feature}
+                </div>
+              ))}
+            </div>
+          </div>
+        ),
+        {
+          width: 1200,
+          height: 630,
+        }
+      )
+    }
+
     // Default OG image
     return new ImageResponse(
       (

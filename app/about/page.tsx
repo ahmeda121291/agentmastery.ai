@@ -2,247 +2,423 @@ import { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import Link from 'next/link'
 import {
+  Target,
   BarChart3,
   Shield,
-  Sparkles,
-  Users,
-  Target,
+  Calendar,
   Zap,
+  Eye,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Download,
+  Sparkles,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Star
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'About AgentMastery - Our Methodology',
-  description: 'Learn about our independent AI tool ranking methodology, heuristic scoring system, and editorial review process.',
+  title: 'About AgentMastery - Independent AI Tool Rankings',
+  description: 'Learn about our proprietary scoring methodology, editorial independence, and commitment to transparent AI tool rankings.',
+  openGraph: {
+    title: 'About AgentMastery - Independent AI Tool Rankings',
+    description: 'Proprietary scoring • Editorial independence • Transparent rankings',
+    images: ['/api/og?title=Independent%20AI%20Tool%20Rankings&type=about'],
+  },
 }
 
 export default function AboutPage() {
+  const scoringDimensions = [
+    { name: 'Value', score: 85, color: 'bg-green-500', icon: DollarSign },
+    { name: 'Quality', score: 92, color: 'bg-blue-500', icon: Star },
+    { name: 'Adoption', score: 78, color: 'bg-purple-500', icon: Users },
+    { name: 'UX', score: 88, color: 'bg-orange-500', icon: Sparkles },
+  ]
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <Badge className="mb-4" variant="secondary">About AgentMastery</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Independent AI Tool Rankings
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Rankings powered by our heuristic scoring; enhanced by editor review.
-          </p>
+    <div className="min-h-screen">
+      {/* Gradient Hero with Blob Background */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-forest via-forest/90 to-green">
+        {/* Subtle blob background */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-green/20 rounded-full blur-xl" />
+          <div className="absolute top-40 right-20 w-48 h-48 bg-forest/30 rounded-full blur-2xl" />
+          <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-green/15 rounded-full blur-xl" />
         </div>
 
-        {/* Mission Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              Our Mission
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p>
-              AgentMastery exists to help teams and professionals navigate the overwhelming landscape
-              of AI tools. We provide independent, data-driven rankings combined with practical insights
-              to help you make informed decisions.
+        <div className="relative container mx-auto px-4 py-24">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20">
+              <Sparkles className="h-3 w-3 mr-1" />
+              The First AI Blog with Proprietary Scoring
+            </Badge>
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6 text-white">
+              Independent AI Tool Rankings
+            </h1>
+            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+              Transparent methodology • Editorial independence • Weekly updates • Fair assessments for every tool
             </p>
-            <p>
-              Unlike sponsored reviews or pay-to-play directories, our rankings are based on a
-              transparent methodology that combines algorithmic scoring with human expertise.
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
 
-        {/* Methodology Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              Ranking Methodology
-            </CardTitle>
-            <CardDescription>
-              How we evaluate and rank AI tools
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Heuristic Scoring */}
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  Heuristic Scoring Algorithm
-                </h3>
-                <p className="text-muted-foreground mb-3">
-                  Our proprietary scoring system evaluates tools across multiple dimensions:
-                </p>
-                <div className="grid gap-3 ml-6">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                    <div>
-                      <span className="font-medium">Feature Completeness (30%)</span>
-                      <p className="text-sm text-muted-foreground">
-                        Core capabilities, integrations, and unique features
-                      </p>
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto">
+          {/* Mission Section */}
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+                <Target className="h-8 w-8 text-primary" />
+                Our Mission
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Cut through the noise. Find tools that actually work.
+              </p>
+            </div>
+
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardContent className="p-8">
+                <div className="text-center space-y-4">
+                  <p className="text-lg leading-relaxed">
+                    <strong>AgentMastery is the first AI blog with proprietary scoring.</strong> We don't just write about tools—we rank them systematically, transparently, and fairly.
+                  </p>
+                  <p className="text-muted-foreground">
+                    No pay-to-play rankings. No hidden biases. Just data-driven assessments that help you make informed decisions in the chaotic world of AI tools.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Proprietary Method Section */}
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+                <BarChart3 className="h-8 w-8 text-primary" />
+                Proprietary Scoring Method
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Four dimensions. One score. Total transparency.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8 mb-8">
+              {/* Scoring Visualization */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-center">Sample Tool Score Breakdown</CardTitle>
+                  <CardDescription className="text-center">
+                    How our algorithm evaluates each tool
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {scoringDimensions.map(dimension => (
+                    <div key={dimension.name} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <dimension.icon className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{dimension.name}</span>
+                        </div>
+                        <span className="text-sm font-medium">{dimension.score}/100</span>
+                      </div>
+                      <Progress value={dimension.score} className="h-2" />
+                    </div>
+                  ))}
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold">Total Score</span>
+                      <span className="text-2xl font-bold text-primary">86</span>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                    <div>
-                      <span className="font-medium">Market Performance (25%)</span>
-                      <p className="text-sm text-muted-foreground">
-                        User adoption, growth trajectory, and market presence
-                      </p>
+                </CardContent>
+              </Card>
+
+              {/* Methodology Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Our Four Dimensions</CardTitle>
+                  <CardDescription>
+                    Every tool evaluated consistently across these metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <DollarSign className="h-5 w-5 text-green-600 mt-0.5" />
+                      <div>
+                        <span className="font-semibold">Value</span>
+                        <p className="text-sm text-muted-foreground">Cost-effectiveness, ROI potential, pricing fairness</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Star className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div>
+                        <span className="font-semibold">Quality</span>
+                        <p className="text-sm text-muted-foreground">Accuracy, reliability, output excellence</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Users className="h-5 w-5 text-purple-600 mt-0.5" />
+                      <div>
+                        <span className="font-semibold">Adoption</span>
+                        <p className="text-sm text-muted-foreground">Market momentum, user growth, community size</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Sparkles className="h-5 w-5 text-orange-600 mt-0.5" />
+                      <div>
+                        <span className="font-semibold">UX</span>
+                        <p className="text-sm text-muted-foreground">Ease of use, learning curve, interface quality</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                    <div>
-                      <span className="font-medium">Value Proposition (20%)</span>
-                      <p className="text-sm text-muted-foreground">
-                        Pricing fairness, ROI potential, and cost-effectiveness
-                      </p>
-                    </div>
+
+                  <div className="pt-4 border-t">
+                    <Button variant="outline" size="sm" className="w-full" disabled>
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Methodology PDF
+                      <Badge variant="secondary" className="ml-2 text-xs">Soon</Badge>
+                    </Button>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                    <div>
-                      <span className="font-medium">User Experience (15%)</span>
-                      <p className="text-sm text-muted-foreground">
-                        Interface quality, learning curve, and support
-                      </p>
-                    </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Editorial Independence Section */}
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+                <Shield className="h-8 w-8 text-primary" />
+                Editorial Independence & Disclosures
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Transparent about relationships. Uncompromising on rankings.
+              </p>
+            </div>
+
+            <Card className="border-green/20 bg-green/5">
+              <CardContent className="p-8">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      Our Independence Guarantee
+                    </h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold">•</span>
+                        <span className="text-sm">Rankings cannot be purchased or influenced</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold">•</span>
+                        <span className="text-sm">Same scoring methodology for all tools</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold">•</span>
+                        <span className="text-sm">Editorial decisions remain independent</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold">•</span>
+                        <span className="text-sm">We test tools ourselves, not just review marketing claims</span>
+                      </li>
+                    </ul>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                    <div>
-                      <span className="font-medium">Innovation Index (10%)</span>
-                      <p className="text-sm text-muted-foreground">
-                        AI advancement, unique approaches, and future potential
+                  <div>
+                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-blue-600" />
+                      Affiliate Transparency
+                    </h3>
+                    <div className="space-y-3 text-sm text-muted-foreground">
+                      <p>
+                        <strong>Yes, we earn affiliate commissions</strong> when you purchase through some of our links. This helps fund our research and keeps our rankings free.
+                      </p>
+                      <p>
+                        <strong>No, this doesn't affect rankings.</strong> Our leaderboards clearly distinguish affiliate and non-affiliate tools, with identical scoring standards.
+                      </p>
+                      <p className="text-xs font-medium text-primary">
+                        See our leaderboards transparency note for full details.
                       </p>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Editorial Review */}
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Editorial Review Process
-                </h3>
-                <p className="text-muted-foreground mb-3">
-                  Our expert editors enhance algorithmic rankings with:
-                </p>
-                <ul className="space-y-2 ml-6 text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Hands-on testing of tool capabilities
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Verification of claimed features and benefits
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Analysis of real-world use cases and outcomes
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Community feedback integration
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Continuous monitoring of tool updates and changes
-                  </li>
-                </ul>
-              </div>
-
-              {/* Transparency */}
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Transparency & Independence
-                </h3>
-                <p className="text-muted-foreground">
-                  We maintain complete editorial independence. While we may earn affiliate commissions
-                  when you purchase through our links, this never influences our rankings. Tools cannot
-                  pay for better placement, and our scoring methodology remains consistent across all
-                  evaluations.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Key Principles */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              Key Principles
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="font-semibold">Data-Driven</h4>
-                <p className="text-sm text-muted-foreground">
-                  Decisions based on measurable metrics and verifiable data points
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">User-Focused</h4>
-                <p className="text-sm text-muted-foreground">
-                  Rankings optimized for real business outcomes and user success
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">Regularly Updated</h4>
-                <p className="text-sm text-muted-foreground">
-                  Continuous monitoring ensures rankings reflect current tool performance
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">Category-Specific</h4>
-                <p className="text-sm text-muted-foreground">
-                  Tools evaluated within their specific use-case context
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* CTA Section */}
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">Ready to Find Your Perfect AI Tools?</h2>
-          <p className="text-muted-foreground">
-            Explore our rankings and discover the tools that will transform your workflow
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button size="lg" asChild>
-              <Link href="/leaderboards" className="flex items-center gap-2">
-                View Leaderboards
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/quiz" className="flex items-center gap-2">
-                Take the Tool Matcher Quiz
-              </Link>
-            </Button>
+              </CardContent>
+            </Card>
           </div>
-        </div>
 
-        {/* Contact */}
-        <div className="mt-12 pt-8 border-t text-center">
-          <p className="text-sm text-muted-foreground">
-            Have questions about our methodology? Want to suggest a tool for review?
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Contact us at <span className="text-primary">team@agentmastery.ai</span>
-          </p>
+          {/* Rankings Update Process */}
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+                <Calendar className="h-8 w-8 text-primary" />
+                How Rankings Are Updated
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Fresh data. Weekly snapshots. Real-time insights.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    Weekly Snapshots
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Every Monday, we capture fresh scores and rankings for all tools in our database.
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span>Last Update</span>
+                      <span className="font-medium">Week 38, 2024</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span>Tools Tracked</span>
+                      <span className="font-medium">65+ Tools</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span>Categories</span>
+                      <span className="font-medium">12 Categories</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Zap className="h-5 w-5 text-orange-600" />
+                    Movers & Shakers
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Track which tools are gaining or losing ground week over week.
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      <span>Score increases tracked</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-2 h-2 bg-red-500 rounded-full" />
+                      <span>Rank changes monitored</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <span>New tools integrated</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <BarChart3 className="h-5 w-5 text-purple-600" />
+                    Continuous Monitoring
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Beyond weekly snapshots, we track tool updates, pricing changes, and feature releases.
+                  </p>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <p>• Feature launches</p>
+                    <p>• Pricing updates</p>
+                    <p>• User feedback analysis</p>
+                    <p>• Performance monitoring</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* What Makes Us Different */}
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">What Makes Us Different</h2>
+              <p className="text-xl text-muted-foreground">
+                Three pillars that set AgentMastery apart
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card className="text-center border-blue/20 bg-blue/5">
+                <CardContent className="p-8">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Eye className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">Transparent</h3>
+                  <p className="text-muted-foreground">
+                    Open methodology, clear scoring criteria, and honest disclosure of all relationships and revenue sources.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center border-green/20 bg-green/5">
+                <CardContent className="p-8">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Target className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">Practical</h3>
+                  <p className="text-muted-foreground">
+                    Real-world testing, hands-on reviews, and rankings that reflect actual business value, not just hype.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center border-orange/20 bg-orange/5">
+                <CardContent className="p-8">
+                  <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Zap className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">Fast</h3>
+                  <p className="text-muted-foreground">
+                    Weekly updates, rapid tool evaluation, and quick insights to help you stay ahead in the fast-moving AI space.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center space-y-6">
+            <h2 className="text-3xl font-bold">Ready to Find Your Perfect AI Tools?</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Explore our transparent rankings and discover tools that will actually transform your workflow
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <Button size="lg" magnetic asChild>
+                <Link href="/leaderboards" className="flex items-center gap-2">
+                  View Leaderboards
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/quiz" className="flex items-center gap-2">
+                  Take Tool Matcher Quiz
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div className="mt-16 pt-8 border-t text-center">
+            <p className="text-muted-foreground mb-2">
+              Questions about our methodology? Want to suggest a tool for evaluation?
+            </p>
+            <p className="text-muted-foreground">
+              Contact us at <span className="text-primary font-medium">team@agentmastery.ai</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
