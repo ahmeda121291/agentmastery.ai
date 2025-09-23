@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { tools } from '@/data/tools'
 import { getAllPosts } from '@/lib/blog'
+import { buildAffiliateUrl } from '@/lib/affiliate'
 import { ChevronDown, Search, X, ExternalLink, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,89 @@ interface FAQItem {
   category: string
   source?: 'tool' | 'blog' | 'generated'
   slug?: string
+}
+
+// Sanitize legacy answer text
+function sanitizeLegacyAnswer(text: string): string {
+  return text
+    // Remove empty brackets and artifacts
+    .replace(/\[\]/g, '')
+    .replace(/\(\)/g, '')
+    // Fix unmatched parentheses/brackets
+    .replace(/\([^)]*$/g, '')
+    .replace(/^[^(]*\)/g, '')
+    .replace(/\[[^\]]*$/g, '')
+    .replace(/^[^\[]*\]/g, '')
+    // Clean double spaces and normalize
+    .replace(/\s+/g, ' ')
+    .replace(/\*\*/g, '')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .trim()
+}
+
+// Convert internal markdown links to Link components with UTM tracking
+function renderAnswerWithLinks(text: string): React.ReactNode {
+  const parts = text.split(/(\[([^\]]+)\]\(([^)]+)\))/g)
+
+  return parts.map((part, index) => {
+    // Check if this part is a markdown link
+    const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/)
+
+    if (linkMatch) {
+      const [, linkText, linkUrl] = linkMatch
+
+      // Check if it's an internal tool link
+      if (linkUrl.startsWith('/tools/')) {
+        const toolSlug = linkUrl.replace('/tools/', '')
+        const tool = tools.find(t => t.slug === toolSlug)
+
+        if (tool) {
+          // Use affiliate URL with UTM tracking
+          const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'answers', toolSlug)
+          return (
+            <a
+              key={index}
+              href={affiliateUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green hover:text-forest underline font-medium"
+            >
+              {linkText}
+            </a>
+          )
+        }
+      }
+
+      // For other internal links, use Next.js Link
+      if (linkUrl.startsWith('/')) {
+        return (
+          <Link
+            key={index}
+            href={linkUrl}
+            className="text-green hover:text-forest underline font-medium"
+          >
+            {linkText}
+          </Link>
+        )
+      }
+
+      // External links
+      return (
+        <a
+          key={index}
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-green hover:text-forest underline font-medium"
+        >
+          {linkText}
+        </a>
+      )
+    }
+
+    return part
+  })
 }
 
 // Canonicalize for deduplication
@@ -89,15 +173,15 @@ function aggregateFAQs(): FAQItem[] {
     }
   })
 
-  // 3. Generated answers (most recent 100)
+  // 3. Generated answers (most recent 100) - sanitize legacy items
   answersData.slice(0, 100).forEach(answer => {
     const canonical = canonicalize(answer.q)
     if (!seen.has(canonical)) {
       seen.add(canonical)
       items.push({
         id: answer.id,
-        q: answer.q,
-        a: answer.a,
+        q: sanitizeLegacyAnswer(answer.q),
+        a: sanitizeLegacyAnswer(answer.a),
         category: answer.category || 'General',
         source: 'generated'
       })
@@ -307,7 +391,12 @@ export default function AnswersPage() {
                     className="px-6 pb-4 border-t border-forest/10"
                   >
                     <div className="prose prose-sm max-w-none pt-4">
-                      <p>{highlightText(faq.a, debouncedQuery)}</p>
+                      <p>
+                        {debouncedQuery
+                          ? highlightText(faq.a, debouncedQuery)
+                          : renderAnswerWithLinks(faq.a)
+                        }
+                      </p>
                     </div>
                     {faq.source === 'tool' && faq.slug && (
                       <Link

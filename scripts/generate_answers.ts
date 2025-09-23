@@ -11,6 +11,11 @@ if (!process.env.OPENAI_API_KEY) {
   process.exit(0)
 }
 
+// Parse CLI arguments
+const args = process.argv.slice(2)
+const countArg = args.find(arg => arg.startsWith('--count='))
+const defaultCount = countArg ? parseInt(countArg.split('=')[1]) : 20
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
@@ -36,6 +41,62 @@ const CATEGORIES = [
 const toolCategories = Array.from(new Set(tools.map(t => t.category)))
 const toolNames = tools.map(t => ({ name: t.name, slug: t.slug, category: t.category }))
 
+// Sanitize answer text - remove stray brackets, artifacts, and cleanup
+function sanitizeAnswer(text: string): string {
+  return text
+    // Remove empty brackets and artifacts
+    .replace(/\[\]/g, '')
+    .replace(/\(\)/g, '')
+    // Fix unmatched parentheses/brackets
+    .replace(/\([^)]*$/g, '') // Remove unclosed opening parentheses at end
+    .replace(/^[^(]*\)/g, '') // Remove unmatched closing parentheses at start
+    .replace(/\[[^\]]*$/g, '') // Remove unclosed opening brackets at end
+    .replace(/^[^\[]*\]/g, '') // Remove unmatched closing brackets at start
+    // Clean double spaces
+    .replace(/\s+/g, ' ')
+    // Remove accidental markup
+    .replace(/\*\*/g, '')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    // Trim and normalize
+    .trim()
+}
+
+// Convert tool mentions to internal markdown links
+function addToolLinks(text: string): string {
+  const toolsMap = new Map(tools.map(tool => [tool.name.toLowerCase(), tool.slug]))
+
+  // Sort tool names by length (longest first) to avoid partial matches
+  const sortedToolNames = Array.from(toolsMap.keys()).sort((a, b) => b.length - a.length)
+
+  let result = text
+
+  for (const toolName of sortedToolNames) {
+    const toolSlug = toolsMap.get(toolName)
+    if (!toolSlug) continue
+
+    // Create regex for exact word matches (case insensitive)
+    const regex = new RegExp(`\\b${toolName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi')
+
+    // Only replace if not already in a markdown link
+    result = result.replace(regex, (match) => {
+      // Check if this match is already inside a markdown link
+      const beforeMatch = result.substring(0, result.indexOf(match))
+      const openBrackets = (beforeMatch.match(/\[/g) || []).length
+      const closeBrackets = (beforeMatch.match(/\]/g) || []).length
+
+      // If we're inside an unclosed bracket, don't replace
+      if (openBrackets > closeBrackets) {
+        return match
+      }
+
+      return `[${match}](/tools/${toolSlug})`
+    })
+  }
+
+  return result
+}
+
 // Canonicalize question for deduplication
 function canonicalize(text: string): string {
   const stopwords = ['a', 'an', 'the', 'to', 'for', 'of', 'and', 'or', 'with', 'in', 'on', 'is', 'are', 'be']
@@ -53,7 +114,7 @@ function generatePrompt(): string {
   const topicSamples = keywords.slice(0, 20).join(', ')
   const toolSamples = toolNames.slice(0, 10).map(t => t.name).join(', ')
 
-  return `Generate 20 high-quality Q&A pairs for an AI tools knowledge base.
+  return `Generate ${defaultCount} high-quality Q&A pairs for an AI tools knowledge base.
 
 Context:
 - Categories: ${CATEGORIES.join(', ')}
@@ -153,11 +214,16 @@ async function main() {
       continue
     }
 
+    // Sanitize and process answer
+    const sanitizedQuestion = sanitizeAnswer(answer.q.trim())
+    const rawAnswer = sanitizeAnswer(answer.a.trim())
+    const processedAnswer = addToolLinks(rawAnswer)
+
     // Add with metadata
     existingAnswers.push({
       id: `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      q: answer.q.trim(),
-      a: answer.a.trim(),
+      q: sanitizedQuestion,
+      a: processedAnswer,
       category: answer.category || 'General',
       createdAt: timestamp
     })
