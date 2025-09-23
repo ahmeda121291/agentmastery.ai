@@ -35,8 +35,8 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Button variant="primary" size="sm">
-              Get Started
+            <Button variant="primary" size="sm" asChild>
+              <Link href="/quiz">Get Started</Link>
             </Button>
           </div>
           
@@ -76,8 +76,8 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Button variant="primary" className="w-full">
-                Get Started
+              <Button variant="primary" className="w-full" asChild>
+                <Link href="/quiz">Get Started</Link>
               </Button>
             </div>
           </div>

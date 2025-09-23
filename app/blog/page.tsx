@@ -20,6 +20,7 @@ import {
   Filter
 } from 'lucide-react'
 import Link from 'next/link'
+import { MobileStickyQuizCTA } from '@/components/layout/MobileStickyQuizCTA'
 
 // Define Editor's picks for fallback
 const EDITORS_PICKS_SLUGS = [
@@ -330,6 +331,9 @@ export default function BlogPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Mobile Sticky CTA */}
+      <MobileStickyQuizCTA showOn={['blog']} />
     </div>
   )
 }

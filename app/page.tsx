@@ -22,6 +22,7 @@ import {
   Rocket,
 } from 'lucide-react'
 import { tools, featuredWeekly } from '@/data/tools'
+import { MobileStickyQuizCTA } from '@/components/layout/MobileStickyQuizCTA'
 import { stats } from '@/data/stats'
 
 // Dynamic import for blob field to improve initial load
@@ -391,6 +392,9 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Mobile Sticky CTA */}
+      <MobileStickyQuizCTA showOn={['home']} />
     </div>
   )
 }

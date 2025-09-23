@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Search, ExternalLink, TrendingUp, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { MobileStickyQuizCTA } from '@/components/layout/MobileStickyQuizCTA'
 
 export default function ToolsPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -282,6 +283,9 @@ export default function ToolsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Mobile Sticky CTA */}
+      <MobileStickyQuizCTA showOn={['tools']} />
     </div>
   )
 }
