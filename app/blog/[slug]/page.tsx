@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const post = getPostBySlug(params.slug)
   if (!post) return { title: 'Post Not Found' }
 
-  return generateBlogMetadata(
+  const metadata = generateBlogMetadata(
     {
       title: post.title,
       description: post.description,
@@ -63,6 +63,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     params.slug
   )
+
+  return {
+    ...metadata,
+    alternates: {
+      canonical: `https://agentmastery.ai/blog/${params.slug}`,
+    },
+  }
 }
 
 const components = {

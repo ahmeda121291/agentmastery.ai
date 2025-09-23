@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense, lazy } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/src/components/ui/Button'
 import { Card } from '@/src/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
@@ -177,6 +178,15 @@ function StatsMarquee() {
 }
 
 export default function HomePage() {
+  const router = useRouter()
+
+  // Prefetch key routes on component mount
+  useEffect(() => {
+    router.prefetch('/tools')
+    router.prefetch('/quiz')
+    router.prefetch('/leaderboards')
+  }, [router])
+
   return (
     <div className="min-h-screen">
       {/* Split-Diagonal Hero Section */}

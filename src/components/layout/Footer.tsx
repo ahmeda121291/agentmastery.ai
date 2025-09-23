@@ -5,26 +5,33 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
   
   const footerLinks = {
-    Product: [
-      { href: '/tools', label: 'Tools' },
-      { href: '/leaderboards', label: 'Leaderboards' },
-      { href: '/quizzes', label: 'Quizzes' },
+    'AI Tools': [
+      { href: '/tools', label: 'All Tools' },
+      { href: '/tools?category=Writing', label: 'Writing Tools' },
+      { href: '/tools?category=Video', label: 'Video Tools' },
+      { href: '/tools?category=Data', label: 'Data Tools' },
+      { href: '/tools?category=Outbound', label: 'Sales Tools' },
+      { href: '/tools?category=CRM', label: 'CRM Tools' },
+    ],
+    Leaderboards: [
+      { href: '/leaderboards', label: 'All Rankings' },
+      { href: '/leaderboards#writing', label: 'Writing Leaders' },
+      { href: '/leaderboards#video', label: 'Video Leaders' },
+      { href: '/leaderboards#data', label: 'Data Leaders' },
+      { href: '/leaderboards#outbound', label: 'Sales Leaders' },
     ],
     Resources: [
       { href: '/blog', label: 'Blog' },
-      { href: '/answers', label: 'Answers' },
-      { href: '/docs', label: 'Documentation' },
-      { href: '/api', label: 'API' },
+      { href: '/blog?category=guides', label: 'How-To Guides' },
+      { href: '/blog?category=reviews', label: 'Tool Reviews' },
+      { href: '/quiz', label: 'Tool Matcher Quiz' },
+      { href: '/answers', label: 'Q&A Hub' },
     ],
     Company: [
       { href: '/about', label: 'About' },
       { href: '/contact', label: 'Contact' },
-      { href: '/careers', label: 'Careers' },
-    ],
-    Legal: [
-      { href: '/privacy', label: 'Privacy Policy' },
-      { href: '/terms', label: 'Terms of Service' },
-      { href: '/cookies', label: 'Cookie Policy' },
+      { href: '/privacy', label: 'Privacy' },
+      { href: '/terms', label: 'Terms' },
     ],
   }
   

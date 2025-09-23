@@ -92,8 +92,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
-        <Script {...createSchemaScript(organizationSchema, 'organization-schema')} />
-        <Script {...createSchemaScript(websiteSchema, 'website-schema')} />
+        <link rel="canonical" href="https://agentmastery.ai" />
+        <link rel="prefetch" href="/tools" />
+        <link rel="prefetch" href="/quiz" />
+        <link rel="prefetch" href="/leaderboards" />
+        <Script
+          {...createSchemaScript(organizationSchema, 'organization-schema')}
+          strategy="afterInteractive"
+        />
+        <Script
+          {...createSchemaScript(websiteSchema, 'website-schema')}
+          strategy="afterInteractive"
+        />
       </head>
       <body>
         <SiteLayout>{children}</SiteLayout>

@@ -37,13 +37,19 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const tool = tools.find(t => t.slug === params.slug)
   if (!tool) return { title: 'Tool Not Found' }
 
+  const canonicalUrl = `https://agentmastery.ai/tools/${params.slug}`
+
   return {
     title: `${tool.name} Review 2024 - Pricing, Features & Alternatives | AgentMastery`,
     description: tool.blurb,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${tool.name} - AI Tool Review`,
       description: tool.blurb,
       type: 'article',
+      url: canonicalUrl,
     },
   }
 }
