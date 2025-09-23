@@ -43,7 +43,7 @@ export function CalculatorInput({
           {label}
           {tooltip && (
             <TooltipProvider>
-              <Tooltip>
+              <Tooltip content={tooltip}>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                 </TooltipTrigger>

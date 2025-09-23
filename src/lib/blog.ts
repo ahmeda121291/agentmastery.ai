@@ -1,7 +1,14 @@
-import fs from 'fs'
-import path from 'path'
 import matter from 'gray-matter'
 import readingTime from 'reading-time'
+
+// Only import fs and path on the server side
+let fs: any = null
+let path: any = null
+
+if (typeof window === 'undefined') {
+  fs = require('fs')
+  path = require('path')
+}
 
 export interface BlogPost {
   slug: string
@@ -20,9 +27,20 @@ export interface BlogPost {
   }>
 }
 
-const postsDirectory = path.join(process.cwd(), 'content/blog')
+function getPostsDirectory(): string | null {
+  if (!path) return null
+  return path.join(process.cwd(), 'content/blog')
+}
 
 export function getAllPosts(): BlogPost[] {
+  if (!fs || !path) {
+    console.warn('getAllPosts: fs/path not available (client-side)')
+    return []
+  }
+
+  const postsDirectory = getPostsDirectory()
+  if (!postsDirectory) return []
+
   // Create directory if it doesn't exist
   if (!fs.existsSync(postsDirectory)) {
     fs.mkdirSync(postsDirectory, { recursive: true })
@@ -31,8 +49,8 @@ export function getAllPosts(): BlogPost[] {
 
   const fileNames = fs.readdirSync(postsDirectory)
   const allPosts = fileNames
-    .filter(fileName => fileName.endsWith('.mdx'))
-    .map(fileName => {
+    .filter((fileName: string) => fileName.endsWith('.mdx'))
+    .map((fileName: string) => {
       const slug = fileName.replace(/\.mdx$/, '')
       const fullPath = path.join(postsDirectory, fileName)
       const fileContents = fs.readFileSync(fullPath, 'utf8')
@@ -55,12 +73,20 @@ export function getAllPosts(): BlogPost[] {
     })
 
   // Sort posts by date
-  return allPosts.sort((a, b) =>
+  return allPosts.sort((a: BlogPost, b: BlogPost) =>
     new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
+  if (!fs || !path) {
+    console.warn('getPostBySlug: fs/path not available (client-side)')
+    return null
+  }
+
+  const postsDirectory = getPostsDirectory()
+  if (!postsDirectory) return null
+
   try {
     const fullPath = path.join(postsDirectory, `${slug}.mdx`)
     const fileContents = fs.readFileSync(fullPath, 'utf8')

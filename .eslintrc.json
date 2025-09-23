@@ -5,10 +5,6 @@
   ],
   "rules": {
     "react/no-unescaped-entities": "off",
-    "@next/next/no-img-element": "error",
-    "@typescript-eslint/no-unused-vars": [
-      "warn",
-      { "argsIgnorePattern": "^_" }
-    ]
+    "@next/next/no-img-element": "error"
   }
 }

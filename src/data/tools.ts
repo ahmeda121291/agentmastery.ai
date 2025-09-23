@@ -12,6 +12,10 @@ export interface Tool {
   nearestCompetitorSlug?: string
   riskWarnings?: string[]
   editorNote?: string
+  faq?: Array<{
+    question: string
+    answer: string
+  }>
 }
 
 export const tools: Tool[] = [

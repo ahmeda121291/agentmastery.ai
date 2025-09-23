@@ -33,7 +33,7 @@ const CATEGORIES = [
 ]
 
 // Get unique tool categories and names for context
-const toolCategories = [...new Set(tools.map(t => t.category))]
+const toolCategories = Array.from(new Set(tools.map(t => t.category)))
 const toolNames = tools.map(t => ({ name: t.name, slug: t.slug, category: t.category }))
 
 // Canonicalize question for deduplication

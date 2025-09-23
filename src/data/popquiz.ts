@@ -4,6 +4,7 @@ export interface QuizQuestion {
   options: string[]
   correctAnswer: number
   explanation: string
+  category?: string
   relatedTool?: {
     name: string
     slug: string

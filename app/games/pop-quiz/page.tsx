@@ -116,14 +116,14 @@ export default function PopQuizPage() {
       const answer = answers[index]
       if (answer === null) {
         skipped++
-        missedTopics.add(q.category)
+        if (q.category) missedTopics.add(q.category)
       } else if (answer === q.correctAnswer) {
         correct++
         score += POINTS_CORRECT
       } else {
         wrong++
         score += POINTS_WRONG
-        missedTopics.add(q.category)
+        if (q.category) missedTopics.add(q.category)
       }
     })
 
@@ -277,9 +277,11 @@ export default function PopQuizPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
+                      onClick={() => handleAnswerSelect(index)}
+                      className="cursor-pointer"
                     >
                       <Card
-                        className={`cursor-pointer transition-all ${
+                        className={`transition-all ${
                           !showResult && isSelected
                             ? 'ring-2 ring-primary border-primary'
                             : !showResult
@@ -292,7 +294,6 @@ export default function PopQuizPage() {
                             ? 'bg-red-50 dark:bg-red-950/20 border-red-500'
                             : ''
                         }`}
-                        onClick={() => handleAnswerSelect(index)}
                       >
                         <CardContent className="p-4 flex items-center justify-between">
                           <span>{option}</span>

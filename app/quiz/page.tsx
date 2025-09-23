@@ -436,7 +436,7 @@ export default function QuizPage() {
                         <p className="text-sm text-muted-foreground">
                           Your answer: {q.answers[wa.selectedAnswer].text}
                         </p>
-                        <Button variant="link" size="sm" asChild className="h-auto p-0">
+                        <Button variant="ghost" size="sm" asChild className="h-auto p-0">
                           <Link href={`/tools?category=${q.category || 'all'}`}>
                             Learn more about {q.category || 'related tools'} →
                           </Link>

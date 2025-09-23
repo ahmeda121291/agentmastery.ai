@@ -1,21 +1,30 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
   className?: string
 }
 
-export default function Card({ children, className }: CardProps) {
+const Card = forwardRef<HTMLDivElement, CardProps>(({ children, className, ...props }, ref) => {
   return (
-    <div className={twMerge('rounded-xl2 bg-white shadow-card border border-mist/60', className)}>
+    <div ref={ref} className={twMerge('rounded-xl2 bg-white shadow-card border border-mist/60', className)} {...props}>
       {children}
     </div>
   )
+})
+
+Card.displayName = 'Card'
+
+export default Card
+
+interface CardSubComponentProps {
+  children: React.ReactNode
+  className?: string
 }
 
-export function CardHeader({ children, className }: CardProps) {
+export function CardHeader({ children, className }: CardSubComponentProps) {
   return (
     <div className={twMerge('p-6 pb-0', className)}>
       {children}
@@ -23,7 +32,7 @@ export function CardHeader({ children, className }: CardProps) {
   )
 }
 
-export function CardTitle({ children, className }: CardProps) {
+export function CardTitle({ children, className }: CardSubComponentProps) {
   return (
     <h3 className={twMerge('text-lg font-semibold text-ink', className)}>
       {children}
@@ -31,7 +40,7 @@ export function CardTitle({ children, className }: CardProps) {
   )
 }
 
-export function CardDescription({ children, className }: CardProps) {
+export function CardDescription({ children, className }: CardSubComponentProps) {
   return (
     <p className={twMerge('mt-1 text-sm text-ink/60', className)}>
       {children}
@@ -39,7 +48,7 @@ export function CardDescription({ children, className }: CardProps) {
   )
 }
 
-export function CardContent({ children, className }: CardProps) {
+export function CardContent({ children, className }: CardSubComponentProps) {
   return (
     <div className={twMerge('p-6', className)}>
       {children}
@@ -47,7 +56,7 @@ export function CardContent({ children, className }: CardProps) {
   )
 }
 
-export function CardFooter({ children, className }: CardProps) {
+export function CardFooter({ children, className }: CardSubComponentProps) {
   return (
     <div className={twMerge('p-6 pt-0', className)}>
       {children}

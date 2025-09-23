@@ -13,9 +13,9 @@ import {
   EDITOR_CALLOUTS
 } from '@/data/scores'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card } from '@/components/ui/Card'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import {
   Collapsible,
@@ -306,7 +306,7 @@ export default function LeaderboardsPage() {
   }, [])
 
   const categories = useMemo(() => {
-    const cats = ['all', ...new Set(scores.map(s => s.category))]
+    const cats = ['all', ...Array.from(new Set(scores.map(s => s.category)))]
     return cats
   }, [scores])
 

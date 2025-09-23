@@ -1,6 +1,13 @@
 import { Tool } from './tools'
-import fs from 'fs'
-import path from 'path'
+
+// Only import fs and path on the server side
+let fs: any = null
+let path: any = null
+
+if (typeof window === 'undefined') {
+  fs = require('fs')
+  path = require('path')
+}
 
 export interface ScoreDimensions {
   value: number // Cost-effectiveness, ROI
@@ -270,6 +277,11 @@ export function getCurrentWeek(): string {
 
 // Save snapshot to file
 export async function saveSnapshot(scores: CategoryScores[]): Promise<void> {
+  if (!fs || !path) {
+    console.warn('saveSnapshot: fs/path not available (client-side)')
+    return
+  }
+
   const week = getCurrentWeek()
   const snapshot: Snapshot = {
     week,
@@ -288,11 +300,16 @@ export async function saveSnapshot(scores: CategoryScores[]): Promise<void> {
 
 // Load last snapshot
 export function loadLastSnapshot(): Snapshot | null {
+  if (!fs || !path) {
+    console.warn('loadLastSnapshot: fs/path not available (client-side)')
+    return null
+  }
+
   const dir = path.join(process.cwd(), 'public', 'snapshots')
   if (!fs.existsSync(dir)) return null
 
   const files = fs.readdirSync(dir)
-    .filter(f => f.endsWith('.json'))
+    .filter((f: string) => f.endsWith('.json'))
     .sort()
     .reverse()
 

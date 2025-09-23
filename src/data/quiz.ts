@@ -10,6 +10,7 @@ export interface Question {
   question: string
   description?: string
   answers: Answer[]
+  category?: string
 }
 
 export const quizQuestions: Question[] = [

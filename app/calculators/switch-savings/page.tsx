@@ -39,6 +39,7 @@ export default function SwitchSavingsCalculatorPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual')
   const [shareUrl, setShareUrl] = useState('')
   const [downloading, setDownloading] = useState(false)
+  const [selectedTab, setSelectedTab] = useState('apollo')
 
   // Calculate costs for each tool
   const calculations = useMemo(() => {
@@ -193,7 +194,7 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
                 {Object.entries(pricingData).slice(0, 4).map(([key, tool]) => (
                   <Button
                     key={key}
-                    variant={currentTool === key ? 'default' : 'outline'}
+                    variant={currentTool === key ? 'primary' : 'outline'}
                     size="sm"
                     onClick={() => setCurrentTool(key)}
                     className="justify-start"
@@ -218,7 +219,7 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium">Include Data Add-ons</label>
               <Button
-                variant={includeDataAddons ? 'default' : 'outline'}
+                variant={includeDataAddons ? 'primary' : 'outline'}
                 size="sm"
                 onClick={() => setIncludeDataAddons(!includeDataAddons)}
               >
@@ -230,14 +231,14 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
               <label className="text-sm font-medium">Billing Period</label>
               <div className="flex gap-2">
                 <Button
-                  variant={billingPeriod === 'monthly' ? 'default' : 'outline'}
+                  variant={billingPeriod === 'monthly' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setBillingPeriod('monthly')}
                 >
                   Monthly
                 </Button>
                 <Button
-                  variant={billingPeriod === 'annual' ? 'default' : 'outline'}
+                  variant={billingPeriod === 'annual' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setBillingPeriod('annual')}
                 >
@@ -299,7 +300,7 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="apollo" className="w-full">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="apollo">Apollo.io</TabsTrigger>
               <TabsTrigger value="close">Close CRM</TabsTrigger>

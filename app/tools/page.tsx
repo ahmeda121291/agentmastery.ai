@@ -4,8 +4,8 @@ import { useState, useMemo } from 'react'
 import { tools } from '@/data/tools'
 import { buildAffiliateUrl } from '@/lib/seo'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Search, ExternalLink, TrendingUp, Sparkles } from 'lucide-react'
 import Link from 'next/link'
@@ -98,7 +98,7 @@ export default function ToolsPage() {
             const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'tool', tool.slug)
 
             return (
-              <Card key={tool.slug} variant="lift">
+              <Card key={tool.slug}>
                 <div className="p-6 h-full flex flex-col">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-xl font-bold">{tool.name}</h3>
@@ -195,7 +195,7 @@ export default function ToolsPage() {
                 const affiliateUrl = buildAffiliateUrl(tool.affiliateUrl, 'tool', tool.slug)
 
                 return (
-                  <Card key={tool.slug} variant="lift" className="border-green/20">
+                  <Card key={tool.slug} className="border-green/20">
                     <div className="p-6 h-full flex flex-col">
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="text-xl font-bold">{tool.name}</h3>

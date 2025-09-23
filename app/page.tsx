@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   ArrowRight,
@@ -86,7 +86,7 @@ function ToolOfTheWeek() {
           transition={{ duration: 0.5 }}
           className="relative"
         >
-          <Card variant="lift" className="border-green/20 bg-gradient-to-br from-green/5 to-transparent">
+          <Card className="border-green/20 bg-gradient-to-br from-green/5 to-transparent">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function HomePage() {
                       <ArrowRight className="h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="white" magnetic asChild>
+                  <Button size="lg" variant="secondary" magnetic asChild>
                     <Link href="/quiz" className="flex items-center gap-2 touch-target">
                       Take the Quiz
                       <Sparkles className="h-5 w-5" />
@@ -317,7 +317,7 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
               >
-                <Card variant="tilt" className="h-full">
+                <Card className="h-full">
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <Badge variant="secondary">{tool.category}</Badge>
@@ -375,7 +375,7 @@ export default function HomePage() {
               Take our 2-minute quiz and get personalized tool recommendations
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="white" magnetic asChild>
+              <Button size="lg" variant="secondary" magnetic asChild>
                 <Link href="/quiz" className="flex items-center gap-2">
                   Start Tool Matcher
                   <Sparkles className="h-5 w-5" />

@@ -9,7 +9,7 @@ import {
 } from '@/lib/jsonld'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -17,10 +17,6 @@ import {
   Calendar,
   User,
   Tag,
-  Share2,
-  Twitter,
-  Linkedin,
-  Link2,
   ChevronRight,
   BookOpen,
   TrendingUp,
@@ -32,6 +28,7 @@ import Link from 'next/link'
 import Script from 'next/script'
 import { Callout, ProsCons, GlossaryTerm } from '@/components/mdx'
 import dynamic from 'next/dynamic'
+import { ShareButtons } from '@/components/ShareButtons'
 
 // Dynamic import for client-side progress rail
 const ProgressRail = dynamic(() => import('@/components/blog/ProgressRail'), {
@@ -458,53 +455,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               )}
 
               {/* Social Share */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Share2 className="h-4 w-4" />
-                    Share Article
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      asChild
-                    >
-                      <a
-                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://agentmastery.ai/blog/${params.slug}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Twitter className="h-4 w-4" />
-                      </a>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      asChild
-                    >
-                      <a
-                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://agentmastery.ai/blog/${params.slug}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                      </a>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        navigator.clipboard.writeText(`https://agentmastery.ai/blog/${params.slug}`)
-                      }}
-                    >
-                      <Link2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <ShareButtons slug={params.slug} title={post.title} />
             </aside>
           </div>
         </div>

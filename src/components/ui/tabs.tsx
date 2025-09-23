@@ -1,3 +1,5 @@
+"use client"
+
 import React, { createContext, useContext, useState } from 'react'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'

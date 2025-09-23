@@ -15,7 +15,9 @@ import {
   Target,
   Copy,
   Download,
-  Twitter
+  Twitter,
+  Hash,
+  Link2
 } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import {
@@ -39,6 +41,9 @@ export default function BingoPage() {
   })
   const [showWinDialog, setShowWinDialog] = useState(false)
   const [isNewCard, setIsNewCard] = useState(true)
+  const [boardSeed, setBoardSeed] = useState('')
+  const [shareUrl, setShareUrl] = useState('')
+  const [downloading, setDownloading] = useState(false)
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -90,9 +95,9 @@ export default function BingoPage() {
   }, [checkedCells])
 
   const initializeNewCard = () => {
-    // Generate a random seed for this board
+    // Generate a new card and seed
     const newSeed = Date.now().toString(36) + Math.random().toString(36).substr(2)
-    const newCard = generateSeededBoard(newSeed)
+    const newCard = generateBingoCard()
     setBingoCard(newCard)
     setBoardSeed(newSeed)
 
@@ -102,7 +107,7 @@ export default function BingoPage() {
     setCheckedCells(newChecked)
     setIsNewCard(true)
 
-    // Save with seed
+    // Save to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       card: newCard,
       checked: newChecked,
@@ -289,15 +294,16 @@ export default function BingoPage() {
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: (rowIndex * 5 + colIndex) * 0.02 }}
+                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                    className="cursor-pointer"
                   >
                     <Card
                       className={`
-                        aspect-square cursor-pointer transition-all
+                        aspect-square transition-all
                         hover:shadow-md hover:scale-105
                         ${isChecked ? 'bg-primary/10 border-primary' : 'hover:border-primary/50'}
                         ${isFreeSpace ? 'bg-gradient-to-br from-primary/20 to-primary/10' : ''}
                       `}
-                      onClick={() => handleCellClick(rowIndex, colIndex)}
                     >
                       <CardContent className="p-2 h-full flex flex-col items-center justify-center text-center relative">
                         {isChecked && (

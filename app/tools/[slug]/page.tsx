@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { tools } from '@/data/tools'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   ExternalLink,
@@ -284,7 +284,7 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
         {/* Main Content Grid */}
         <div className="grid gap-8 lg:grid-cols-2 mb-12">
           {/* Pros */}
-          <Card variant="lift">
+          <Card>
             <div className="p-6">
               <h2 className="font-semibold text-xl mb-4 flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
@@ -302,7 +302,7 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
           </Card>
 
           {/* Cons */}
-          <Card variant="lift">
+          <Card>
             <div className="p-6">
               <h2 className="font-semibold text-xl mb-4 flex items-center gap-2">
                 <XCircle className="h-5 w-5 text-red-600" />

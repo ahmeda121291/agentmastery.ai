@@ -50,7 +50,7 @@ async function main() {
         if (Math.abs(tool.scoreDelta || 0) > 5) {
           significantChanges++
           const direction = tool.scoreDelta! > 0 ? '📈' : '📉'
-          console.log(`${direction} ${tool.name}: ${tool.scoreDelta > 0 ? '+' : ''}${tool.scoreDelta} points`)
+          console.log(`${direction} ${tool.name}: ${tool.scoreDelta! > 0 ? '+' : ''}${tool.scoreDelta} points`)
         }
       })
     })

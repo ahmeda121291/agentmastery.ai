@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Search,
@@ -110,7 +110,7 @@ export default function NotFound() {
             Take our 2-minute quiz to get personalized AI tool recommendations based on your specific needs and budget.
           </p>
           <div className="flex gap-3 justify-center">
-            <Button variant="white" size="lg" onClick={() => router.back()}>
+            <Button variant="secondary" size="lg" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Go Back
             </Button>
