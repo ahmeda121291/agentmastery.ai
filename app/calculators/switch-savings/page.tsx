@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { PRICING, getToolsByCategory, getAllCategories, type ToolCategory } from '@/data/pricing'
 import {
@@ -43,6 +43,24 @@ export default function SwitchSavingsCalculatorPage() {
   const [downloading, setDownloading] = useState(false)
   const [selectedTab, setSelectedTab] = useState('apollo')
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setCategoryDropdownOpen(false)
+      }
+    }
+
+    if (categoryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+  }, [categoryDropdownOpen])
 
   // Get filtered tools based on selected category
   const categoryTools = useMemo(() => {
@@ -258,40 +276,79 @@ View full comparison at: https://agentmastery.ai/calculators/switch-savings
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="relative">
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setCategoryDropdownOpen(!categoryDropdownOpen)
+            <div className="relative" ref={dropdownRef}>
+              <button
+                ref={buttonRef}
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setCategoryDropdownOpen(!categoryDropdownOpen)
+                  } else if (e.key === 'Escape' && categoryDropdownOpen) {
+                    setCategoryDropdownOpen(false)
+                  } else if (e.key === 'ArrowDown' && !categoryDropdownOpen) {
+                    setCategoryDropdownOpen(true)
+                  }
                 }}
-                className="w-full justify-between"
+                className="w-full inline-flex items-center justify-between h-12 px-4 rounded-xl border-2 border-forest/30 bg-white text-ink text-base font-medium shadow-sm hover:border-forest/50 focus:outline-none focus:ring-4 focus:ring-green/20 transition-all"
+                aria-haspopup="listbox"
+                aria-expanded={categoryDropdownOpen}
+                aria-label="Select tool category"
               >
-                {selectedCategory}
-                <ChevronDown className={`h-4 w-4 transition-transform ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
-              </Button>
+                <span>{selectedCategory}</span>
+                <ChevronDown className={`h-5 w-5 transition-transform ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
               {categoryDropdownOpen && (
                 <div
-                  className="absolute top-full left-0 right-0 z-10 mt-1 bg-background border rounded-md shadow-lg"
-                  onClick={(e) => e.stopPropagation()}
+                  className="absolute z-30 mt-2 w-full rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
+                  role="listbox"
+                  aria-label="Tool categories"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setCategoryDropdownOpen(false)
+                      buttonRef.current?.focus()
+                    }
+                  }}
                 >
-                  {getAllCategories().map((category) => (
-                    <button
-                      key={category}
-                      className="w-full px-3 py-2 text-left hover:bg-muted transition-colors first:rounded-t-md last:rounded-b-md"
-                      onClick={() => {
-                        setSelectedCategory(category)
-                        setCategoryDropdownOpen(false)
-                        // Reset current tool to first tool in category
-                        const categoryTools = getToolsByCategory(category)
-                        if (categoryTools.length > 0) {
-                          setCurrentTool(categoryTools[0].slug)
-                        }
-                      }}
-                    >
-                      {category}
-                    </button>
-                  ))}
+                  <div className="max-h-[60vh] overflow-auto">
+                    {getAllCategories().map((category) => (
+                      <button
+                        key={category}
+                        role="option"
+                        aria-selected={selectedCategory === category}
+                        className={`w-full px-4 py-3 text-base text-ink hover:bg-mist cursor-pointer transition-colors text-left ${
+                          selectedCategory === category
+                            ? 'bg-green/10 border-l-4 border-green font-semibold'
+                            : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedCategory(category)
+                          setCategoryDropdownOpen(false)
+                          buttonRef.current?.focus()
+                          // Reset current tool to first tool in category
+                          const categoryTools = getToolsByCategory(category)
+                          if (categoryTools.length > 0) {
+                            setCurrentTool(categoryTools[0].slug)
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            setSelectedCategory(category)
+                            setCategoryDropdownOpen(false)
+                            buttonRef.current?.focus()
+                            const categoryTools = getToolsByCategory(category)
+                            if (categoryTools.length > 0) {
+                              setCurrentTool(categoryTools[0].slug)
+                            }
+                          }
+                        }}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

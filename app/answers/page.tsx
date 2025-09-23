@@ -112,14 +112,9 @@ export default function AnswersPage() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
               Quick Takes
             </h1>
-            <p className="text-xl md:text-2xl text-green-100 mb-8">
+            <p className="mt-3 text-white/90 text-base md:text-lg text-center max-w-2xl mx-auto">
               Your AI questions, answered fast. Clear, practical, and bias-free.
             </p>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-              <p className="text-green-100">
-                {SORTED_ANSWERS.length} expert answers • {CATEGORIES.length} categories
-              </p>
-            </div>
           </div>
         </div>
       </div>

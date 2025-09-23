@@ -95,15 +95,17 @@ export default function AboutPage() {
           </section>
 
           {/* Proprietary Method Section */}
-          <div className="mb-16">
+          <section className="mx-auto max-w-6xl px-6 md:px-8 py-10 md:py-14">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
                 <BarChart3 className="h-8 w-8 text-primary" />
                 Proprietary Scoring Method
               </h2>
-              <p className="text-xl text-muted-foreground">
-                Four dimensions. One score. Total transparency.
-              </p>
+              <div className="mx-auto max-w-3xl px-6 md:px-8 text-center">
+                <p className="text-xl text-ink/80">
+                  Four dimensions. One score. Total transparency.
+                </p>
+              </div>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8 mb-8">
@@ -187,7 +189,7 @@ export default function AboutPage() {
                 </CardContent>
               </Card>
             </div>
-          </div>
+          </section>
 
           {/* Editorial Independence Section */}
           <div className="mb-16">
