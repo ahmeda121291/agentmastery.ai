@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import 'dotenv/config'
 import fs from 'fs'
 import path from 'path'
 import OpenAI from 'openai'
@@ -20,16 +21,41 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-// Load keywords if available
-let keywords: string[] = []
-try {
-  const keywordsPath = path.join(process.cwd(), 'src/data/keywords.json')
-  if (fs.existsSync(keywordsPath)) {
-    keywords = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
+// Helper to load topics from keywords.json with multiple format support
+function loadTopics(): string[] {
+  try {
+    const keywordsPath = path.join(process.cwd(), 'src/data/keywords.json')
+    if (fs.existsSync(keywordsPath)) {
+      const raw = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
+
+      // Support multiple formats
+      if (Array.isArray(raw)) {
+        return raw.filter(Boolean)
+      }
+      if (raw && Array.isArray(raw.topics)) {
+        return raw.topics.filter(Boolean)
+      }
+      if (raw && Array.isArray(raw.keywords)) {
+        return raw.keywords.filter(Boolean)
+      }
+    }
+  } catch (e) {
+    console.log('Note: Could not load keywords.json, using defaults')
   }
-} catch (e) {
-  keywords = []
+
+  // Fallback default topics (safe, evergreen)
+  return [
+    "AI writing tools", "AI video generators", "cold email deliverability",
+    "B2B data providers", "CRM migration", "chatbots for support",
+    "email warmup best practices", "lead gen automations", "voice cloning",
+    "meeting scheduling AI", "sales intelligence platforms", "content repurposing",
+    "workflow automation", "AI SEO tools", "transcription services"
+  ]
 }
+
+// Load keywords
+const keywords = loadTopics()
+console.log(`📚 Loaded ${keywords.length} topics`)
 
 // Categories from tools
 const CATEGORIES = [
@@ -109,10 +135,22 @@ function canonicalize(text: string): string {
     .trim()
 }
 
+// Shuffle array helper
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array]
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
 // Generate Q&A prompt
 function generatePrompt(): string {
-  const topicSamples = keywords.slice(0, 20).join(', ')
+  const topicSamples = shuffle(keywords).slice(0, 20).join(', ')
   const toolSamples = toolNames.slice(0, 10).map(t => t.name).join(', ')
+
+  console.log(`🎲 Generating ${defaultCount} answers from ${keywords.length} topics`)
 
   return `Generate ${defaultCount} high-quality Q&A pairs for an AI tools knowledge base.
 

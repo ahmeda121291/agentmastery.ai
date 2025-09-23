@@ -51,11 +51,29 @@ When both checks pass (Preview Check ✅ and Vercel Preview ✅), the PR can be 
 - **Uses**: `pnpm install --frozen-lockfile` for deterministic builds
 - **Output**: Commits updates with message `feat: update answers hub with new Q&As [skip ci]`
 
-Both nightly workflows require:
-- Node.js 20
-- Corepack enabled for pnpm
-- `OPENAI_API_KEY` secret configured
-- pnpm-lock.yaml file present in the repository
+Both nightly workflows:
+- Create `.env.local` from GitHub Secrets at runtime
+- Use Node.js 20 with corepack enabled for pnpm
+- Require `OPENAI_API_KEY` secret configured in repository settings
+- Use `pnpm install --frozen-lockfile` for deterministic builds
+- Scripts automatically load environment via `dotenv/config`
+
+## Generator Scripts
+
+### Answers Generator
+The answers generator (`scripts/generate_answers.ts`) is flexible with keyword input:
+- Accepts `keywords.json` as an array: `["ai video", "cold email", ...]`
+- Or as an object: `{"topics": ["ai video", ...]}` or `{"keywords": ["ai video", ...]}`
+- Falls back to safe, evergreen default topics if file is missing or invalid
+- Supports `--count=N` flag to control number of answers generated (default: 20)
+
+### Running Generators Locally
+Create `.env.local` with your API key:
+```bash
+echo "OPENAI_API_KEY=sk-..." > .env.local
+pnpm run generate:answers
+pnpm run generate:posts
+```
 
 ## Local Development
 
