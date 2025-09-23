@@ -11,7 +11,8 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css}\"",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
-    "generate:answers": "tsx scripts/generate_answers.ts"
+    "generate:answers": "tsx scripts/generate_answers.ts",
+    "generate:posts": "tsx scripts/generate_posts.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

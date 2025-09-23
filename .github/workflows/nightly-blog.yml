@@ -2,8 +2,8 @@ name: Nightly Blog
 
 on:
   schedule:
-    # Run at 03:07 UTC every night
-    - cron: "7 3 * * *"
+    # Run at 04:43 UTC every night
+    - cron: "43 4 * * *"
   workflow_dispatch: # Allow manual triggering for testing
 
 jobs:
@@ -26,13 +26,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Compile TypeScript
-        run: npx tsc scripts/generate_posts.ts --outDir scripts --module commonjs --target es2020 --esModuleInterop --resolveJsonModule
-
       - name: Generate blog posts
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node scripts/generate_posts.js
+        run: npm run generate:posts
 
       - name: Check for changes
         id: check_changes
@@ -49,5 +46,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Actions Bot"
           git add .
-          git commit -m "chore(blog): nightly posts [skip ci]"
+          git commit -m "chore(blog): nightly +5 posts [skip ci]"
           git push

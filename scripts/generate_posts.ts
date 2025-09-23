@@ -1,35 +1,9 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 import OpenAI from 'openai'
-import { tools } from '../src/data/tools'
-import dotenv from 'dotenv'
-
-// Load environment variables
-dotenv.config()
-
-interface Keyword {
-  keyword: string
-  priority: string
-  category: string
-  suggestedPushLevel: string
-}
-
-interface KeywordData {
-  keywords: Keyword[]
-  processed: string[]
-  lastProcessedDate: string | null
-  config: {
-    postsPerRun: {
-      min: number
-      max: number
-    }
-    pushLevelDistribution: Record<string, number>
-  }
-}
-
-type PushLevel = 'heavy' | 'medium' | 'light' | 'none'
+import { buildAffiliateUrl } from '../src/lib/affiliate'
 
 // Check for API key
 if (!process.env.OPENAI_API_KEY) {
@@ -38,277 +12,210 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 })
 
-// File paths
-const KEYWORDS_PATH = path.join(__dirname, '../src/data/keywords.json')
-const BLOG_DIR = path.join(__dirname, '../content/blog')
+// Load keywords and config
+const keywordsPath = path.join(process.cwd(), 'src/data/keywords.json')
+const keywordsData = JSON.parse(fs.readFileSync(keywordsPath, 'utf-8'))
+const { min, max } = keywordsData.config.postsPerRun
+const postsToGenerate = Math.floor(Math.random() * (max - min + 1)) + min
 
-// Ensure blog directory exists
-if (!fs.existsSync(BLOG_DIR)) {
-  fs.mkdirSync(BLOG_DIR, { recursive: true })
+// Categories with example topics
+const CATEGORIES = ['Writing', 'Video', 'Data', 'Outbound', 'CRM']
+
+// Tool slugs for internal linking
+const TOOL_SLUGS = [
+  'jasper', 'copy-ai', 'writesonic', 'synthesia', 'heygen', 'loom',
+  'apollo', 'zoominfo', 'clearbit', 'smartlead', 'instantly', 'lemlist',
+  'hubspot', 'salesforce', 'pipedrive', 'clay', 'phantombuster', 'n8n'
+]
+
+interface GeneratedPost {
+  title: string
+  slug: string
+  category: string
+  excerpt: string
+  tags: string[]
+  content: string
+  date: string
 }
 
-// Load keywords
-function loadKeywords(): KeywordData {
-  const data = fs.readFileSync(KEYWORDS_PATH, 'utf-8')
-  return JSON.parse(data)
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
-// Save keywords
-function saveKeywords(data: KeywordData) {
-  fs.writeFileSync(KEYWORDS_PATH, JSON.stringify(data, null, 2))
+function getRandomElements<T>(arr: T[], count: number): T[] {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random())
+  return shuffled.slice(0, count)
 }
 
-// Get random push level based on distribution
-function getRandomPushLevel(distribution: Record<string, number>): PushLevel {
-  const rand = Math.random()
-  let cumulative = 0
+function generatePrompt(topic: string, category: string): string {
+  const randomTools = getRandomElements(TOOL_SLUGS, 6)
 
-  for (const [level, probability] of Object.entries(distribution)) {
-    cumulative += probability
-    if (rand <= cumulative) {
-      return level as PushLevel
-    }
-  }
-
-  return 'light' // fallback
-}
-
-// Get relevant tools for a category
-function getRelevantTools(category: string, count: number = 3): typeof tools {
-  const categoryTools = tools.filter(tool =>
-    tool.category === category ||
-    tool.category.includes(category.split('/')[0])
-  )
-
-  // Shuffle and return requested count
-  return categoryTools
-    .sort(() => Math.random() - 0.5)
-    .slice(0, Math.min(count, categoryTools.length))
-}
-
-// Generate affiliate links based on push level
-function generateAffiliateLinks(pushLevel: PushLevel, category: string): string[] {
-  const affiliateLinks: string[] = []
-
-  switch (pushLevel) {
-    case 'heavy':
-      // 5-8 affiliate links
-      const heavyTools = getRelevantTools(category, 8)
-      heavyTools.forEach(tool => {
-        affiliateLinks.push(tool.affiliateUrl)
-      })
-      break
-    case 'medium':
-      // 3-4 affiliate links
-      const mediumTools = getRelevantTools(category, 4)
-      mediumTools.forEach(tool => {
-        affiliateLinks.push(tool.affiliateUrl)
-      })
-      break
-    case 'light':
-      // 1-2 affiliate links
-      const lightTools = getRelevantTools(category, 2)
-      lightTools.forEach(tool => {
-        affiliateLinks.push(tool.affiliateUrl)
-      })
-      break
-    case 'none':
-      // No affiliate links
-      break
-  }
-
-  return affiliateLinks
-}
-
-// Generate blog post content
-async function generateBlogPost(keyword: Keyword, pushLevel: PushLevel): Promise<string> {
-  const relevantTools = getRelevantTools(keyword.category, 5)
-  const affiliateLinks = generateAffiliateLinks(pushLevel, keyword.category)
-
-  // Create content prompt based on push level
-  let contentPrompt = `Write a comprehensive blog post about "${keyword.keyword}" for an AI tools and automation blog.
-
-Category: ${keyword.category}
-Push Level: ${pushLevel}
-${relevantTools.length > 0 ? `Relevant tools to mention: ${relevantTools.map(t => t.name).join(', ')}` : ''}
+  return `Write a comprehensive, high-quality blog post about "${topic}" for the ${category} category.
 
 Requirements:
-`
+1. MUST include ONE comparison table comparing 3 specific tools or frameworks (use markdown table syntax)
+2. MUST include ONE actionable checklist with 5-7 items (use markdown checkbox syntax)
+3. MUST include ONE "Editor's Note:" paragraph starting with **Editor's Note:** that gives an opinionated, insider perspective
+4. MUST include EXACTLY THREE internal links:
+   - One to a tool page like [ToolName](/tools/${randomTools[0]})
+   - One to [leaderboards](/leaderboards)
+   - One to [quiz](/quiz)
+5. Include affiliate links using format: ${randomTools[1]}.com?ref=agentmastery
+6. Write in a professional yet conversational tone
+7. Include practical examples and actionable advice
+8. Length: 1200-1500 words
+9. Use proper markdown formatting with ## and ### headers
+10. Include a strong introduction and conclusion
 
-  switch (pushLevel) {
-    case 'heavy':
-      contentPrompt += `
-- Format: Full review/comparison article (1500-2000 words)
-- Include detailed tool comparisons with pros/cons
-- Naturally mention and link to these tools: ${relevantTools.slice(0, 5).map(t => `${t.name} (${t.affiliateUrl})`).join(', ')}
-- Include pricing comparisons and ROI calculations
-- Add "Best For" recommendations for each tool
-`
-      break
-    case 'medium':
-      contentPrompt += `
-- Format: Listicle or roundup (1000-1500 words)
-- Include 5-7 key points or tools
-- Naturally mention these tools: ${relevantTools.slice(0, 3).map(t => `${t.name} (${t.affiliateUrl})`).join(', ')}
-- Focus on practical tips and use cases
-`
-      break
-    case 'light':
-      contentPrompt += `
-- Format: How-to guide (800-1200 words)
-- Step-by-step instructions
-- Optionally mention 1-2 tools: ${relevantTools.slice(0, 2).map(t => `${t.name} (${t.affiliateUrl})`).join(', ')}
-- Focus on actionable advice
-`
-      break
-    case 'none':
-      contentPrompt += `
-- Format: Educational/thought leadership piece (800-1200 words)
-- No product promotion
-- Focus on industry insights and best practices
-- Build trust and authority
-`
-      break
-  }
+Format the response as JSON with these fields:
+{
+  "title": "compelling title",
+  "excerpt": "150-char excerpt",
+  "tags": ["tag1", "tag2", "tag3"],
+  "content": "full markdown content"
+}`
+}
 
-  contentPrompt += `
-
-Include:
-1. Engaging introduction
-2. Well-structured main content with subheadings
-3. Practical examples
-4. Conclusion with key takeaways
-5. 3-4 FAQ questions and answers
-
-Format the response as MDX with proper frontmatter.
-Use markdown formatting for headings, lists, and emphasis.
-For affiliate links, use this format: [Tool Name](affiliate-url?ref=agentmastery&rel=sponsored)
-`
-
+async function generatePost(topic: string, category: string): Promise<GeneratedPost | null> {
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
       messages: [
         {
           role: 'system',
-          content: 'You are an expert content writer specializing in AI tools, sales automation, and productivity software. Write engaging, SEO-optimized content that provides value while naturally incorporating affiliate links when appropriate.'
+          content: 'You are an expert technical writer creating high-quality, SEO-optimized blog posts about AI tools and automation.'
         },
         {
           role: 'user',
-          content: contentPrompt
+          content: generatePrompt(topic, category)
         }
       ],
       temperature: 0.8,
-      max_tokens: 3000
+      max_tokens: 4000,
+      response_format: { type: 'json_object' }
     })
 
-    const content = completion.choices[0].message.content || ''
+    const content = response.choices[0]?.message?.content
+    if (!content) return null
 
-    // Generate MDX frontmatter
+    const parsed = JSON.parse(content)
+    const slug = generateSlug(parsed.title)
     const date = new Date().toISOString().split('T')[0]
-    const slug = keyword.keyword.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
 
-    const frontmatter = `---
-title: "${keyword.keyword.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}"
-description: "Comprehensive guide on ${keyword.keyword} with expert insights and recommendations."
-date: "${date}"
-author: "AgentMastery Team"
-category: "${keyword.category}"
-tags: ${JSON.stringify(keyword.keyword.split(' ').slice(0, 5))}
-affiliateLinks: ${JSON.stringify(affiliateLinks)}
-pushLevel: "${pushLevel}"
-faq:
-  - question: "What are the key considerations for ${keyword.keyword}?"
-    answer: "Key considerations include cost-effectiveness, integration capabilities, ease of use, and scalability for your specific needs."
-  - question: "How much should I budget for ${keyword.keyword.includes('tool') ? 'these tools' : 'this'}?"
-    answer: "Budget varies based on team size and needs, typically ranging from $50-500/month for small teams to $1000+ for enterprises."
-  - question: "What's the ROI of implementing ${keyword.keyword.includes('tool') ? 'these solutions' : 'this approach'}?"
-    answer: "Most businesses see positive ROI within 3-6 months through time savings and improved efficiency."
----
-
-${content}`
-
-    return frontmatter
+    return {
+      title: parsed.title,
+      slug,
+      category,
+      excerpt: parsed.excerpt,
+      tags: parsed.tags,
+      content: parsed.content,
+      date
+    }
   } catch (error) {
-    console.error(`Error generating content for "${keyword.keyword}":`, error)
-    throw error
+    console.error('Error generating post:', error)
+    return null
   }
 }
 
-// Main function
+function createMDXContent(post: GeneratedPost): string {
+  // Generate unique OG image URL
+  const ogImage = `/api/og?title=${encodeURIComponent(post.title)}&type=blog&category=${post.category}`
+
+  return `---
+title: "${post.title}"
+date: "${post.date}"
+category: "${post.category}"
+excerpt: "${post.excerpt}"
+tags: ${JSON.stringify(post.tags)}
+author: "AI Research Team"
+image: "${ogImage}"
+faq:
+  - question: "What are the key benefits discussed?"
+    answer: "The post covers automation efficiency, cost savings, and implementation strategies for ${post.category.toLowerCase()} tools."
+  - question: "Who should read this guide?"
+    answer: "This guide is ideal for professionals looking to optimize their ${post.category.toLowerCase()} workflows with AI-powered solutions."
+---
+
+${post.content}
+`
+}
+
 async function main() {
-  console.log('Starting blog post generation...')
+  console.log(`🤖 Generating ${postsToGenerate} blog posts...`)
 
-  const keywordData = loadKeywords()
-
-  // Filter unprocessed keywords
-  const unprocessedKeywords = keywordData.keywords.filter(
-    k => !keywordData.processed.includes(k.keyword)
-  )
-
-  if (unprocessedKeywords.length === 0) {
-    console.log('No unprocessed keywords found')
-    return
-  }
-
-  // Determine number of posts to generate
-  const { min, max } = keywordData.config.postsPerRun
-  const postsToGenerate = Math.floor(Math.random() * (max - min + 1)) + min
-  const keywordsToProcess = unprocessedKeywords
-    .sort((a, b) => {
-      const priorityOrder = { high: 0, medium: 1, low: 2 }
-      return (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2)
-    })
+  // Get available topics
+  const availableTopics = keywordsData.keywords
+    .filter((k: any) => !keywordsData.processed.includes(k.keyword))
     .slice(0, postsToGenerate)
 
-  console.log(`Generating ${keywordsToProcess.length} blog posts...`)
+  if (availableTopics.length < postsToGenerate) {
+    console.log(`⚠️  Only ${availableTopics.length} unprocessed topics available`)
+  }
 
-  for (const keyword of keywordsToProcess) {
-    try {
-      // Determine push level
-      const pushLevel = getRandomPushLevel(keywordData.config.pushLevelDistribution)
-      console.log(`Processing "${keyword.keyword}" with push level: ${pushLevel}`)
+  const postsDir = path.join(process.cwd(), 'src/content/blog')
+  if (!fs.existsSync(postsDir)) {
+    fs.mkdirSync(postsDir, { recursive: true })
+  }
 
-      // Generate content
-      const content = await generateBlogPost(keyword, pushLevel)
+  let successCount = 0
+  const processedKeywords: string[] = [...keywordsData.processed]
 
-      // Generate filename
-      const slug = keyword.keyword.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-      const filename = `${slug}.mdx`
-      const filepath = path.join(BLOG_DIR, filename)
+  for (let i = 0; i < Math.min(postsToGenerate, availableTopics.length); i++) {
+    const topic = availableTopics[i]
+    const category = CATEGORIES[i % CATEGORIES.length]
 
-      // Write file
-      fs.writeFileSync(filepath, content)
-      console.log(`Created: ${filename}`)
+    console.log(`\n📝 Generating post ${i + 1}/${postsToGenerate}: ${topic.keyword}`)
 
-      // Mark as processed
-      keywordData.processed.push(keyword.keyword)
+    const post = await generatePost(topic.keyword, category)
 
-      // Add delay to avoid rate limiting
+    if (post) {
+      const mdxContent = createMDXContent(post)
+      const filePath = path.join(postsDir, `${post.slug}.mdx`)
+
+      // Check if file already exists
+      if (fs.existsSync(filePath)) {
+        console.log(`⏭️  Skipping: ${post.slug} already exists`)
+        continue
+      }
+
+      fs.writeFileSync(filePath, mdxContent, 'utf-8')
+      console.log(`✅ Created: ${post.slug}.mdx`)
+
+      processedKeywords.push(topic.keyword)
+      successCount++
+    } else {
+      console.log(`❌ Failed to generate post for: ${topic.keyword}`)
+    }
+
+    // Add delay to avoid rate limits
+    if (i < postsToGenerate - 1) {
       await new Promise(resolve => setTimeout(resolve, 2000))
-    } catch (error) {
-      console.error(`Failed to process "${keyword.keyword}":`, error)
     }
   }
 
-  // Update last processed date
-  keywordData.lastProcessedDate = new Date().toISOString()
+  // Update keywords.json with processed items
+  keywordsData.processed = processedKeywords
+  keywordsData.lastProcessedDate = new Date().toISOString()
+  fs.writeFileSync(keywordsPath, JSON.stringify(keywordsData, null, 2), 'utf-8')
 
-  // Save updated keywords
-  saveKeywords(keywordData)
+  console.log(`\n🎉 Generated ${successCount} blog posts successfully!`)
 
-  console.log('Blog post generation complete!')
+  // Remind to change config back to 5/5
+  if (postsToGenerate === 10) {
+    console.log('\n📌 Remember to change postsPerRun back to min:5, max:5 in keywords.json')
+  }
 }
 
-// Run the script
-main().catch(error => {
-  console.error('Fatal error:', error)
-  process.exit(1)
-})
+// Run if called directly
+if (require.main === module) {
+  main().catch(error => {
+    console.error('Fatal error:', error)
+    process.exit(1)
+  })
+}
