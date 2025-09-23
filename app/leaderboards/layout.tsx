@@ -1,5 +1,5 @@
-import { SiteLayout } from '@/components/layout/SiteLayout'
 import { Metadata } from 'next'
+import React from 'react'
 
 export const metadata: Metadata = {
   title: {
@@ -51,7 +51,7 @@ export default function LeaderboardsLayout({
   children: React.ReactNode
 }) {
   return (
-    <SiteLayout>
+    <>
       {/* Gradient Header */}
       <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-b">
         <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.1))]" />
@@ -80,6 +80,6 @@ export default function LeaderboardsLayout({
         </div>
       </div>
       {children}
-    </SiteLayout>
+    </>
   )
 }

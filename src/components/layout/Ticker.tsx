@@ -15,12 +15,14 @@ const tickerItems = [
 
 export function Ticker() {
   return (
-    <div className="bg-forest text-paper py-1.5 overflow-hidden border-b border-green/20">
-      <div className="ticker overflow-hidden">
-        <div className="ticker-content animate-ticker">
+    <div
+      className="bg-forest text-paper py-1.5 overflow-hidden border-b border-green/20"
+      data-testid="site-ticker">
+      <div className="ticker overflow-hidden whitespace-nowrap">
+        <div className="ticker-content animate-ticker flex">
           {/* Duplicate items for seamless loop */}
           {[...tickerItems, ...tickerItems].map((item, index) => (
-            <div key={index} className="flex items-center gap-2 px-6 whitespace-nowrap">
+            <div key={index} className="flex items-center gap-2 px-6 whitespace-nowrap flex-shrink-0">
               <item.icon className={`h-3 w-3 ${item.color}`} />
               <span className="text-xs font-medium">{item.text}</span>
             </div>

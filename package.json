@@ -13,7 +13,8 @@
     "type-check": "tsc --noEmit",
     "generate:answers": "tsx scripts/generate_answers.ts",
     "answers:seed:17": "node --env-file=.env.local ./node_modules/.bin/tsx scripts/generate_answers.ts --count=17",
-    "generate:posts": "node --env-file=.env.local ./node_modules/.bin/tsx scripts/generate_posts.ts"
+    "generate:posts": "node --env-file=.env.local ./node_modules/.bin/tsx scripts/generate_posts.ts",
+    "fix:mdx": "tsx scripts/fix_mdx_links.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -40,6 +41,7 @@
     "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^20.19.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
