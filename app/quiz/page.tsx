@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { quizQuestions, calculateQuizResults } from '@/src/data/quiz'
 import { recommendTools, getMatchPercentage } from '@/src/lib/recommend'
@@ -17,16 +17,121 @@ import {
   Target,
   TrendingUp,
   Zap,
-  RotateCw
+  RotateCw,
+  Share2,
+  Download,
+  Link2,
+  Trophy,
+  Flame,
+  Info,
+  XCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import confetti from 'canvas-confetti'
+
+interface StreakData {
+  currentStreak: number
+  lastQuizDate: string
+  totalQuizzes: number
+  badges: string[]
+}
+
+interface WrongAnswer {
+  questionIndex: number
+  selectedAnswer: number
+  correctAnswer?: number
+}
+
+const BADGE_MILESTONES = {
+  3: { name: 'Getting Started', icon: '🌟' },
+  7: { name: 'Week Warrior', icon: '⚔️' },
+  14: { name: 'Fortnight Champion', icon: '🏆' },
+  30: { name: 'Month Master', icon: '👑' }
+}
 
 export default function QuizPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showResults, setShowResults] = useState(false)
+  const [streakData, setStreakData] = useState<StreakData | null>(null)
+  const [wrongAnswers, setWrongAnswers] = useState<WrongAnswer[]>([])
+  const [showWrongAnswers, setShowWrongAnswers] = useState(false)
+  const [shareUrl, setShareUrl] = useState<string>('')
+  const [downloading, setDownloading] = useState(false)
+
+  // Load streak data on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('quizStreak')
+    if (stored) {
+      const data = JSON.parse(stored) as StreakData
+      const lastDate = new Date(data.lastQuizDate)
+      const today = new Date()
+      const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+
+      // Reset streak if more than 1 day has passed
+      if (daysDiff > 1) {
+        data.currentStreak = 0
+      }
+
+      setStreakData(data)
+    } else {
+      setStreakData({
+        currentStreak: 0,
+        lastQuizDate: new Date().toISOString(),
+        totalQuizzes: 0,
+        badges: []
+      })
+    }
+  }, [])
+
+  const updateStreak = () => {
+    const today = new Date().toISOString().split('T')[0]
+    const lastDate = streakData?.lastQuizDate.split('T')[0]
+
+    let newStreak = streakData?.currentStreak || 0
+    if (lastDate !== today) {
+      newStreak += 1
+    }
+
+    const newBadges = [...(streakData?.badges || [])]
+
+    // Check for new badges
+    Object.entries(BADGE_MILESTONES).forEach(([days, badge]) => {
+      if (newStreak >= parseInt(days) && !newBadges.includes(badge.name)) {
+        newBadges.push(badge.name)
+        // Extra confetti for badges
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.3 }
+        })
+      }
+    })
+
+    const updatedData: StreakData = {
+      currentStreak: newStreak,
+      lastQuizDate: new Date().toISOString(),
+      totalQuizzes: (streakData?.totalQuizzes || 0) + 1,
+      badges: newBadges
+    }
+
+    localStorage.setItem('quizStreak', JSON.stringify(updatedData))
+    setStreakData(updatedData)
+  }
+
+  // Track wrong answers (for demo, we'll consider some answers as "wrong")
+  const checkAnswer = (questionIndex: number, selectedAnswer: number) => {
+    // For demo: consider answer wrong if it's the last option (usually "Other")
+    const question = quizQuestions[questionIndex]
+    if (selectedAnswer === question.answers.length - 1) {
+      setWrongAnswers([...wrongAnswers, {
+        questionIndex,
+        selectedAnswer,
+        correctAnswer: 0 // First answer is "correct" for demo
+      }])
+    }
+  }
 
   const progress = ((currentQuestion + (showResults ? 1 : 0)) / (quizQuestions.length + 1)) * 100
 
@@ -37,6 +142,7 @@ export default function QuizPage() {
   const handleNext = () => {
     if (selectedAnswer === null) return
 
+    checkAnswer(currentQuestion, selectedAnswer)
     const newAnswers = [...answers, selectedAnswer]
     setAnswers(newAnswers)
     setSelectedAnswer(null)
@@ -44,6 +150,7 @@ export default function QuizPage() {
     if (currentQuestion === quizQuestions.length - 1) {
       // Last question - show results
       setShowResults(true)
+      updateStreak()
       // Fire confetti
       setTimeout(() => {
         confetti({
@@ -72,6 +179,54 @@ export default function QuizPage() {
     setAnswers([])
     setSelectedAnswer(null)
     setShowResults(false)
+    setWrongAnswers([])
+    setShowWrongAnswers(false)
+    setShareUrl('')
+  }
+
+  const generateShareUrl = async () => {
+    const recommendations = recommendTools(quizResult!)
+    const toolSlugs = recommendations.slice(0, 3).map(t => t.slug).join(',')
+
+    const params = new URLSearchParams({
+      tools: toolSlugs,
+      score: recommendations[0] ? getMatchPercentage(recommendations[0].score).toString() : '0',
+      dimensions: quizResult?.topDimensions.join(',') || '',
+      utm_source: 'agentmastery',
+      utm_medium: 'quiz',
+      utm_campaign: 'tool-matcher'
+    })
+
+    const ogImageUrl = `/api/og/quiz?${params.toString()}`
+    setShareUrl(`https://agentmastery.ai/quiz?shared=${btoa(params.toString())}`)
+
+    return ogImageUrl
+  }
+
+  const handleShare = async () => {
+    const ogImageUrl = await generateShareUrl()
+    await navigator.clipboard.writeText(shareUrl)
+    alert('Share link copied to clipboard!')
+  }
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const ogImageUrl = await generateShareUrl()
+      const response = await fetch(ogImageUrl)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `agentmastery-quiz-results-${Date.now()}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Download failed:', error)
+    }
+    setDownloading(false)
   }
 
   const question = quizQuestions[currentQuestion]
@@ -80,12 +235,35 @@ export default function QuizPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      {/* Header */}
+      {/* Header with Streak */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Sparkles className="h-8 w-8 text-primary" />
           <h1 className="text-3xl md:text-4xl font-bold">AI Tool Matcher</h1>
         </div>
+
+        {/* Streak Display */}
+        {streakData && streakData.currentStreak > 0 && (
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Badge variant="secondary" className="text-sm py-1 px-3">
+              <Flame className="h-4 w-4 mr-1 text-orange-500" />
+              Day {streakData.currentStreak} Streak!
+            </Badge>
+            {streakData.badges.length > 0 && (
+              <div className="flex gap-2">
+                {streakData.badges.slice(-3).map(badge => {
+                  const milestone = Object.values(BADGE_MILESTONES).find(m => m.name === badge)
+                  return (
+                    <span key={badge} className="text-2xl" title={badge}>
+                      {milestone?.icon}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         <p className="text-lg text-muted-foreground">
           Answer 6 quick questions to get personalized tool recommendations
         </p>
@@ -175,17 +353,17 @@ export default function QuizPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Results Header */}
+            {/* Results Header with Share */}
             <Card className="mb-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
               <CardContent className="text-center py-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <Target className="h-8 w-8 text-primary" />
-                  <h2 className="text-2xl font-bold">Your Personalized Recommendations</h2>
+                  <h2 className="text-2xl font-bold">Your Personalized Stack</h2>
                 </div>
                 <p className="text-muted-foreground mb-6">
                   Based on your answers, here are the top 3 AI tools that match your needs:
                 </p>
-                <div className="flex justify-center gap-4 flex-wrap">
+                <div className="flex justify-center gap-4 flex-wrap mb-6">
                   {quizResult?.topDimensions.map(dim => (
                     <Badge key={dim} variant="secondary" className="text-sm">
                       <TrendingUp className="h-3 w-3 mr-1" />
@@ -193,12 +371,83 @@ export default function QuizPage() {
                     </Badge>
                   ))}
                 </div>
+
+                {/* Share Buttons */}
+                <div className="flex justify-center gap-3">
+                  <Button variant="outline" onClick={handleShare}>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share My Stack
+                  </Button>
+                  <Button variant="outline" onClick={handleDownload} disabled={downloading}>
+                    <Download className="h-4 w-4 mr-2" />
+                    {downloading ? 'Generating...' : 'Download Poster'}
+                  </Button>
+                  {shareUrl && (
+                    <Button variant="ghost" onClick={() => navigator.clipboard.writeText(shareUrl)}>
+                      <Link2 className="h-4 w-4 mr-2" />
+                      Copy Link
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
+            {/* Wrong Answers Review */}
+            {wrongAnswers.length > 0 && !showWrongAnswers && (
+              <Card className="mb-6 border-orange-200 bg-orange-50">
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Info className="h-5 w-5 text-orange-600" />
+                      <span className="font-medium">
+                        You might want to explore {wrongAnswers.length} area{wrongAnswers.length > 1 ? 's' : ''} further
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowWrongAnswers(true)}
+                    >
+                      Review Answers
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Wrong Answers Details */}
+            {showWrongAnswers && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-500" />
+                    Areas to Explore
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {wrongAnswers.map((wa, index) => {
+                    const q = quizQuestions[wa.questionIndex]
+                    return (
+                      <div key={index} className="space-y-2">
+                        <p className="font-medium text-sm">{q.question}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Your answer: {q.answers[wa.selectedAnswer].text}
+                        </p>
+                        <Button variant="link" size="sm" asChild className="h-auto p-0">
+                          <Link href={`/tools?category=${q.category || 'all'}`}>
+                            Learn more about {q.category || 'related tools'} →
+                          </Link>
+                        </Button>
+                      </div>
+                    )
+                  })}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Recommended Tools */}
             <div className="space-y-6 mb-8">
-              {recommendations.map((tool, index) => (
+              {recommendations.slice(0, 3).map((tool, index) => (
                 <motion.div
                   key={tool.slug}
                   initial={{ opacity: 0, y: 20 }}
@@ -273,7 +522,7 @@ export default function QuizPage() {
                       <div className="flex gap-3">
                         <Button asChild className="flex-1">
                           <a
-                            href={tool.affiliateUrl}
+                            href={`${tool.affiliateUrl}${tool.affiliateUrl.includes('?') ? '&' : '?'}utm_source=agentmastery&utm_medium=quiz&utm_campaign=tool-matcher`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2"
@@ -308,23 +557,29 @@ export default function QuizPage() {
               </Button>
             </div>
 
-            {/* Help Section */}
-            <Card className="mt-8 bg-muted/50">
-              <CardContent className="py-6 text-center">
-                <h3 className="font-semibold mb-2">Need More Help?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  These recommendations are based on your quiz answers. For a more detailed comparison or specific use cases, check out our full tools directory and leaderboards.
-                </p>
-                <div className="flex justify-center gap-3">
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/leaderboards">View Leaderboards</Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/blog">Read Reviews</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Achievements Section */}
+            {streakData && streakData.badges.length > 0 && (
+              <Card className="mt-8 bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
+                <CardContent className="py-6 text-center">
+                  <Trophy className="h-8 w-8 text-yellow-600 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2">Your Achievements</h3>
+                  <div className="flex justify-center gap-4 flex-wrap">
+                    {streakData.badges.map(badge => {
+                      const milestone = Object.values(BADGE_MILESTONES).find(m => m.name === badge)
+                      return (
+                        <div key={badge} className="flex flex-col items-center">
+                          <span className="text-3xl mb-1">{milestone?.icon}</span>
+                          <span className="text-xs text-muted-foreground">{badge}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-3">
+                    Total quizzes taken: {streakData.totalQuizzes}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

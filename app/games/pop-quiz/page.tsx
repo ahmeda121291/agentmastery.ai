@@ -29,17 +29,31 @@ import {
 import Link from 'next/link'
 import confetti from 'canvas-confetti'
 
-const QUIZ_DURATION = 120 // 2 minutes in seconds
+const QUIZ_DURATION = 60 // 60 seconds
 const QUESTION_COUNT = 10
+const POINTS_CORRECT = 10
+const POINTS_WRONG = -2 // Light negative marking
+const POINTS_SKIP = 0
+
+interface QuizStats {
+  correct: number
+  wrong: number
+  skipped: number
+  score: number
+  timeUsed: number
+  missedTopics: string[]
+}
 
 export default function PopQuizPage() {
-  const [gameState, setGameState] = useState<'start' | 'playing' | 'finished'>('start')
+  const [gameState, setGameState] = useState<'start' | 'playing' | 'finished' | 'review'>('start')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<(number | null)[]>([])
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [timeRemaining, setTimeRemaining] = useState(QUIZ_DURATION)
   const [showExplanation, setShowExplanation] = useState(false)
+  const [stats, setStats] = useState<QuizStats | null>(null)
+  const [showReview, setShowReview] = useState(false)
 
   // Timer effect
   useEffect(() => {
@@ -91,12 +105,46 @@ export default function PopQuizPage() {
     }, 2000)
   }
 
+  const calculateStats = (): QuizStats => {
+    let correct = 0
+    let wrong = 0
+    let skipped = 0
+    let score = 0
+    const missedTopics = new Set<string>()
+
+    questions.forEach((q, index) => {
+      const answer = answers[index]
+      if (answer === null) {
+        skipped++
+        missedTopics.add(q.category)
+      } else if (answer === q.correctAnswer) {
+        correct++
+        score += POINTS_CORRECT
+      } else {
+        wrong++
+        score += POINTS_WRONG
+        missedTopics.add(q.category)
+      }
+    })
+
+    return {
+      correct,
+      wrong,
+      skipped,
+      score: Math.max(0, score), // Don't go below 0
+      timeUsed: QUIZ_DURATION - timeRemaining,
+      missedTopics: Array.from(missedTopics)
+    }
+  }
+
   const finishQuiz = () => {
+    const finalStats = calculateStats()
+    setStats(finalStats)
     setGameState('finished')
 
     // Calculate score for confetti
-    const result = calculateQuizResult(questions, answers)
-    if (result.percentage >= 70) {
+    const percentage = (finalStats.score / (QUESTION_COUNT * POINTS_CORRECT)) * 100
+    if (percentage >= 70) {
       setTimeout(() => {
         confetti({
           particleCount: 100,

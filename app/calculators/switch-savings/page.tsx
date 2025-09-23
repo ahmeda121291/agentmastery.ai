@@ -24,7 +24,11 @@ import {
   X,
   Zap,
   Database,
-  ArrowRight
+  ArrowRight,
+  Mail,
+  Share2,
+  Download,
+  Copy
 } from 'lucide-react'
 
 export default function SwitchSavingsCalculatorPage() {
@@ -33,6 +37,8 @@ export default function SwitchSavingsCalculatorPage() {
   const [currentTool, setCurrentTool] = useState('zoominfo')
   const [includeDataAddons, setIncludeDataAddons] = useState(true)
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual')
+  const [shareUrl, setShareUrl] = useState('')
+  const [downloading, setDownloading] = useState(false)
 
   // Calculate costs for each tool
   const calculations = useMemo(() => {
@@ -92,6 +98,74 @@ export default function SwitchSavingsCalculatorPage() {
 
   const currentToolData = pricingData[currentTool]
   const showCombined = currentTool === 'zoominfo' || currentTool === 'salesforce'
+
+  const generateEmailText = () => {
+    const savings = showCombined ? calculations.combined.savings : calculations.apollo.savings
+    const text = `
+Switch & Save Comparison Results:
+
+Current Tool: ${currentToolData.name}
+Current Cost: ${formatCurrency(calculations.current.display)}/${billingPeriod === 'annual' ? 'year' : 'month'}
+
+${showCombined ? 'Recommended Combination:' : 'Recommended Alternative:'}
+${showCombined ? `Apollo + Close: ${formatCurrency(calculations.combined.display)}/${billingPeriod === 'annual' ? 'year' : 'month'}` : `Apollo: ${formatCurrency(calculations.apollo.display)}/${billingPeriod === 'annual' ? 'year' : 'month'}`}
+
+Total Savings: ${formatCurrency(savings)}/${billingPeriod === 'annual' ? 'year' : 'month'} (${Math.round(showCombined ? calculations.combined.savingsPercent : calculations.apollo.savingsPercent)}%)
+
+View full comparison at: https://agentmastery.ai/calculators/switch-savings
+`
+    return text
+  }
+
+  const handleEmailComparison = () => {
+    const emailText = generateEmailText()
+    navigator.clipboard.writeText(emailText)
+    alert('Comparison copied to clipboard! Paste it into your email.')
+  }
+
+  const generateShareUrl = async () => {
+    const savings = showCombined ? calculations.combined.savings : calculations.apollo.savings
+    const params = new URLSearchParams({
+      type: 'switch',
+      current: currentToolData.name,
+      savings: Math.round(savings * (billingPeriod === 'annual' ? 1 : 12)).toString(),
+      percent: Math.round(showCombined ? calculations.combined.savingsPercent : calculations.apollo.savingsPercent).toString(),
+      utm_source: 'agentmastery',
+      utm_medium: 'calculator',
+      utm_campaign: 'switch-savings'
+    })
+
+    const ogImageUrl = `/api/og/calculator?${params.toString()}`
+    const shareLink = `https://agentmastery.ai/calculators/switch-savings?shared=${btoa(params.toString())}`
+    setShareUrl(shareLink)
+    return ogImageUrl
+  }
+
+  const handleShare = async () => {
+    await generateShareUrl()
+    await navigator.clipboard.writeText(shareUrl)
+    alert('Share link copied to clipboard!')
+  }
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const ogImageUrl = await generateShareUrl()
+      const response = await fetch(ogImageUrl)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `agentmastery-switch-savings-${Date.now()}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Download failed:', error)
+    }
+    setDownloading(false)
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl">
@@ -433,6 +507,38 @@ export default function SwitchSavingsCalculatorPage() {
               </TabsContent>
             )}
           </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Share & Email Section */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Share Your Comparison</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={handleEmailComparison}>
+              <Mail className="h-4 w-4 mr-2" />
+              Email Comparison
+            </Button>
+            <Button variant="outline" onClick={handleShare}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share Result
+            </Button>
+            <Button variant="outline" onClick={handleDownload} disabled={downloading}>
+              <Download className="h-4 w-4 mr-2" />
+              {downloading ? 'Generating...' : 'Download'}
+            </Button>
+            <Button variant="ghost" onClick={() => navigator.clipboard.writeText(generateEmailText())}>
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Text
+            </Button>
+          </div>
+          {shareUrl && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Share link copied to clipboard!
+            </p>
+          )}
         </CardContent>
       </Card>
 

@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
 
+// Main OG image endpoint for blog and tools
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -259,6 +260,147 @@ export async function GET(request: NextRequest) {
               <span style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>
                 AgentMastery.ai
               </span>
+            </div>
+          </div>
+        ),
+        {
+          width: 1200,
+          height: 630,
+        }
+      )
+    }
+
+    // Quiz results poster
+    if (type === 'quiz') {
+      const tools = searchParams.get('tools')?.split(',') || []
+      const score = searchParams.get('score') || '0'
+      const dimensions = searchParams.get('dimensions')?.split(',') || []
+
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundImage: 'linear-gradient(135deg, #014421 0%, #28A745 100%)',
+              padding: '60px',
+            }}
+          >
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '16px',
+                padding: '40px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '24px',
+              }}
+            >
+              <h1
+                style={{
+                  fontSize: '48px',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  margin: 0,
+                }}
+              >
+                My AI Tool Stack
+              </h1>
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '16px',
+                  marginBottom: '16px',
+                }}
+              >
+                {dimensions.map((dim, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      padding: '8px 16px',
+                      borderRadius: '100px',
+                      color: 'white',
+                      fontSize: '20px',
+                    }}
+                  >
+                    {dim}
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                  width: '100%',
+                }}
+              >
+                {tools.map((tool, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      background: i === 0 ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)',
+                      padding: '16px 24px',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '36px',
+                        fontWeight: 'bold',
+                        color: 'white',
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '28px',
+                        color: 'white',
+                        fontWeight: i === 0 ? 'bold' : 'normal',
+                      }}
+                    >
+                      {tool}
+                    </div>
+                    {i === 0 && (
+                      <div
+                        style={{
+                          marginLeft: 'auto',
+                          background: 'white',
+                          color: '#014421',
+                          padding: '4px 12px',
+                          borderRadius: '100px',
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {score}% Match
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  marginTop: '24px',
+                  fontSize: '24px',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                }}
+              >
+                Take the quiz at AgentMastery.ai
+              </div>
             </div>
           </div>
         ),

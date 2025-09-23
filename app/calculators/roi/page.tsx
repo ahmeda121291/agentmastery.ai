@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { smartLeadUplift, emailBenchmarks, pricingData } from '@/src/data/pricing'
 import {
@@ -22,8 +22,24 @@ import {
   ExternalLink,
   ArrowRight,
   Sparkles,
-  Calculator
+  Calculator,
+  Save,
+  Share2,
+  Download,
+  Link2
 } from 'lucide-react'
+
+interface SavedScenario {
+  name: string
+  monthlyEmails: number
+  deliveryRate: number
+  replyRate: number
+  meetingRate: number
+  closeRate: number
+  avgDealSize: number
+  savedDate: string
+  roi: number
+}
 
 export default function ROICalculatorPage() {
   // Current Performance Inputs
@@ -37,6 +53,93 @@ export default function ROICalculatorPage() {
   // SmartLead Uplift Assumptions
   const [deliveryUplift, setDeliveryUplift] = useState(smartLeadUplift.deliveryRate.default)
   const [replyUplift, setReplyUplift] = useState(smartLeadUplift.replyRate.default)
+
+  // Saved scenarios
+  const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([])
+  const [scenarioName, setScenarioName] = useState('')
+  const [shareUrl, setShareUrl] = useState('')
+  const [downloading, setDownloading] = useState(false)
+
+  // Load saved scenarios on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('roiScenarios')
+    if (saved) {
+      setSavedScenarios(JSON.parse(saved))
+    }
+  }, [])
+
+  const saveScenario = () => {
+    const name = scenarioName || `Scenario ${savedScenarios.length + 1}`
+    const newScenario: SavedScenario = {
+      name,
+      monthlyEmails,
+      deliveryRate,
+      replyRate,
+      meetingRate,
+      closeRate,
+      avgDealSize,
+      savedDate: new Date().toISOString(),
+      roi: calculations.roi.monthlyROI
+    }
+
+    const updated = [...savedScenarios, newScenario]
+    setSavedScenarios(updated)
+    localStorage.setItem('roiScenarios', JSON.stringify(updated))
+    setScenarioName('')
+    alert(`Scenario "${name}" saved!`)
+  }
+
+  const loadScenario = (scenario: SavedScenario) => {
+    setMonthlyEmails(scenario.monthlyEmails)
+    setDeliveryRate(scenario.deliveryRate)
+    setReplyRate(scenario.replyRate)
+    setMeetingRate(scenario.meetingRate)
+    setCloseRate(scenario.closeRate)
+    setAvgDealSize(scenario.avgDealSize)
+  }
+
+  const generateShareUrl = async () => {
+    const params = new URLSearchParams({
+      type: 'roi',
+      revenue: calculations.roi.additionalRevenue.toFixed(0),
+      roi: calculations.roi.roiPercentage.toFixed(0),
+      payback: calculations.roi.paybackDays.toFixed(0),
+      utm_source: 'agentmastery',
+      utm_medium: 'calculator',
+      utm_campaign: 'roi'
+    })
+
+    const ogImageUrl = `/api/og/calculator?${params.toString()}`
+    const shareLink = `https://agentmastery.ai/calculators/roi?shared=${btoa(params.toString())}`
+    setShareUrl(shareLink)
+    return ogImageUrl
+  }
+
+  const handleShare = async () => {
+    await generateShareUrl()
+    await navigator.clipboard.writeText(shareUrl)
+    alert('Share link copied to clipboard!')
+  }
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const ogImageUrl = await generateShareUrl()
+      const response = await fetch(ogImageUrl)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `agentmastery-roi-${Date.now()}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Download failed:', error)
+    }
+    setDownloading(false)
+  }
 
   // Calculate current and improved metrics
   const calculations = useMemo(() => {
@@ -359,6 +462,67 @@ export default function ROICalculatorPage() {
             </div>
           </CalculatorSection>
 
+          {/* Save & Share Section */}
+          <CalculatorSection
+            title="Save & Share Your Results"
+            description="Keep track of scenarios and share your ROI"
+          >
+            <div className="space-y-4">
+              {/* Save Scenario */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Scenario name..."
+                  value={scenarioName}
+                  onChange={(e) => setScenarioName(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded-md"
+                />
+                <Button onClick={saveScenario} variant="outline">
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
+              </div>
+
+              {/* Saved Scenarios */}
+              {savedScenarios.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Saved Scenarios:</p>
+                  {savedScenarios.slice(-3).reverse().map((scenario, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{scenario.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          ROI: {formatCurrency(scenario.roi)} • {new Date(scenario.savedDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => loadScenario(scenario)}>
+                        Load
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Share Buttons */}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleShare} className="flex-1">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share Result
+                </Button>
+                <Button variant="outline" onClick={handleDownload} disabled={downloading} className="flex-1">
+                  <Download className="h-4 w-4 mr-2" />
+                  {downloading ? 'Generating...' : 'Download'}
+                </Button>
+              </div>
+              {shareUrl && (
+                <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(shareUrl)}>
+                  <Link2 className="h-4 w-4 mr-2" />
+                  Copy Share Link
+                </Button>
+              )}
+            </div>
+          </CalculatorSection>
+
           {/* CTA */}
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
             <CardContent className="pt-6 text-center space-y-4">
@@ -371,7 +535,7 @@ export default function ROICalculatorPage() {
               <div className="space-y-2">
                 <Button size="lg" className="w-full" asChild>
                   <a
-                    href={pricingData.smartlead.affiliateUrl}
+                    href={`${pricingData.smartlead.affiliateUrl}?utm_source=agentmastery&utm_medium=calculator&utm_campaign=roi`}
                     target="_blank"
                     rel="noopener noreferrer sponsored"
                     className="flex items-center justify-center gap-2"

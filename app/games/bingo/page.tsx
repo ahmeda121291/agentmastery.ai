@@ -90,14 +90,24 @@ export default function BingoPage() {
   }, [checkedCells])
 
   const initializeNewCard = () => {
-    const newCard = generateBingoCard()
+    // Generate a random seed for this board
+    const newSeed = Date.now().toString(36) + Math.random().toString(36).substr(2)
+    const newCard = generateSeededBoard(newSeed)
     setBingoCard(newCard)
+    setBoardSeed(newSeed)
 
     // Initialize checked cells with center FREE space checked
     const newChecked = Array(5).fill(null).map(() => Array(5).fill(false))
     newChecked[2][2] = true
     setCheckedCells(newChecked)
     setIsNewCard(true)
+
+    // Save with seed
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      card: newCard,
+      checked: newChecked,
+      seed: newSeed
+    }))
   }
 
   const handleCellClick = (row: number, col: number) => {
@@ -116,15 +126,53 @@ export default function BingoPage() {
     }
   }
 
-  const handleShare = async (platform: 'copy' | 'twitter') => {
-    const shareText = generateShareableCard(bingoCard, checkedCells)
+  const generateShareCard = async () => {
+    const checkedCount = checkedCells.flat().filter(Boolean).length
+    const params = new URLSearchParams({
+      type: 'bingo',
+      checked: checkedCount.toString(),
+      seed: boardSeed,
+      won: winStatus.hasWin ? '1' : '0',
+      utm_source: 'agentmastery',
+      utm_medium: 'game',
+      utm_campaign: 'bingo'
+    })
 
-    if (platform === 'copy') {
-      await navigator.clipboard.writeText(shareText)
-      // You could add a toast notification here
-    } else if (platform === 'twitter') {
-      const tweetText = encodeURIComponent(shareText)
-      window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank')
+    const ogImageUrl = `/api/og/game?${params.toString()}`
+    const shareLink = `https://agentmastery.ai/games/bingo?seed=${boardSeed}`
+    setShareUrl(shareLink)
+    return ogImageUrl
+  }
+
+  const handleShare = async (platform: 'copy' | 'twitter' | 'download') => {
+    if (platform === 'download') {
+      setDownloading(true)
+      try {
+        const ogImageUrl = await generateShareCard()
+        const response = await fetch(ogImageUrl)
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `agentmastery-bingo-${Date.now()}.png`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      } catch (error) {
+        console.error('Download failed:', error)
+      }
+      setDownloading(false)
+    } else {
+      const shareText = generateShareableCard(bingoCard, checkedCells)
+
+      if (platform === 'copy') {
+        await navigator.clipboard.writeText(`${shareText}\n\nPlay with my board: ${shareUrl || `https://agentmastery.ai/games/bingo?seed=${boardSeed}`}`)
+        alert('Share link and board copied!')
+      } else if (platform === 'twitter') {
+        const tweetText = encodeURIComponent(`${shareText}\n\nPlay: https://agentmastery.ai/games/bingo?seed=${boardSeed}`)
+        window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank')
+      }
     }
   }
 
@@ -169,7 +217,7 @@ export default function BingoPage() {
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -189,12 +237,39 @@ export default function BingoPage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => handleShare('download')}
+                disabled={downloading}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {downloading ? 'Generating...' : 'Share Card'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleNewCard}
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 New Card
               </Button>
             </div>
+
+            {boardSeed && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Hash className="h-3 w-3" />
+                <span>Board ID: {boardSeed.slice(0, 8)}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://agentmastery.ai/games/bingo?seed=${boardSeed}`)
+                    alert('Board link copied!')
+                  }}
+                >
+                  <Link2 className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
