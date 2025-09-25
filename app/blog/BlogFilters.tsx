@@ -26,6 +26,7 @@ type PostMeta = {
   category?: string
   author?: string
   image?: string
+  url?: string
 }
 
 interface BlogFiltersProps {
@@ -137,7 +138,7 @@ export default function BlogFilters({ posts, categories }: BlogFiltersProps) {
       {/* Blog Posts Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPosts.map(post => (
-          <Link key={post.slug} href={`/blog/${post.slug}`}>
+          <Link key={post.slug} href={post.url || `/blog/${post.slug}`}>
             <Card className="h-full hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">

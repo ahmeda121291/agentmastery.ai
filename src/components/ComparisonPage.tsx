@@ -1,11 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import Script from 'next/script'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Check, X, ArrowRight, DollarSign, Zap, Users, Star, ExternalLink } from 'lucide-react'
+import { createSchemaScript, generateFAQSchema, generateProductSchema, generateBreadcrumbSchema } from '@/lib/jsonld'
 
 interface ComparisonData {
   toolA: {
@@ -45,8 +47,43 @@ interface ComparisonData {
 export default function ComparisonPage({ data }: { data: ComparisonData }) {
   const { toolA, toolB, content } = data
 
+  // Generate JSON-LD schema for SEO/AEO
+  const pageUrl = `https://agentmastery.ai/compare/${data.slug}`
+  const faqItems = [
+    { question: `${toolA.name} vs ${toolB.name}: what are the key differences?`, answer: content.comparison || content.intro },
+    { question: `Which is more affordable?`, answer: `${toolA.name} starts at $${toolA.pricing}/mo, while ${toolB.name} starts at $${toolB.pricing}/mo.` },
+    { question: `Who is each tool best for?`, answer: content.verdict }
+  ]
+  const schemaList = [
+    generateProductSchema({
+      name: toolA.name,
+      description: content.toolAOverview || content.intro,
+      offers: {
+        price: toolA.pricing,
+        priceCurrency: 'USD',
+        url: toolA.affiliateUrl || undefined
+      }
+    }),
+    generateProductSchema({
+      name: toolB.name,
+      description: content.toolBOverview || content.intro,
+      offers: {
+        price: toolB.pricing,
+        priceCurrency: 'USD',
+        url: toolB.affiliateUrl || undefined
+      }
+    }),
+    generateFAQSchema(faqItems, pageUrl),
+    generateBreadcrumbSchema([
+      { name: 'Home', url: 'https://agentmastery.ai' },
+      { name: 'Comparisons', url: 'https://agentmastery.ai/blog?category=Comparisons' },
+      { name: `${toolA.name} vs ${toolB.name}`, url: pageUrl },
+    ]),
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-mist to-paper">
+      <Script {...createSchemaScript(schemaList, `comparison-schema-${data.slug}`)} />
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-forest to-green text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">

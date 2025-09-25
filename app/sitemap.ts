@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next'
 import { tools } from '@/data/tools'
 import { getAllPosts } from '@/lib/blog'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const BASE_URL = 'https://agentmastery.ai'
 
@@ -94,6 +96,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     console.log('No blog posts found for sitemap')
   }
 
+  // Compare pages
+  let comparePages: MetadataRoute.Sitemap = []
+  try {
+    const compareBase = path.join(process.cwd(), 'app', 'compare')
+    const entries = fs.readdirSync(compareBase, { withFileTypes: true })
+    const dirs = entries.filter(e => e.isDirectory()).map(d => d.name)
+    comparePages = dirs.map((dir) => ({
+      url: `${BASE_URL}/compare/${dir}`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  } catch (err) {
+    console.log('No compare pages found for sitemap')
+  }
+
   // Combine all pages (excluding /games/* as they're engagement tools, not SEO targets)
-  return [...staticPages, ...toolPages, ...blogPosts]
+  return [...staticPages, ...toolPages, ...blogPosts, ...comparePages]
 }

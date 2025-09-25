@@ -43,6 +43,7 @@ type PostMeta = {
   image?: string
   published?: boolean
   excerpt?: string
+  url?: string
 }
 
 async function getAllPosts(): Promise<PostMeta[]> {
@@ -65,6 +66,7 @@ async function getAllPosts(): Promise<PostMeta[]> {
           author: data.author ?? 'AgentMastery Team',
           image: data.image,
           published: data.published !== false, // default true
+          url: `/blog/${slug}`,
         } as PostMeta
       })
     )
@@ -73,6 +75,54 @@ async function getAllPosts(): Promise<PostMeta[]> {
       .sort((a, b) => (b.date ? Date.parse(b.date) : 0) - (a.date ? Date.parse(a.date) : 0))
   } catch (error) {
     console.error('Error loading posts:', error)
+    return []
+  }
+}
+
+async function getAllComparisons(): Promise<PostMeta[]> {
+  try {
+    const compareDir = path.join(process.cwd(), 'app', 'compare')
+    const dirs = await fs.readdir(compareDir, { withFileTypes: true })
+    const comparisonDirs = dirs.filter(d => d.isDirectory()).map(d => d.name)
+
+    const comparisons = await Promise.all(
+      comparisonDirs.map(async (dir) => {
+        try {
+          // Read metadata.ts to get title and description
+          const metadataPath = path.join(compareDir, dir, 'metadata.ts')
+          const metadataContent = await fs.readFile(metadataPath, 'utf8')
+
+          // Extract title and description from metadata
+          const titleMatch = metadataContent.match(/title:\s*['"]([^'"]+)['"]/)
+          const descMatch = metadataContent.match(/description:\s*['"]([^'"]+)['"]/)
+
+          const title = titleMatch ? titleMatch[1] : dir.replace(/-/g, ' ')
+          const description = descMatch ? descMatch[1] : ''
+
+          // Extract tool names from directory name
+          const [toolA, toolB] = dir.split('-vs-')
+
+          return {
+            slug: dir,
+            url: `/compare/${dir}`,
+            title: title.replace(' | AgentMastery', ''),
+            description,
+            category: 'Comparisons',
+            tags: [toolA, toolB, 'Comparison'].filter(Boolean),
+            image: `/api/og/comparison?toolA=${toolA}&toolB=${toolB}`,
+            published: true,
+            date: new Date().toISOString().split('T')[0],
+          } as PostMeta
+        } catch (error) {
+          console.error(`Error loading comparison ${dir}:`, error)
+          return null
+        }
+      })
+    )
+
+    return comparisons.filter(Boolean) as PostMeta[]
+  } catch (error) {
+    console.error('Error loading comparisons:', error)
     return []
   }
 }
@@ -90,7 +140,9 @@ const EDITORS_PICKS_SLUGS = [
 ]
 
 export default async function BlogPage() {
-  const allPosts = await getAllPosts()
+  const blogPosts = await getAllPosts()
+  const comparisons = await getAllComparisons()
+  const allPosts = [...comparisons, ...blogPosts]
   const categories = getCategories(allPosts)
 
   // Get featured and editor's picks
@@ -156,7 +208,7 @@ export default async function BlogPage() {
                     <p className="mt-2 text-white/90 line-clamp-3 relative z-10">{featuredPost.description || featuredPost.excerpt}</p>
                     <div className="mt-6 flex flex-wrap gap-3 relative z-10">
                       <Link className="btn bg-white text-ink hover:bg-gray-100" href={`/blog/${featuredPost.slug}`}>Read Post</Link>
-                      <Link className="btn bg-white/20 text-white border border-white/30 hover:bg-white/30" href="/rankings">View Rankings</Link>
+                      <Link className="btn bg-white/20 text-white border border-white/30 hover:bg-white/30" href="/leaderboards">View Rankings</Link>
                     </div>
                   </article>
                   <aside className="card p-4 md:p-6">
