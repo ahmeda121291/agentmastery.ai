@@ -20,12 +20,12 @@ import {
 import Link from 'next/link'
 import Script from 'next/script'
 import {
-  generateProductSchema,
-  generateFAQSchema,
-  generateBreadcrumbSchema,
+  softwareAppSchema,
+  faqPageSchema,
+  breadcrumbSchema,
   createSchemaScript
 } from '@/lib/jsonld'
-import { buildAffiliateUrl } from '@/lib/seo'
+import { buildAffiliateUrl, canonical } from '@/lib/seo'
 
 export async function generateStaticParams() {
   return tools.map((tool) => ({
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const tool = tools.find(t => t.slug === params.slug)
   if (!tool) return { title: 'Tool Not Found' }
 
-  const canonicalUrl = `https://agentmastery.ai/tools/${params.slug}`
+  const canonicalUrl = canonical(`/tools/${params.slug}`)
 
   return {
     title: `${tool.name} Review 2024 - Pricing, Features & Alternatives | AgentMastery`,
@@ -76,27 +76,15 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
   const lastUpdated = new Date().toISOString().split('T')[0]
 
   // Generate structured data
-  const productSchema = generateProductSchema({
+  const appSchema = softwareAppSchema({
     name: tool.name,
     description: tool.blurb,
+    url: ctaUrl,
+    applicationCategory: tool.category,
     offers: {
-      price: tool.pricingNote,
+      price: undefined, // Tool pricing is in pricingNote string
       priceCurrency: 'USD',
-      availability: 'InStock',
       url: ctaUrl
-    },
-    aggregateRating: {
-      ratingValue: 4.2,
-      ratingCount: 127,
-      reviewCount: 89
-    },
-    review: {
-      author: 'AgentMastery Team',
-      reviewRating: {
-        ratingValue: 4,
-        bestRating: 5
-      },
-      reviewBody: tool.editorNote || `${tool.name} is a powerful ${tool.category} tool with excellent features for automation and productivity.`
     }
   })
 
@@ -138,12 +126,12 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
     }
   ]
 
-  const faqSchema = generateFAQSchema(fullFAQ)
+  const faqData = faqPageSchema(fullFAQ, canonical(`/tools/${tool.slug}`))
 
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://agentmastery.ai' },
-    { name: 'Tools', url: 'https://agentmastery.ai/tools' },
-    { name: tool.name, url: `https://agentmastery.ai/tools/${tool.slug}` }
+  const breadcrumbData = breadcrumbSchema([
+    { name: 'Home', url: canonical('/') },
+    { name: 'Tools', url: canonical('/tools') },
+    { name: tool.name, url: canonical(`/tools/${tool.slug}`) }
   ])
 
   // Generate logo placeholder
@@ -152,11 +140,18 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
   return (
     <>
       {/* JSON-LD Structured Data */}
-      <Script {...createSchemaScript(productSchema, `product-${tool.slug}`)} />
-      <Script {...createSchemaScript(faqSchema, `faq-${tool.slug}`)} />
-      <Script {...createSchemaScript(breadcrumbSchema, `breadcrumb-${tool.slug}`)} />
+      <Script {...createSchemaScript([appSchema, faqData, breadcrumbData], `tool-schema-${tool.slug}`)} />
 
       <div className="container mx-auto px-4 py-12">
+        {/* Direct Answer Block for AEO */}
+        {tool.editorNote && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <div className="rounded-lg border border-green/20 bg-green/5 p-4">
+              <p className="text-sm font-medium text-gray-900 mb-1">Editor's Note:</p>
+              <p className="text-sm text-gray-700">{tool.editorNote}</p>
+            </div>
+          </div>
+        )}
         {/* Breadcrumbs */}
         <nav className="mb-8">
           <ol className="flex items-center space-x-2 text-sm text-muted-foreground">

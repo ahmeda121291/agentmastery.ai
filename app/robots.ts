@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/seo'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -25,7 +26,13 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
     ],
-    sitemap: 'https://agentmastery.ai/sitemap.xml',
-    host: 'https://agentmastery.ai',
+    sitemap: [
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/tools.xml`,
+      `${SITE_URL}/comparisons.xml`,
+      `${SITE_URL}/blog.xml`,
+      `${SITE_URL}/arcade.xml`,
+    ],
+    host: SITE_URL,
   }
 }

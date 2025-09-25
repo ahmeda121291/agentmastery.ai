@@ -1,5 +1,9 @@
 import { Metadata } from 'next'
 import React from 'react'
+import Script from 'next/script'
+import { itemListSchema, breadcrumbSchema, createSchemaScript } from '@/lib/jsonld'
+import { canonical } from '@/lib/seo'
+import { tools } from '@/data/tools'
 
 export const metadata: Metadata = {
   title: {
@@ -50,8 +54,24 @@ export default function LeaderboardsLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Generate ItemList schema for SEO
+  const topTools = tools.slice(0, 20).map((tool, idx) => ({
+    name: tool.name,
+    url: canonical(`/tools/${tool.slug}`),
+    position: idx + 1
+  }))
+
+  const schemas = [
+    breadcrumbSchema([
+      { name: 'Home', url: canonical('/') },
+      { name: 'Leaderboards', url: canonical('/leaderboards') },
+    ]),
+    itemListSchema(topTools, 'Top AI Tools Leaderboard')
+  ]
+
   return (
     <>
+      <Script {...createSchemaScript(schemas, 'leaderboards-schema')} />
       {/* Gradient Header */}
       <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-b">
         <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.1))]" />

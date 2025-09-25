@@ -2,11 +2,11 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
 import { notFound } from 'next/navigation'
-import { generateBlogMetadata, formatDate } from '@/lib/seo'
+import { generateBlogMetadata, formatDate, canonical } from '@/lib/seo'
 import {
   generateArticleSchema,
-  generateFAQSchema,
-  generateBreadcrumbSchema,
+  faqPageSchema,
+  breadcrumbSchema,
   createSchemaScript
 } from '@/lib/jsonld'
 import { MDX } from '@/lib/mdx'
@@ -136,7 +136,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     ...metadata,
     alternates: {
-      canonical: `https://agentmastery.ai/blog/${params.slug}`,
+      canonical: canonical(`/blog/${params.slug}`),
     },
   }
 }
@@ -164,31 +164,29 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   const processedContent = processMDXContent(post.content)
 
   // Generate JSON-LD schemas
-  const articleSchema = generateArticleSchema({
+  const articleData = generateArticleSchema({
     headline: post.meta.title,
     description: post.meta.description || post.meta.excerpt,
     datePublished: post.meta.date,
     author: post.meta.author || 'AgentMastery Team',
     image: post.meta.image,
-    url: `https://agentmastery.ai/blog/${params.slug}`,
+    url: canonical(`/blog/${params.slug}`),
   })
 
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://agentmastery.ai' },
-    { name: 'Blog', url: 'https://agentmastery.ai/blog' },
-    { name: post.meta.title, url: `https://agentmastery.ai/blog/${params.slug}` },
+  const breadcrumbData = breadcrumbSchema([
+    { name: 'Home', url: canonical('/') },
+    { name: 'Deep Dives', url: canonical('/blog') },
+    { name: post.meta.title, url: canonical(`/blog/${params.slug}`) },
   ])
 
-  const faqSchema = post.meta.faq ? generateFAQSchema(post.meta.faq) : null
+  const faqData = post.meta.faq ? faqPageSchema(post.meta.faq, canonical(`/blog/${params.slug}`)) : null
 
   return (
     <>
       <ProgressRail />
       <article className="min-h-screen bg-gradient-to-b from-white to-gray-50">
         {/* Schema.org structured data */}
-        <Script {...createSchemaScript(articleSchema, `article-${params.slug}`)} />
-        <Script {...createSchemaScript(breadcrumbSchema, `breadcrumb-${params.slug}`)} />
-        {faqSchema && <Script {...createSchemaScript(faqSchema, `faq-${params.slug}`)} />}
+        <Script {...createSchemaScript([articleData, breadcrumbData, faqData].filter(Boolean), `blog-schema-${params.slug}`)} />
 
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-forest to-green text-white">
@@ -243,6 +241,15 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
         {/* Content Section */}
         <div className="container mx-auto px-4 py-12">
+          {/* Direct Answer Block for AEO */}
+          {(post.meta.summary || post.meta.excerpt) && (
+            <div className="max-w-4xl mx-auto mb-8">
+              <div className="rounded-lg border border-green/20 bg-green/5 p-4">
+                <p className="text-sm font-medium text-gray-900 mb-1">Summary:</p>
+                <p className="text-sm text-gray-700">{post.meta.summary || post.meta.excerpt}</p>
+              </div>
+            </div>
+          )}
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Tags */}

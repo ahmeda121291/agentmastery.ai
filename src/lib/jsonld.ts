@@ -342,17 +342,71 @@ export function combineSchemas(...schemas: any[]) {
   return schemas.filter(Boolean)
 }
 
+// Generate ItemList Schema (for leaderboards and listings)
+export function itemListSchema(items: { name: string; url: string; position?: number }[], listName?: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    ...(listName && { name: listName }),
+    itemListElement: items.map((item, idx) => ({
+      '@type': 'ListItem',
+      position: item.position ?? idx + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  }
+}
+
+// Simplified breadcrumb schema (backwards compatible)
+export function breadcrumbSchema(items: { name: string; url: string }[]) {
+  return generateBreadcrumbSchema(items)
+}
+
+// Simplified FAQ schema (backwards compatible)
+export function faqPageSchema(items: { question: string; answer: string }[], url?: string) {
+  return generateFAQSchema(items.map(i => ({ question: i.question, answer: i.answer })), url)
+}
+
+// Simplified software app schema
+export function softwareAppSchema(input: {
+  name: string
+  description?: string
+  url?: string
+  applicationCategory?: string
+  offers?: { price?: number; priceCurrency?: string; url?: string }
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: input.name,
+    applicationCategory: input.applicationCategory || 'BusinessApplication',
+    ...(input.description && { description: input.description }),
+    ...(input.url && { url: input.url }),
+    ...(input.offers?.price && {
+      offers: {
+        '@type': 'Offer',
+        price: String(input.offers.price),
+        priceCurrency: input.offers.priceCurrency || 'USD',
+        ...(input.offers.url && { url: input.offers.url })
+      }
+    }),
+  }
+}
+
 // Helper to inject schema into page
-export function createSchemaScript(schema: any | any[], id: string) {
+export function createSchemaScript(schema: any | any[], id?: string) {
   const schemaData = Array.isArray(schema) ? schema : [schema]
+  const filteredData = schemaData.filter(Boolean)
 
   return {
-    id,
+    ...(id && { id }),
     type: 'application/ld+json',
     dangerouslySetInnerHTML: {
       __html: JSON.stringify(
-        schemaData.length === 1 ? schemaData[0] : schemaData
+        filteredData.length === 1 ? filteredData[0] : filteredData
       )
-    }
+    },
+    // Add text property for compatibility with Script component
+    text: JSON.stringify(filteredData.length === 1 ? filteredData[0] : filteredData)
   }
 }

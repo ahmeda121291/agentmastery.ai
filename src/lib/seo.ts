@@ -1,5 +1,12 @@
 import { Metadata } from 'next'
 
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || 'https://agentmastery.ai'
+
+export function canonical(path: string): string {
+  const p = path.startsWith('/') ? path : `/${path}`
+  return `${SITE_URL}${p}`
+}
+
 interface BlogFrontmatter {
   title: string
   description: string

@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Check, X, ArrowRight, DollarSign, Zap, Users, Star, ExternalLink } from 'lucide-react'
-import { createSchemaScript, generateFAQSchema, generateProductSchema, generateBreadcrumbSchema } from '@/lib/jsonld'
+import { createSchemaScript, faqPageSchema, softwareAppSchema, breadcrumbSchema } from '@/lib/jsonld'
+import { canonical } from '@/lib/seo'
 
 interface ComparisonData {
   toolA: {
@@ -48,37 +49,44 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
   const { toolA, toolB, content } = data
 
   // Generate JSON-LD schema for SEO/AEO
-  const pageUrl = `https://agentmastery.ai/compare/${data.slug}`
+  const pagePath = `/compare/${data.slug}`
+  const pageUrl = canonical(pagePath)
+
   const faqItems = [
     { question: `${toolA.name} vs ${toolB.name}: what are the key differences?`, answer: content.comparison || content.intro },
     { question: `Which is more affordable?`, answer: `${toolA.name} starts at $${toolA.pricing}/mo, while ${toolB.name} starts at $${toolB.pricing}/mo.` },
     { question: `Who is each tool best for?`, answer: content.verdict }
   ]
+
   const schemaList = [
-    generateProductSchema({
+    breadcrumbSchema([
+      { name: 'Home', url: canonical('/') },
+      { name: 'Comparisons', url: canonical('/blog?category=Comparisons') },
+      { name: `${toolA.name} vs ${toolB.name}`, url: pageUrl },
+    ]),
+    faqPageSchema(faqItems, pageUrl),
+    softwareAppSchema({
       name: toolA.name,
       description: content.toolAOverview || content.intro,
+      url: toolA.affiliateUrl || undefined,
+      applicationCategory: toolA.category,
       offers: {
         price: toolA.pricing,
         priceCurrency: 'USD',
         url: toolA.affiliateUrl || undefined
       }
     }),
-    generateProductSchema({
+    softwareAppSchema({
       name: toolB.name,
       description: content.toolBOverview || content.intro,
+      url: toolB.affiliateUrl || undefined,
+      applicationCategory: toolB.category,
       offers: {
         price: toolB.pricing,
         priceCurrency: 'USD',
         url: toolB.affiliateUrl || undefined
       }
     }),
-    generateFAQSchema(faqItems, pageUrl),
-    generateBreadcrumbSchema([
-      { name: 'Home', url: 'https://agentmastery.ai' },
-      { name: 'Comparisons', url: 'https://agentmastery.ai/blog?category=Comparisons' },
-      { name: `${toolA.name} vs ${toolB.name}`, url: pageUrl },
-    ]),
   ]
 
   return (
@@ -103,6 +111,15 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
       </div>
 
       <div className="container mx-auto px-4 py-12">
+        {/* Direct Answer Block for AEO */}
+        {content.verdict && (
+          <div className="max-w-6xl mx-auto mb-8">
+            <div className="rounded-lg border border-green/20 bg-green/5 p-4">
+              <p className="text-sm font-medium text-gray-900 mb-1">Our Verdict:</p>
+              <p className="text-sm text-gray-700">{content.verdict}</p>
+            </div>
+          </div>
+        )}
         <div className="max-w-6xl mx-auto">
           {/* Introduction */}
           <div className="mb-12">
