@@ -70,15 +70,6 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     cta: 'Start Pop Quiz'
   },
   {
-    slug: '/calculators/roi',
-    title: 'Email Outreach ROI Calculator',
-    blurb: 'Calculate your potential return from cold email campaigns.',
-    kind: 'Calculator',
-    tags: ['Email', 'ROI', 'Outbound'],
-    cta: 'Calculate ROI',
-    highlight: true
-  },
-  {
     slug: '/arcade/chatbot-savings',
     title: 'Chatbot Savings Calculator',
     blurb: 'Measure cost savings from AI-powered customer support.',
