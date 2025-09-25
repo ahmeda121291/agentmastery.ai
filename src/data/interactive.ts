@@ -68,6 +68,31 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     kind: 'Game',
     tags: ['General', 'Learning'],
     cta: 'Start Pop Quiz'
+  },
+  {
+    slug: '/arcade/cold-email-roi',
+    title: 'Cold Email ROI Calculator',
+    blurb: 'Calculate your potential return from cold email campaigns.',
+    kind: 'Calculator',
+    tags: ['Email', 'ROI', 'Outbound'],
+    cta: 'Calculate ROI',
+    highlight: true
+  },
+  {
+    slug: '/arcade/chatbot-savings',
+    title: 'Chatbot Savings Calculator',
+    blurb: 'Measure cost savings from AI-powered customer support.',
+    kind: 'Calculator',
+    tags: ['Support', 'Automation', 'Savings'],
+    cta: 'Calculate Savings'
+  },
+  {
+    slug: '/arcade/video-production-cost',
+    title: 'Video Production Cost',
+    blurb: 'Compare traditional vs AI video production costs.',
+    kind: 'Calculator',
+    tags: ['Video', 'Content', 'Cost'],
+    cta: 'Compare Costs'
   }
 ]
 

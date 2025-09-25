@@ -9,6 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Check, X, ArrowRight, DollarSign, Zap, Users, Star, ExternalLink } from 'lucide-react'
 import { createSchemaScript, faqPageSchema, softwareAppSchema, breadcrumbSchema } from '@/lib/jsonld'
 import { canonical } from '@/lib/seo'
+import CompareTable from '@/components/CompareTable'
+import BestForBadges from '@/components/BestForBadges'
+import InlineCTA from '@/components/InlineCTA'
 
 interface ComparisonData {
   toolA: {
@@ -113,13 +116,25 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
       <div className="container mx-auto px-4 py-12">
         {/* Direct Answer Block for AEO */}
         {content.verdict && (
-          <div className="max-w-6xl mx-auto mb-8">
+          <div className="max-w-6xl mx-auto mb-6">
             <div className="rounded-lg border border-green/20 bg-green/5 p-4">
               <p className="text-sm font-medium text-gray-900 mb-1">Our Verdict:</p>
               <p className="text-sm text-gray-700">{content.verdict}</p>
             </div>
           </div>
         )}
+
+        {/* Best For Badges */}
+        <div className="max-w-6xl mx-auto mb-8">
+          <BestForBadges
+            items={[
+              { label: `${toolA.name}: Best for ${toolA.pricing < 100 ? 'SMB' : 'Enterprise'}`, icon: '🏆' },
+              { label: `${toolB.name}: Best for ${toolB.pricing < 100 ? 'Startups' : 'Scale'}`, icon: '🚀' },
+              { label: `Winner: ${toolA.pricing < toolB.pricing ? toolA.name + ' (Value)' : toolB.name + ' (Features)'}`, icon: '⭐' }
+            ]}
+          />
+        </div>
+
         <div className="max-w-6xl mx-auto">
           {/* Introduction */}
           <div className="mb-12">
@@ -192,6 +207,27 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
                 </Table>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Enhanced Feature Comparison Table */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-4">Detailed Feature Comparison</h2>
+            <CompareTable
+              toolA={toolA}
+              toolB={toolB}
+              features={[
+                'AI Capabilities',
+                'Automation',
+                'API Access',
+                'Team Collaboration',
+                'Analytics & Reporting',
+                'Customer Support',
+                'Mobile App',
+                'Integrations',
+                'Data Export',
+                'Custom Workflows'
+              ]}
+            />
           </div>
 
           {/* Pros and Cons */}
@@ -299,6 +335,26 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
                 <p className="text-ink leading-relaxed font-medium">{content.verdict}</p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Inline CTA for tools with affiliate links */}
+          <div className="mb-8 text-center">
+            {toolA.affiliateUrl && (
+              <InlineCTA
+                href={toolA.affiliateUrl}
+                label={`Try ${toolA.name} Free`}
+                track="comparison_cta_inline_a"
+                className="inline-block mr-4"
+              />
+            )}
+            {toolB.affiliateUrl && (
+              <InlineCTA
+                href={toolB.affiliateUrl}
+                label={`Try ${toolB.name} Free`}
+                track="comparison_cta_inline_b"
+                className="inline-block"
+              />
+            )}
           </div>
 
           {/* CTAs */}

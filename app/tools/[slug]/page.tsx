@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
+import StickyCTA from '@/components/StickyCTA'
+import InlineCTA from '@/components/InlineCTA'
 import {
   softwareAppSchema,
   faqPageSchema,
@@ -139,6 +141,8 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
 
   return (
     <>
+      {/* Sticky CTA for affiliate tools */}
+      {affiliateUrl && <StickyCTA href={affiliateUrl} label={`Try ${tool.name}`} />}
       {/* JSON-LD Structured Data */}
       <Script {...createSchemaScript([appSchema, faqData, breadcrumbData], `tool-schema-${tool.slug}`)} />
 
@@ -245,6 +249,16 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
               <p className="text-lg leading-relaxed">{tool.blurb}</p>
             </div>
           </Card>
+
+          {/* Inline CTA after overview for affiliate tools */}
+          {affiliateUrl && (
+            <InlineCTA
+              href={affiliateUrl}
+              label={`Get Started with ${tool.name}`}
+              track="affiliate_cta_after_overview"
+              className="text-center mb-8"
+            />
+          )}
 
           {/* Compare Strip (if competitor exists) */}
           {competitor && (
@@ -401,6 +415,16 @@ export default function ToolDetailPage({ params }: { params: { slug: string } })
             </div>
           </div>
         </Card>
+
+        {/* Bottom CTA for affiliate tools */}
+        {affiliateUrl && (
+          <InlineCTA
+            href={affiliateUrl}
+            label={`Start Your Free Trial with ${tool.name}`}
+            track="affiliate_cta_bottom"
+            className="text-center mb-8"
+          />
+        )}
 
         {/* CTA Section */}
         <div className="text-center space-y-4">
