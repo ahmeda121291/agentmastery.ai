@@ -10,6 +10,7 @@ import { Check, X, ArrowRight, DollarSign, Zap, Users, Star, ExternalLink } from
 import { createSchemaScript, faqPageSchema, softwareAppSchema, breadcrumbSchema } from '@/lib/jsonld'
 import { canonical } from '@/lib/seo'
 import CompareTable from '@/components/CompareTable'
+import CompareTablePro from '@/components/CompareTablePro'
 import BestForBadges from '@/components/BestForBadges'
 import InlineCTA from '@/components/InlineCTA'
 
@@ -210,25 +211,35 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
           </div>
 
           {/* Enhanced Feature Comparison Table */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">Detailed Feature Comparison</h2>
-            <CompareTable
-              toolA={toolA}
-              toolB={toolB}
-              features={[
-                'AI Capabilities',
-                'Automation',
-                'API Access',
-                'Team Collaboration',
-                'Analytics & Reporting',
-                'Customer Support',
-                'Mobile App',
-                'Integrations',
-                'Data Export',
-                'Custom Workflows'
-              ]}
-            />
-          </div>
+          <CompareTablePro
+            features={[
+              { key: 'ai_capabilities', label: 'AI Capabilities' },
+              { key: 'automation', label: 'Automation' },
+              { key: 'api', label: 'API Access', hint: 'Programmatic access to features' },
+              { key: 'team', label: 'Team Collaboration', hint: 'Multi-user workspace features' },
+              { key: 'analytics', label: 'Analytics & Reporting' },
+              { key: 'support', label: 'Customer Support', hint: '24/7 support availability' },
+              { key: 'mobile', label: 'Mobile App' },
+              { key: 'integrations', label: 'Third-party Integrations' },
+              { key: 'data_export', label: 'Data Export', hint: 'Export your data in various formats' },
+              { key: 'workflows', label: 'Custom Workflows' },
+              { key: 'templates', label: 'Pre-built Templates' },
+              { key: 'white_label', label: 'White Label Options' },
+              { key: 'sso', label: 'Single Sign-On (SSO)' },
+              { key: 'bulk_operations', label: 'Bulk Operations' },
+              { key: 'real_time', label: 'Real-time Updates' }
+            ]}
+            toolA={{
+              name: toolA.name,
+              features: toolA.features,
+              availability: (data as any).availability?.toolA
+            }}
+            toolB={{
+              name: toolB.name,
+              features: toolB.features,
+              availability: (data as any).availability?.toolB
+            }}
+          />
 
           {/* Pros and Cons */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">

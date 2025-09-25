@@ -61,6 +61,42 @@ const comparisonData = {
       ]
     }
   },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "partial",
+      "automation": "yes",
+      "api": "yes",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "yes",
+      "mobile": "no",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "yes"
+    },
+    "toolB": {
+      "ai_capabilities": "yes",
+      "automation": "yes",
+      "api": "yes",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "yes",
+      "mobile": "no",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "yes",
+      "sso": "partial",
+      "bulk_operations": "yes",
+      "real_time": "yes"
+    }
+  },
   "slug": "instantly-vs-smartlead"
 }
 
