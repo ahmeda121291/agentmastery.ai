@@ -42,19 +42,19 @@ export interface ResourceCTA {
   }
 }
 
-// Affiliate links for monetization
+// Affiliate links for monetization (simplified to key partners only)
 export const affiliateLinks: AffiliateLink[] = [
   {
     id: 'notion-affiliate',
     name: 'Notion',
-    description: 'All-in-one workspace for teams. Perfect for organizing your AI implementation plans and tracking progress.',
+    description: 'All-in-one workspace for organizing your AI implementation plans.',
     url: 'https://affiliate.notion.so/agentmastery',
     category: 'productivity',
     commission: '20%',
-    specialOffer: 'Get 6 months free on annual plans',
+    specialOffer: 'Get 6 months free',
     ctaText: 'Try Notion Free →',
     featured: true,
-    tags: ['productivity', 'planning', 'collaboration'],
+    tags: ['productivity', 'planning'],
     priority: 1,
     trackingParams: {
       utm_source: 'agentmastery',
@@ -65,209 +65,88 @@ export const affiliateLinks: AffiliateLink[] = [
   {
     id: 'airtable-affiliate',
     name: 'Airtable',
-    description: 'Database-spreadsheet hybrid perfect for tracking AI tool evaluations and implementation progress.',
+    description: 'Database-spreadsheet hybrid for tracking tool evaluations.',
     url: 'https://airtable.com/invite/r/agentmastery',
     category: 'database',
     commission: '15%',
     ctaText: 'Start with Airtable →',
     featured: true,
-    tags: ['database', 'tracking', 'organization'],
+    tags: ['database', 'tracking'],
     priority: 2
-  },
-  {
-    id: 'figma-affiliate',
-    name: 'Figma',
-    description: 'Design collaboration platform. Great for creating AI tool workflow diagrams and process maps.',
-    url: 'https://www.figma.com/?fuid=agentmastery',
-    category: 'design',
-    commission: '25%',
-    ctaText: 'Design with Figma →',
-    featured: false,
-    tags: ['design', 'collaboration', 'workflows'],
-    priority: 3
-  },
-  {
-    id: 'canva-affiliate',
-    name: 'Canva Pro',
-    description: 'Create stunning presentations and reports for your AI strategy and results. Professional templates included.',
-    url: 'https://www.canva.com/join/agentmastery',
-    category: 'design',
-    commission: '30%',
-    specialOffer: '45-day free trial',
-    ctaText: 'Design Better →',
-    featured: true,
-    tags: ['design', 'presentations', 'reports'],
-    priority: 4
   },
   {
     id: 'zapier-affiliate',
     name: 'Zapier',
-    description: 'Automate workflows between your AI tools and existing software. Perfect for seamless integrations.',
+    description: 'Automate workflows between AI tools and existing software.',
     url: 'https://zapier.com/sign-up?utm_campaign=agentmastery',
     category: 'automation',
     commission: '20%',
-    ctaText: 'Automate Workflows →',
+    ctaText: 'Automate Now →',
     featured: true,
-    tags: ['automation', 'integration', 'workflows'],
-    priority: 5
-  },
-  {
-    id: 'microsoft365-affiliate',
-    name: 'Microsoft 365',
-    description: 'Complete productivity suite with AI-powered features. Includes Teams, SharePoint, and advanced analytics.',
-    url: 'https://www.microsoft.com/microsoft-365/buy/compare-all-microsoft-365-products?rtc=1&activetab=tab%3aprimaryr2&ref=agentmastery',
-    category: 'productivity',
-    commission: '10%',
-    ctaText: 'Get Microsoft 365 →',
-    featured: false,
-    tags: ['productivity', 'collaboration', 'analytics'],
-    priority: 6
+    tags: ['automation', 'integration'],
+    priority: 3
   }
 ]
 
-// Internal cross-links to increase engagement
+// Internal cross-links to increase engagement (simplified to key pages)
 export const internalCrossLinks: InternalCrossLink[] = [
-  {
-    id: 'ai-tool-finder-quiz',
-    title: 'Find Your Perfect AI Tool',
-    description: 'Take our comprehensive quiz to discover which AI tools best fit your needs and budget.',
-    url: '/quiz',
-    type: 'quiz',
-    category: 'assessment',
-    ctaText: 'Take the Quiz →',
-    featured: true,
-    tags: ['quiz', 'tool-selection', 'assessment'],
-    priority: 1
-  },
-  {
-    id: 'ai-tools-comparison',
-    title: 'Compare AI Tools Side-by-Side',
-    description: 'Use our interactive comparison tool to evaluate features, pricing, and performance across top AI tools.',
-    url: '/compare',
-    type: 'comparison',
-    category: 'tools',
-    ctaText: 'Compare Tools →',
-    featured: true,
-    tags: ['comparison', 'evaluation', 'tools'],
-    priority: 2
-  },
-  {
-    id: 'roi-calculator',
-    title: 'AI ROI Calculator',
-    description: 'Calculate the potential return on investment for your AI tool implementations.',
-    url: '/calculators/ai-roi',
-    type: 'calculator',
-    category: 'roi',
-    ctaText: 'Calculate ROI →',
-    featured: true,
-    tags: ['calculator', 'roi', 'financial'],
-    priority: 3
-  },
-  {
-    id: 'ai-strategy-guide',
-    title: 'AI Strategy Implementation Guide',
-    description: 'Comprehensive guide on developing and executing your AI strategy.',
-    url: '/blog/ai-strategy-implementation-guide',
-    type: 'blog',
-    category: 'strategy',
-    ctaText: 'Read Guide →',
-    featured: true,
-    tags: ['strategy', 'implementation', 'guide'],
-    priority: 4
-  },
-  {
-    id: 'ai-leaderboards',
-    title: 'Top-Rated AI Tools',
-    description: 'See which AI tools are leading in user ratings, features, and performance.',
-    url: '/leaderboards',
-    type: 'tool',
-    category: 'rankings',
-    ctaText: 'View Rankings →',
-    featured: false,
-    tags: ['rankings', 'ratings', 'tools'],
-    priority: 5
-  },
-  {
-    id: 'team-readiness-assessment',
-    title: 'Team AI Readiness Assessment',
-    description: 'Evaluate your team\'s readiness for AI tool adoption and implementation.',
-    url: '/quiz/team-readiness',
-    type: 'quiz',
-    category: 'assessment',
-    ctaText: 'Assess Readiness →',
-    featured: false,
-    tags: ['assessment', 'team', 'readiness'],
-    priority: 6
-  },
   {
     id: 'agent-arcade',
     title: 'Agent Arcade',
-    description: 'Explore interactive tools, quizzes, and calculators to master AI implementation.',
+    description: 'Interactive calculators and games to master AI ROI.',
     url: '/arcade',
     type: 'arcade',
     category: 'interactive',
     ctaText: 'Explore Arcade →',
     featured: true,
-    tags: ['interactive', 'games', 'learning'],
-    priority: 7
+    tags: ['interactive', 'calculators', 'learning'],
+    priority: 1
+  },
+  {
+    id: 'ai-tools-comparison',
+    title: 'Compare AI Tools',
+    description: 'Side-by-side comparison of 200+ AI tools and features.',
+    url: '/compare',
+    type: 'comparison',
+    category: 'tools',
+    ctaText: 'Compare Tools →',
+    featured: true,
+    tags: ['comparison', 'evaluation'],
+    priority: 2
+  },
+  {
+    id: 'ai-strategy-guide',
+    title: 'AI Implementation Guide',
+    description: 'Step-by-step guide for AI adoption in your organization.',
+    url: '/blog/ai-strategy-implementation-guide',
+    type: 'blog',
+    category: 'strategy',
+    ctaText: 'Read Guide →',
+    featured: true,
+    tags: ['strategy', 'implementation'],
+    priority: 3
   }
 ]
 
-// Strategic CTAs for the resources page
+// Strategic CTAs for the resources page (simplified)
 export const resourceCTAs: ResourceCTA[] = [
   {
-    id: 'newsletter-signup',
-    title: 'Get Weekly AI Insights',
-    description: 'Join 15,000+ professionals getting weekly AI tool updates and exclusive resources.',
+    id: 'arcade-cta',
+    title: 'Try Our Interactive Tools',
+    description: 'Explore ROI calculators and pricing games.',
     type: 'internal',
-    url: '/newsletter',
-    ctaText: 'Subscribe Free →',
+    url: '/arcade',
+    ctaText: 'Visit Arcade →',
     placement: 'sidebar'
   },
   {
-    id: 'quiz-after-download',
-    title: 'Find Your Perfect AI Stack',
-    description: 'You\'ve got the resources, now discover which tools will work best for your specific needs.',
-    type: 'internal',
-    url: '/quiz',
-    ctaText: 'Take the Quiz →',
-    placement: 'modal',
-    conditions: {
-      showAfterDownloads: 2
-    }
-  },
-  {
-    id: 'consultation-cta',
-    title: 'Need Expert Help?',
-    description: 'Book a 30-minute consultation to discuss your AI strategy and implementation plan.',
-    type: 'external',
-    url: 'https://calendly.com/agentmastery/consultation',
-    ctaText: 'Book Consultation →',
-    placement: 'sidebar',
-    conditions: {
-      showOnCategories: ['ai-strategy', 'implementation']
-    }
-  },
-  {
     id: 'affiliate-notion-strategic',
-    title: 'Organize Your AI Journey',
-    description: 'Use Notion to track your progress through these resources and implementation steps.',
+    title: 'Track Your Progress',
+    description: 'Use Notion to organize your AI implementation.',
     type: 'affiliate',
     url: 'https://affiliate.notion.so/agentmastery?utm_source=resources',
     ctaText: 'Try Notion Free →',
-    placement: 'inline',
-    conditions: {
-      showOnCategories: ['ai-strategy', 'implementation', 'roi-tracking']
-    }
-  },
-  {
-    id: 'tools-database-cta',
-    title: 'Explore 200+ AI Tools',
-    description: 'Browse our comprehensive database of AI tools with detailed reviews and comparisons.',
-    type: 'internal',
-    url: '/tools',
-    ctaText: 'Browse Tools →',
-    placement: 'footer'
+    placement: 'sidebar'
   }
 ]
 

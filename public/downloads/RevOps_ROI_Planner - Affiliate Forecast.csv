@@ -1,0 +1,18 @@
+,Affiliate Earnings Forecast,
+,Inputs auto-feed from Inputs → Scenario,
+,,
+,Inputs,
+,Traffic,0
+,CTR,5000.00%
+,Conversion Rate,30000.00%
+,Commission Type,Percent
+,Commission % (if Percent),700.00%
+,Flat Fee / Conversion (if Flat),$22
+,AOV (if Percent),$0
+,,
+,Outputs,
+,Clicks,6
+,Conversions,"1,800"
+,Commission / Conversion ($),$2
+,Monthly Affiliate Revenue ($),"$4,410"
+,Annual Affiliate Revenue ($),"$52,920"

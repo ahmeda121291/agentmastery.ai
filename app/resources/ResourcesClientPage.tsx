@@ -27,7 +27,6 @@ import {
 export default function ResourcesClientPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [downloadCount, setDownloadCount] = useState(0)
-  const [showModal, setShowModal] = useState(false)
 
   const featuredResources = getFeaturedResources()
   const featuredAffiliates = getFeaturedAffiliateLinks()
@@ -45,12 +44,7 @@ export default function ResourcesClientPage() {
     if (resource.downloadUrl) {
       trackDownload(resource.id, 'internal')
     } else if (resource.externalUrl) {
-      trackDownload(resource.id, resource.isAffiliate ? 'affiliate' : 'external')
-    }
-
-    // Show modal after 2 downloads
-    if (newCount >= 2) {
-      setShowModal(true)
+      trackDownload(resource.id, 'external')
     }
 
     // Handle the actual download/redirect
@@ -73,7 +67,7 @@ export default function ResourcesClientPage() {
       checklist: '✅',
       toolkit: '🧰',
       worksheet: '📝',
-      ebook: '📚'
+      dataset: '📊'
     }
     return icons[type] || '📄'
   }
@@ -81,12 +75,9 @@ export default function ResourcesClientPage() {
   const getFormatIcon = (format: Resource['format']) => {
     const icons = {
       pdf: '📄',
-      docx: '📝',
       xlsx: '📊',
-      notion: '🗒️',
-      sheets: '📈',
-      figma: '🎨',
-      link: '🔗'
+      csv: '📊',
+      sheets: '📈'
     }
     return icons[format] || '📄'
   }
@@ -255,24 +246,6 @@ export default function ResourcesClientPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Newsletter CTA */}
-            <Card className="bg-gradient-to-br from-forest to-green text-white">
-              <CardHeader>
-                <CardTitle className="text-white">Weekly AI Insights</CardTitle>
-                <CardDescription className="text-white/80">
-                  Join 15,000+ professionals getting exclusive resources and updates.
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <Button
-                  variant="secondary"
-                  className="w-full bg-white text-forest hover:bg-white/90"
-                  onClick={() => handleLinkClick('newsletter-cta', '/newsletter', 'internal')}
-                >
-                  Subscribe Free →
-                </Button>
-              </CardFooter>
-            </Card>
 
             {/* Featured Tools */}
             <Card>
@@ -283,7 +256,7 @@ export default function ResourcesClientPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {featuredAffiliates.slice(0, 3).map((affiliate) => (
+                {featuredAffiliates.map((affiliate) => (
                   <div key={affiliate.id} className="border-b border-mist last:border-b-0 pb-4 last:pb-0">
                     <h4 className="font-semibold text-sm text-ink">{affiliate.name}</h4>
                     <p className="text-xs text-ink/60 mb-2">{affiliate.description}</p>
@@ -311,7 +284,7 @@ export default function ResourcesClientPage() {
                 <CardTitle>Explore More</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {featuredInternalLinks.slice(0, 4).map((link) => (
+                {featuredInternalLinks.map((link) => (
                   <Link
                     key={link.id}
                     href={link.url}
@@ -328,37 +301,6 @@ export default function ResourcesClientPage() {
         </div>
       </Container>
 
-      {/* Modal for quiz CTA after downloads */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-md mx-auto">
-            <CardHeader>
-              <CardTitle>Find Your Perfect AI Stack</CardTitle>
-              <CardDescription>
-                You've got the resources, now discover which tools will work best for your specific needs.
-              </CardDescription>
-            </CardHeader>
-            <CardFooter className="flex gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => setShowModal(false)}
-                className="flex-1"
-              >
-                Maybe Later
-              </Button>
-              <Button
-                onClick={() => {
-                  handleLinkClick('quiz-modal', '/quiz', 'internal')
-                  setShowModal(false)
-                }}
-                className="flex-1"
-              >
-                Take the Quiz →
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      )}
     </div>
   )
 }
