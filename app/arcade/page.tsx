@@ -2,7 +2,11 @@
 
 import { useState, useMemo } from 'react'
 import { ARCADE_ITEMS, getUniqueTags, KIND_LABELS, type ArcadeItem } from '@/data/interactive'
-import { Search, X, Sparkles, Zap, Trophy, Target, Calculator, Gamepad2, ClipboardList } from 'lucide-react'
+import {
+  Search, X, Sparkles, Zap, Trophy, Target, Calculator, Gamepad2,
+  ClipboardList, TrendingUp, PiggyBank, Globe, Users, DollarSign,
+  BarChart3, Rocket, Brain
+} from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,13 +19,22 @@ const KIND_ICONS = {
   Game: Gamepad2
 }
 
+// Main category filters with icons
+const MAIN_CATEGORIES = [
+  { id: 'Quiz', label: 'Quiz', icon: ClipboardList, color: 'from-purple-500 to-pink-500' },
+  { id: 'Calculator', label: 'Calculator', icon: Calculator, color: 'from-blue-500 to-cyan-500' },
+  { id: 'Game', label: 'Game', icon: Gamepad2, color: 'from-green-500 to-emerald-500' },
+  { id: 'ROI', label: 'ROI', icon: TrendingUp, color: 'from-amber-500 to-orange-500' },
+  { id: 'Savings', label: 'Savings', icon: PiggyBank, color: 'from-indigo-500 to-purple-500' },
+  { id: 'SEO', label: 'SEO', icon: Globe, color: 'from-teal-500 to-green-500' },
+  { id: 'Affiliate', label: 'Affiliate', icon: DollarSign, color: 'from-rose-500 to-pink-500' },
+  { id: 'Pricing', label: 'Pricing', icon: BarChart3, color: 'from-violet-500 to-purple-500' },
+  { id: 'Stack', label: 'Stack', icon: Rocket, color: 'from-cyan-500 to-blue-500' }
+]
+
 export default function ArcadePage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedKind, setSelectedKind] = useState<string | null>(null)
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
-
-  // Get unique tags
-  const uniqueTags = useMemo(() => getUniqueTags(), [])
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   // Filter items
   const filteredItems = useMemo(() => {
@@ -30,12 +43,22 @@ export default function ArcadePage() {
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.blurb.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesKind = !selectedKind || item.kind === selectedKind
-      const matchesTag = !selectedTag || item.tags.includes(selectedTag)
+      // Handle category filtering
+      if (!selectedCategory) return matchesSearch
 
-      return matchesSearch && matchesKind && matchesTag
+      // Check if it's a kind (Quiz, Calculator, Game)
+      if (selectedCategory === 'Quiz' || selectedCategory === 'Calculator' || selectedCategory === 'Game') {
+        return matchesSearch && item.kind === selectedCategory
+      }
+
+      // Check tags for other categories
+      const matchesTag = item.tags.some(tag =>
+        tag.toLowerCase().includes(selectedCategory.toLowerCase())
+      )
+
+      return matchesSearch && matchesTag
     })
-  }, [searchQuery, selectedKind, selectedTag])
+  }, [searchQuery, selectedCategory])
 
   // Separate featured and regular items
   const featuredItems = filteredItems.filter(item => item.highlight)
@@ -102,17 +125,17 @@ export default function ArcadePage() {
 
       {/* Filters Section */}
       <div className="sticky top-16 z-40 bg-paper/95 backdrop-blur-sm shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
+        <div className="container mx-auto px-4 py-6">
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search arcade..."
+                placeholder="Search arcade experiences..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
+                className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green focus:border-green text-lg"
               />
               {searchQuery && (
                 <button
@@ -123,81 +146,65 @@ export default function ArcadePage() {
                 </button>
               )}
             </div>
+          </div>
 
-            {/* Kind Filter */}
-            <div className="flex gap-2">
-              <Button
-                variant={selectedKind === null ? "primary" : "outline"}
-                onClick={() => setSelectedKind(null)}
-                size="sm"
-              >
-                All Types
-              </Button>
-              {Object.entries(KIND_LABELS).map(([kind, config]) => (
-                <Button
-                  key={kind}
-                  variant={selectedKind === kind ? "primary" : "outline"}
-                  onClick={() => setSelectedKind(selectedKind === kind ? null : kind)}
-                  size="sm"
-                  className="flex items-center gap-1"
-                >
-                  <span>{config.emoji}</span>
-                  <span>{config.label}</span>
-                </Button>
-              ))}
-            </div>
-
-            {/* Tag Filter */}
-            <div className="flex gap-2 flex-wrap">
-              {uniqueTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                  className="transition-transform hover:scale-105 active:scale-95"
-                >
-                  <Badge
-                    variant={selectedTag === tag ? "default" : "secondary"}
-                    className="cursor-pointer"
+          {/* Category Squares */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-3">
+              {MAIN_CATEGORIES.map((category) => {
+                const Icon = category.icon
+                const isSelected = selectedCategory === category.id
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(isSelected ? null : category.id)}
+                    className={`
+                      relative group p-4 rounded-xl transition-all duration-200 transform
+                      ${isSelected
+                        ? 'scale-95 ring-2 ring-forest shadow-lg'
+                        : 'hover:scale-105 hover:shadow-md active:scale-95'
+                      }
+                    `}
                   >
-                    {tag}
-                  </Badge>
-                </button>
-              ))}
+                    <div
+                      className={`
+                        absolute inset-0 rounded-xl bg-gradient-to-br ${category.color}
+                        ${isSelected ? 'opacity-100' : 'opacity-10 group-hover:opacity-20'}
+                        transition-opacity duration-200
+                      `}
+                    />
+                    <div className="relative flex flex-col items-center justify-center gap-2">
+                      <Icon
+                        className={`
+                          h-6 w-6 md:h-8 md:w-8 transition-colors duration-200
+                          ${isSelected ? 'text-white' : 'text-gray-700 group-hover:text-gray-900'}
+                        `}
+                      />
+                      <span
+                        className={`
+                          text-xs md:text-sm font-medium transition-colors duration-200
+                          ${isSelected ? 'text-white' : 'text-gray-700 group-hover:text-gray-900'}
+                        `}
+                      >
+                        {category.label}
+                      </span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
-          {/* Active filters display */}
-          {(selectedKind || selectedTag) && (
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-sm text-gray-600">Active filters:</span>
-              {selectedKind && (
-                <button
-                  onClick={() => setSelectedKind(null)}
-                  className="transition-transform hover:scale-105 active:scale-95"
-                >
-                  <Badge
-                    variant="default"
-                    className="cursor-pointer flex items-center gap-1"
-                  >
-                    {KIND_LABELS[selectedKind as keyof typeof KIND_LABELS].label}
-                    <X className="h-3 w-3" />
-                  </Badge>
-                </button>
-              )}
-              {selectedTag && (
-                <button
-                  onClick={() => setSelectedTag(null)}
-                  className="transition-transform hover:scale-105 active:scale-95"
-                >
-                  <Badge
-                    variant="default"
-                    className="cursor-pointer flex items-center gap-1"
-                  >
-                    {selectedTag}
-                    <X className="h-3 w-3" />
-                  </Badge>
-                </button>
-              )}
+          {/* Active filter indicator */}
+          {selectedCategory && (
+            <div className="max-w-6xl mx-auto mt-4 flex items-center justify-center">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-forest text-white text-sm font-medium hover:bg-forest/90 transition-colors"
+              >
+                <span>{MAIN_CATEGORIES.find(c => c.id === selectedCategory)?.label}</span>
+                <X className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
@@ -224,8 +231,7 @@ export default function ArcadePage() {
               variant="outline"
               onClick={() => {
                 setSearchQuery('')
-                setSelectedKind(null)
-                setSelectedTag(null)
+                setSelectedCategory(null)
               }}
             >
               Clear Filters
