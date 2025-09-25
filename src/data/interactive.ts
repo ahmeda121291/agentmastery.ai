@@ -84,6 +84,41 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     kind: 'Calculator',
     tags: ['Video', 'Content', 'Cost'],
     cta: 'Compare Costs'
+  },
+  {
+    slug: '/arcade/ad-roi',
+    title: 'Ad Spend ROI Calculator',
+    blurb: 'Calculate ROAS, net ROI, and payback for PPC campaigns.',
+    kind: 'Calculator',
+    tags: ['Advertising', 'ROI', 'PPC'],
+    cta: 'Calculate ROAS',
+    highlight: true
+  },
+  {
+    slug: '/arcade/seo-content-roi',
+    title: 'SEO Content ROI Calculator',
+    blurb: 'Forecast payback and lifetime value of content investments.',
+    kind: 'Calculator',
+    tags: ['SEO', 'Content', 'ROI'],
+    cta: 'Analyze ROI',
+    highlight: true
+  },
+  {
+    slug: '/arcade/affiliate-earnings',
+    title: 'Affiliate Earnings Forecaster',
+    blurb: 'Project monthly and yearly affiliate commission revenue.',
+    kind: 'Calculator',
+    tags: ['Affiliate', 'Revenue', 'Forecast'],
+    cta: 'Forecast Earnings'
+  },
+  {
+    slug: '/arcade/price-guess',
+    title: 'Tool Price Guessing Game',
+    blurb: 'Test your knowledge of AI tool pricing across 70+ tools.',
+    kind: 'Game',
+    tags: ['Pricing', 'Challenge', 'Learning'],
+    cta: 'Play Now',
+    highlight: true
   }
 ]
 

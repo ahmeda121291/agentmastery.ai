@@ -15,7 +15,11 @@ function urls() {
   const arcadePages = [
     'cold-call-calculator',
     'chatbot-savings',
-    'video-production-cost'
+    'video-production-cost',
+    'ad-roi',
+    'seo-content-roi',
+    'affiliate-earnings',
+    'price-guess'
   ]
 
   arcadePages.forEach(page => {
