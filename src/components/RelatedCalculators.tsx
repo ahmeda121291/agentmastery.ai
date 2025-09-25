@@ -6,24 +6,28 @@ import { ArrowRight, Calculator } from 'lucide-react'
 const calculators = [
   {
     slug: 'cold-call-calculator',
+    path: '/arcade/cold-call-calculator',
     title: 'Cold Call Calculator',
     description: 'Calculate pipeline value from daily dials',
     color: 'from-blue-500 to-blue-600'
   },
   {
-    slug: 'cold-email-roi',
-    title: 'Cold Email ROI',
+    slug: 'roi',
+    path: '/calculators/roi',
+    title: 'Email ROI Calculator',
     description: 'Measure email campaign profitability',
     color: 'from-green-500 to-green-600'
   },
   {
     slug: 'chatbot-savings',
+    path: '/arcade/chatbot-savings',
     title: 'Chatbot Savings',
     description: 'Calculate support automation savings',
     color: 'from-purple-500 to-purple-600'
   },
   {
     slug: 'video-production-cost',
+    path: '/arcade/video-production-cost',
     title: 'Video Production Cost',
     description: 'Compare traditional vs AI video costs',
     color: 'from-orange-500 to-orange-600'
@@ -50,7 +54,7 @@ export default function RelatedCalculators({
         {related.map(calc => (
           <Link
             key={calc.slug}
-            href={`/arcade/${calc.slug}`}
+            href={calc.path}
             className="group"
           >
             <div className="p-4 border rounded-lg hover:shadow-md transition-all hover:border-emerald-400">

@@ -14,6 +14,8 @@ function urls() {
   // Add known arcade pages
   const arcadePages = [
     'cold-call-calculator',
+    'chatbot-savings',
+    'video-production-cost'
   ]
 
   arcadePages.forEach(page => {

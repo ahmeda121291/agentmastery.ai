@@ -70,8 +70,8 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     cta: 'Start Pop Quiz'
   },
   {
-    slug: '/arcade/cold-email-roi',
-    title: 'Cold Email ROI Calculator',
+    slug: '/calculators/roi',
+    title: 'Email Outreach ROI Calculator',
     blurb: 'Calculate your potential return from cold email campaigns.',
     kind: 'Calculator',
     tags: ['Email', 'ROI', 'Outbound'],
