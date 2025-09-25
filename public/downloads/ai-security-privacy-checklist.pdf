@@ -1,0 +1,53 @@
+# AI Security & Privacy Checklist (PDF Placeholder)
+
+This would be a comprehensive 6-page security checklist containing:
+
+## Data Protection Checklist
+
+### Data Classification
+- [ ] Identify types of data processed by AI tools
+- [ ] Classify data sensitivity levels
+- [ ] Map data flow and storage locations
+- [ ] Document data retention policies
+
+### Privacy Compliance
+- [ ] GDPR compliance assessment
+- [ ] CCPA compliance review
+- [ ] Industry-specific regulations check
+- [ ] Privacy impact assessment
+
+### Security Controls
+- [ ] Encryption at rest and in transit
+- [ ] Access controls and authentication
+- [ ] Network security measures
+- [ ] Audit logging and monitoring
+
+## Vendor Security Assessment
+
+### Due Diligence
+- [ ] Security certifications (SOC 2, ISO 27001)
+- [ ] Penetration testing results
+- [ ] Incident response procedures
+- [ ] Data breach notification process
+
+### Contractual Protections
+- [ ] Data processing agreements
+- [ ] Liability and indemnification
+- [ ] Right to audit provisions
+- [ ] Data deletion guarantees
+
+## Implementation Security
+
+### System Hardening
+- [ ] Secure configuration baselines
+- [ ] Regular security updates
+- [ ] Vulnerability assessments
+- [ ] Security awareness training
+
+### Ongoing Monitoring
+- [ ] Security monitoring tools
+- [ ] Regular security reviews
+- [ ] Incident response plan
+- [ ] Business continuity planning
+
+(This is a placeholder - in production this would be a detailed PDF with checkboxes, detailed explanations, and regulatory guidance)

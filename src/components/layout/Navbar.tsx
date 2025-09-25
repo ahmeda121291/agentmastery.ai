@@ -40,6 +40,12 @@ export function Navbar() {
       ariaLabel: 'Find Your Fit (Quiz)'
     },
     {
+      href: '/resources',
+      label: 'Toolkit',
+      title: 'Free templates, guides, and frameworks to accelerate your AI journey.',
+      ariaLabel: 'Toolkit (Resources)'
+    },
+    {
       href: '/about',
       label: 'Our Story',
       title: 'Why we built AgentMastery and how our algorithms work.',
