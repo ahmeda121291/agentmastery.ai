@@ -26,13 +26,13 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
     ],
-    sitemap: [
-      `${SITE_URL}/sitemap.xml`,
-      `${SITE_URL}/tools.xml`,
-      `${SITE_URL}/comparisons.xml`,
-      `${SITE_URL}/blog.xml`,
-      `${SITE_URL}/arcade.xml`,
-    ],
+   sitemap: [
+  'https://agentmastery.ai/sitemap.xml',
+  'https://agentmastery.ai/arcade.xml',
+  'https://agentmastery.ai/blog.xml',
+  'https://agentmastery.ai/comparisons.xml',
+  'https://agentmastery.ai/tools.xml'
+]
     host: SITE_URL,
   }
 }
