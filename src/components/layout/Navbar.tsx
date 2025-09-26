@@ -10,6 +10,12 @@ export function Navbar() {
   
   const navLinks = [
     {
+      href: '/updates',
+      label: '🆕 New & Updated',
+      title: 'Latest content across all categories.',
+      ariaLabel: 'New & Updated Content'
+    },
+    {
       href: '/tools',
       label: 'AI Stack',
       title: 'Explore the most loved AI tools all in one place.',

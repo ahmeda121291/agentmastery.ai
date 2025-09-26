@@ -6,6 +6,7 @@ export function Footer() {
 
   const footerLinks = {
     'Explore': [
+      { href: '/updates', label: '🆕 New & Updated' },
       { href: '/arcade', label: '🎮 Agent Arcade' },
       { href: '/leaderboards', label: '🏆 Leaderboards' },
       { href: '/tools', label: '🛠️ All AI Tools' },
