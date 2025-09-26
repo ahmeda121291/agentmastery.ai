@@ -38,6 +38,7 @@ import {
 import Script from 'next/script'
 import { createSchemaScript, faqPageSchema, breadcrumbSchema } from '@/lib/jsonld'
 import { canonical } from '@/lib/seo'
+import RelatedLinks from '@/components/RelatedLinks'
 
 // Metadata is exported from separate page file
 

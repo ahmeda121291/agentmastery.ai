@@ -14,6 +14,7 @@ import CompareTablePro from '@/components/CompareTablePro'
 import BestForBadges from '@/components/BestForBadges'
 import InlineCTA from '@/components/InlineCTA'
 import AnswerSnippet from '@/components/AnswerSnippet'
+import RelatedLinks from '@/components/RelatedLinks'
 
 interface ComparisonData {
   toolA: {
@@ -420,35 +421,11 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
           </div>
 
           {/* Related Links */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Related Resources</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/leaderboards">
-                  <Badge variant="secondary" className="cursor-pointer hover:bg-forest hover:text-white">
-                    View All Leaderboards
-                  </Badge>
-                </Link>
-                <Link href="/answers">
-                  <Badge variant="secondary" className="cursor-pointer hover:bg-forest hover:text-white">
-                    AI Tool Q&As
-                  </Badge>
-                </Link>
-                <Link href="/blog">
-                  <Badge variant="secondary" className="cursor-pointer hover:bg-forest hover:text-white">
-                    Latest Blog Posts
-                  </Badge>
-                </Link>
-                <Link href="/quiz">
-                  <Badge variant="secondary" className="cursor-pointer hover:bg-forest hover:text-white">
-                    Tool Matcher Quiz
-                  </Badge>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+          <RelatedLinks
+            currentPath={pagePath}
+            currentCategory="compare"
+            title="Discover More Tools & Comparisons"
+          />
         </div>
       </div>
     </div>

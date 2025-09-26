@@ -33,6 +33,7 @@ import Script from 'next/script'
 import dynamic from 'next/dynamic'
 import { ShareButtons } from '@/components/ShareButtons'
 import AnswerSnippet from '@/components/AnswerSnippet'
+import RelatedLinks from '@/components/RelatedLinks'
 
 // Dynamic import for client-side progress rail
 const ProgressRail = dynamic(() => import('@/components/blog/ProgressRail'), {
@@ -269,9 +270,17 @@ export default async function BlogPost({ params }: { params: { slug: string } })
                 </div>
               )}
 
-              {/* MDX Content */}
+              {/* MDX Content with inline related links */}
               <div className="prose-am max-w-none">
                 <MDX source={processedContent} />
+
+                {/* Inline Related Links */}
+                <RelatedLinks
+                  currentPath={`/blog/${params.slug}`}
+                  currentCategory="blog"
+                  currentTags={post.meta.tags}
+                  inline={true}
+                />
               </div>
 
               {/* Share Buttons */}
@@ -311,6 +320,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
                 </div>
               </div>
             )}
+
+            {/* Related Links */}
+            <RelatedLinks
+              currentPath={`/blog/${params.slug}`}
+              currentCategory="blog"
+              currentTags={post.meta.tags}
+              title="Explore More Resources"
+            />
 
             {/* CTA Section */}
             <div className="mt-12 bg-gradient-to-r from-forest to-green rounded-lg p-8 text-white text-center">

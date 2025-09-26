@@ -37,6 +37,7 @@ import {
 import Script from 'next/script'
 import { createSchemaScript, faqPageSchema, breadcrumbSchema } from '@/lib/jsonld'
 import { canonical } from '@/lib/seo'
+import RelatedLinks from '@/components/RelatedLinks'
 
 // Metadata is exported from separate page file
 
@@ -473,6 +474,13 @@ export default function AdROICalculator() {
               </div>
             </div>
           </div>
+
+          {/* Related Links */}
+          <RelatedLinks
+            currentPath="/arcade/ad-roi"
+            currentCategory="arcade"
+            title="Explore More Tools"
+          />
         </div>
       </ArcadeShell>
     </>

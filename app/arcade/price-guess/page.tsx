@@ -29,6 +29,7 @@ import { TOOL_PRICES, shuffleArray, type ToolPrice } from '@/data/toolPrices'
 import Script from 'next/script'
 import { createSchemaScript, faqPageSchema, breadcrumbSchema } from '@/lib/jsonld'
 import { canonical } from '@/lib/seo'
+import RelatedLinks from '@/components/RelatedLinks'
 // Confetti will be loaded dynamically
 
 // Metadata is exported from separate page file
