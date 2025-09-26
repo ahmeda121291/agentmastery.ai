@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { tools } from '@/data/tools'
 import { getAllPosts } from '@/lib/blog'
-import { COMPARES } from './compare/_data/compare-registry'
+import { COMPARES } from '../src/features/compare/registry'
 import { origin } from '@/lib/seo/canonical'
 import fs from 'node:fs'
 import path from 'node:path'

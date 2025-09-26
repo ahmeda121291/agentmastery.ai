@@ -3,7 +3,7 @@
 import { spawn } from 'child_process';
 import { JSDOM } from 'jsdom';
 import { origin } from '../src/lib/seo/canonical';
-import { COMPARES } from '../app/compare/_data/compare-registry';
+import { COMPARES } from '../src/features/compare/registry';
 
 interface CanonicalCheckResult {
   url: string;

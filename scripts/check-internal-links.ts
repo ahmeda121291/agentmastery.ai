@@ -2,7 +2,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { COMPARES } from '../app/compare/_data/compare-registry';
+import { COMPARES } from '../src/features/compare/registry';
 
 interface LinkCheckResult {
   file: string;

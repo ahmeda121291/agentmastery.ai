@@ -7,6 +7,15 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  async redirects() {
+    return [
+      {
+        source: '/compare/_:path*',
+        destination: '/compare',
+        permanent: false,
+      },
+    ]
+  },
 }
 
 const withMDX = createMDX({

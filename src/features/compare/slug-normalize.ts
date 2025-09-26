@@ -1,4 +1,4 @@
-import { COMPARES } from "../_data/compare-registry";
+import { COMPARES } from "./registry";
 
 export function normalizeSlug(slug: string): string {
   return slug

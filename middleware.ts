@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { resolveToCanonical } from './app/compare/_lib/slug-normalize';
+import { resolveToCanonical } from './src/features/compare/slug-normalize';
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;

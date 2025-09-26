@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { origin } from '@/lib/seo/canonical'
-import { COMPARES } from '../compare/_data/compare-registry'
+import { COMPARES } from '../../src/features/compare/registry'
 import fs from 'node:fs'
 import path from 'node:path'
 

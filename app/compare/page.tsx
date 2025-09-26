@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { COMPARES } from "./_data/compare-registry";
+import { COMPARES } from "../../src/features/compare/registry";
 
 export function generateMetadata(): Metadata {
   return buildPageMetadata({
