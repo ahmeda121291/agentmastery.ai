@@ -1,7 +1,10 @@
-import { MetadataRoute } from 'next'
-import { SITE_URL } from '@/lib/seo'
+// app/robots.ts
+import type { MetadataRoute } from 'next'
+import { origin } from '@/lib/seo/canonical'
 
 export default function robots(): MetadataRoute.Robots {
+  const SITE_URL = origin()
+
   return {
     rules: [
       {
@@ -13,26 +16,19 @@ export default function robots(): MetadataRoute.Robots {
           '/static/',
         ],
       },
-      {
-        userAgent: 'GPTBot',
-        allow: '/',
-      },
-      {
-        userAgent: 'ChatGPT-User',
-        allow: '/',
-      },
-      {
-        userAgent: 'CCBot',
-        allow: '/',
-      },
+      // Allow major AI crawlers you actually want
+      { userAgent: 'GPTBot', allow: '/' },
+      { userAgent: 'ChatGPT-User', allow: '/' },
+      { userAgent: 'CCBot', allow: '/' },
     ],
-   sitemap: [
-  'https://agentmastery.ai/sitemap.xml',
-  'https://agentmastery.ai/arcade.xml',
-  'https://agentmastery.ai/blog.xml',
-  'https://agentmastery.ai/comparisons.xml',
-  'https://agentmastery.ai/tools.xml'
-]
+    // Next supports string or string[]
+    sitemap: [
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/arcade.xml`,
+      `${SITE_URL}/blog.xml`,
+      `${SITE_URL}/comparisons.xml`,
+      `${SITE_URL}/tools.xml`,
+    ],
     host: SITE_URL,
   }
 }
