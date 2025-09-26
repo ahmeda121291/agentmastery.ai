@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { buildPageMetadata } from '@/lib/seo/metadata'
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Pipedrive vs Copy.ai: Which AI Tool Wins in 2025? | AgentMastery',
+  title: 'Copy.ai vs Pipedrive',
   description: 'Compare Pipedrive and Copy.ai to find the right tool for CRM or content generation. Explore features, pricing, and use cases to make an informed decision.',
   routeInfo: { pathname: '/compare/copy-ai-vs-pipedrive' }
 });

@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!tool) return { title: 'Tool Not Found' }
 
   return buildPageMetadata({
-    title: `${tool.name} Review 2024 - Pricing, Features & Alternatives | AgentMastery`,
+    title: `${tool.name} Review`,
     description: tool.blurb,
     routeInfo: { pathname: `/tools/${params.slug}` }
   })
