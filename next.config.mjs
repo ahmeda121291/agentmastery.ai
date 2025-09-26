@@ -10,6 +10,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/blog/aiseo-vs-getgenie',
+        destination: '/compare/aiseo-vs-getgenie',
+        permanent: true,
+      },
+      {
         source: '/compare/_data',
         destination: '/compare',
         permanent: true,
