@@ -1,5 +1,141 @@
 [
   {
+    "id": "gen-1758858184513-96adfnlmz",
+    "q": "What are the best AI video generators for marketing?",
+    "a": "The best AI video generators for marketing include [Synthesia](/tools/[synthesia](/tools/synthesia)) for its realistic avatars and ease of use, and [GetGenie](/tools/[getgenie](/tools/getgenie)) for its integration with various marketing platforms. Both tools offer unique features that enhance video content creation, making them ideal for marketers.",
+    "category": "Video",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184513-e5958gm2x",
+    "q": "What is a CRM migration checklist?",
+    "a": "A CRM migration checklist typically includes steps like data backup, mapping fields, and testing the new system. It's essential to ensure data integrity and train your team on the new platform, which is where a guide on CRM migration could be helpful. For more details, check our [CRM migration resources](/resources/crm-migration).",
+    "category": "CRM",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184513-iti28ykhn",
+    "q": "Which AI sales automation tools should I compare?",
+    "a": "You should compare tools like [CustomGPT](/tools/[customgpt](/tools/customgpt)) for its advanced AI capabilities and [Ocean.io](/tools/ocean) for its comprehensive data analytics. Each offers unique features that can enhance your sales automation strategy.",
+    "category": "Outbound",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184513-prr3znc1g",
+    "q": "What are B2B lead generation strategies for 2025?",
+    "a": "B2B lead generation strategies for 2025 include leveraging data analytics for targeted outreach and using AI tools like [Lovable](/tools/[lovable](/tools/lovable)) to personalize communication. Emphasizing value-driven content and nurturing leads through automation will also be essential.",
+    "category": "Data",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184513-f1pdw8yf3",
+    "q": "What are the top AI writing tools for SEO content?",
+    "a": "The top AI writing tools for SEO content include [AISEO](/tools/[aiseo](/tools/aiseo)) for its keyword optimization features and [OutRanking](/tools/[outranking](/tools/outranking)) for content briefs. Both tools facilitate the creation of SEO-friendly content efficiently.",
+    "category": "Writing",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-jiwfx22b3",
+    "q": "How to implement an AI chatbot effectively?",
+    "a": "To implement an AI chatbot effectively, start by defining its purpose and selecting a platform like [ChatSimple](/tools/[chatsimple](/tools/chatsimple)) that fits your needs. Ensure it integrates smoothly with your existing systems and train it with relevant data to improve its responses.",
+    "category": "Chatbots",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-0m5d5lc0c",
+    "q": "Compare the costs of AI video generation tools.",
+    "a": "AI video generation tools like [Synthesia](/tools/[synthesia](/tools/synthesia)) typically charge on a per-video basis, while [GetGenie](/tools/[getgenie](/tools/getgenie)) offers subscription models. Compare these options based on your production needs to find the most cost-effective solution.",
+    "category": "Video",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-ajiahohup",
+    "q": "What are effective sales team productivity metrics?",
+    "a": "Effective sales team productivity metrics include conversion rates, average deal size, and sales cycle length. Tracking these metrics helps in assessing team performance and identifying areas for improvement, which can be facilitated by CRM tools like [Ocean.io](/tools/ocean).",
+    "category": "CRM",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-1doz3eea9",
+    "q": "Which AI tools are best for landing pages?",
+    "a": "The best AI tools for landing pages include [Beehiiv](/tools/[beehiiv](/tools/beehiiv)) for its intuitive design and [GetGenie](/tools/[getgenie](/tools/getgenie)) for its optimization features. These tools help create effective landing pages that can boost conversion rates.",
+    "category": "Landing",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-hluwz7bjn",
+    "q": "What are email warmup best practices?",
+    "a": "Email warmup best practices include gradually increasing your sending volume and engaging with your audience to build a positive sender reputation. Tools like [SmartLead](/tools/[smartlead](/tools/smartlead)) can automate this process, ensuring higher deliverability rates.",
+    "category": "Outbound",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-zg9z9zvfq",
+    "q": "What features should I look for in AI sales automation tools?",
+    "a": "Look for features like lead scoring, automated follow-ups, and integration capabilities when choosing AI sales automation tools. Tools such as [CustomGPT](/tools/[customgpt](/tools/customgpt)) offer advanced analytics and user-friendly interfaces, making them great options.",
+    "category": "Outbound",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-ze2tuoxm3",
+    "q": "How can I enhance my data analytics strategies in 2025?",
+    "a": "Enhancing your data analytics strategies in 2025 involves leveraging AI tools to process and analyze large datasets efficiently. Tools like [Ocean.io](/tools/ocean) can provide insights that help inform business decisions and strategy.",
+    "category": "Data",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184514-no4mbfljp",
+    "q": "What is the role of AI in social media marketing?",
+    "a": "AI plays a crucial role in social media marketing by automating content creation, optimizing ad targeting, and analyzing engagement metrics. Tools like [GetGenie](/tools/[getgenie](/tools/getgenie)) can facilitate these tasks, improving your marketing efficiency.",
+    "category": "Social",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184515-natqq82r8",
+    "q": "When should I consider a CRM migration?",
+    "a": "You should consider a CRM migration when your current system no longer meets your business needs or when you’re scaling operations. Conduct thorough research and create a migration plan, potentially utilizing a guide to ensure a seamless transition.",
+    "category": "CRM",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184515-yz2o7s8zi",
+    "q": "How do I choose the right AI chatbot for my business?",
+    "a": "Choosing the right AI chatbot involves assessing your specific business needs, such as customer support or lead generation. Evaluate features, integration capabilities, and user reviews of tools like [ChatSimple](/tools/[chatsimple](/tools/chatsimple)) to make an informed decision.",
+    "category": "Chatbots",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184515-j289g9nni",
+    "q": "What are the benefits of using AI for writing SEO content?",
+    "a": "The benefits of using AI for writing SEO content include improved keyword optimization and faster content creation. Tools like [AISEO](/tools/[aiseo](/tools/aiseo)) can help streamline the writing process while ensuring high-quality, relevant content.",
+    "category": "Writing",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
+    "id": "gen-1758858184515-dy93s1x83",
+    "q": "How do I measure the success of my AI tools?",
+    "a": "To measure the success of your AI tools, establish clear KPIs such as ROI, user engagement, and task efficiency. Regularly review these metrics and adjust your strategies accordingly to ensure optimal performance.",
+    "category": "General",
+    "createdAt": "2025-09-26T03:43:04.511Z",
+    "localGenerated": false
+  },
+  {
     "id": "gen-1758685450712-ajqztbs1n",
     "q": "What are the best AI writing tools for SEO content?",
     "a": "The best AI writing tools for SEO content include [AISEO](/tools/[aiseo](/tools/aiseo)), [OutRanking](/tools/[outranking](/tools/outranking)), and [GetGenie](/tools/[getgenie](/tools/getgenie)). Each of these tools offers robust features like keyword optimization, content suggestions, and performance tracking that help improve search visibility. Compare their pricing and features on our [leaderboards](/leaderboards) for a detailed analysis.",
