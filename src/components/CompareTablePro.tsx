@@ -39,7 +39,7 @@ export default function CompareTablePro({
   }
 
   const Cell = ({ state }: { state: 'yes'|'no'|'partial' }) => (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center mx-auto">
       {state === 'yes' && <Check className="h-4 w-4 text-emerald-600" aria-label="Yes" />}
       {state === 'no' && <X className="h-4 w-4 text-rose-600" aria-label="No" />}
       {state === 'partial' && <Minus className="h-4 w-4 text-amber-500" aria-label="Partial" />}
@@ -104,7 +104,7 @@ export default function CompareTablePro({
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+      <div className="mt-3 flex items-center justify-center gap-4 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1"><Check className="h-3 w-3 text-emerald-600" /> Yes</span>
         <span className="inline-flex items-center gap-1"><Minus className="h-3 w-3 text-amber-500" /> Partial / Limited</span>
         <span className="inline-flex items-center gap-1"><X className="h-3 w-3 text-rose-600" /> No</span>

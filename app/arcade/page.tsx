@@ -75,7 +75,7 @@ export default function ArcadePage() {
           <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-white rounded-full blur-2xl animate-pulse delay-500" />
         </div>
 
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
+        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 text-center">
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="bg-white/20 text-white border-white/30 mb-4 animate-bounce">
               <Sparkles className="h-3 w-3 mr-1" />
@@ -104,7 +104,7 @@ export default function ArcadePage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="bg-white/10 backdrop-blur rounded-lg p-4 inline-flex gap-8"
+              className="bg-white/10 backdrop-blur rounded-lg p-4 inline-flex gap-8 justify-center items-center"
             >
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-yellow-400" />
@@ -213,7 +213,7 @@ export default function ArcadePage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         {/* Results count */}
-        <div className="text-sm text-gray-600 mb-6">
+        <div className="text-sm text-gray-600 mb-6 text-center">
           Showing {filteredItems.length} of {ARCADE_ITEMS.length} experiences
           {searchQuery && ` for "${searchQuery}"`}
         </div>
@@ -379,10 +379,10 @@ export default function ArcadePage() {
         {/* CTA Section */}
         <div className="mt-16 bg-gradient-to-r from-forest to-green rounded-xl p-8">
           <div className="mx-auto max-w-5xl text-center">
-            <h2 className="text-2xl font-bold mb-4 text-white">
+            <h2 className="text-2xl font-bold mb-4 text-white text-center">
               Want More Interactive Tools?
             </h2>
-            <div className="flex justify-center">
+            <div className="flex justify-center items-center">
               <Link href="/about">
                 <Button size="lg" variant="secondary">
                   Learn About Our Mission

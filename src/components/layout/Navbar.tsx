@@ -108,7 +108,7 @@ export function Navbar() {
         
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-mist">
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-4 items-center">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}

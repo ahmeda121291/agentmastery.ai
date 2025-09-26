@@ -23,7 +23,7 @@ export default function StickyCTA({
     <div className={`fixed bottom-4 left-0 right-0 z-40 flex justify-center px-3 transition-opacity duration-300 ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
       <Link
         href={href}
-        className="rounded-full px-6 py-3 shadow-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors font-medium"
+        className="inline-flex items-center justify-center rounded-full px-6 py-3 shadow-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors font-medium"
         data-cta={track}
         aria-label={label}
         target="_blank"

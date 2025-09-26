@@ -228,15 +228,15 @@ export default function HomePage() {
                   Find the perfect AI tools for your workflow in minutes, not hours.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
                   <Button size="lg" variant="primary" magnetic asChild>
-                    <Link href="/tools" className="flex items-center gap-2 touch-target">
+                    <Link href="/tools" className="flex items-center justify-center gap-2 touch-target">
                       Explore Tools
                       <ArrowRight className="h-5 w-5" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="secondary" magnetic asChild>
-                    <Link href="/quiz" className="flex items-center gap-2 touch-target">
+                    <Link href="/quiz" className="flex items-center justify-center gap-2 touch-target">
                       Take the Quiz
                       <Sparkles className="h-5 w-5" />
                     </Link>
@@ -303,8 +303,8 @@ export default function HomePage() {
             className="text-center mb-12"
           >
             <Badge className="mb-4">Featured Tools</Badge>
-            <h2 className="text-4xl font-bold mb-4">Top-Ranked AI Solutions</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 text-center">Top-Ranked AI Solutions</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-center">
               Discover tools that consistently deliver results, backed by our rigorous testing
             </p>
           </motion.div>
@@ -348,7 +348,7 @@ export default function HomePage() {
 
           <div className="text-center mt-12">
             <Button size="lg" variant="primary" magnetic asChild>
-              <Link href="/tools" className="flex items-center gap-2">
+              <Link href="/tools" className="flex items-center justify-center gap-2">
                 View All Tools
                 <ArrowRight className="h-5 w-5" />
               </Link>
@@ -375,15 +375,15 @@ export default function HomePage() {
             <p className="text-xl mb-8 opacity-90">
               Take our 2-minute quiz and get personalized tool recommendations
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" variant="secondary" magnetic asChild>
-                <Link href="/quiz" className="flex items-center gap-2">
+                <Link href="/quiz" className="flex items-center justify-center gap-2">
                   Start Tool Matcher
                   <Sparkles className="h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="ghost" className="text-paper hover:bg-paper/10" asChild>
-                <Link href="/calculators/roi" className="flex items-center gap-2">
+                <Link href="/calculators/roi" className="flex items-center justify-center gap-2">
                   Calculate ROI
                   <TrendingUp className="h-5 w-5" />
                 </Link>

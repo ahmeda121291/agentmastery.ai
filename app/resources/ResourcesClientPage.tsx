@@ -87,7 +87,7 @@ export default function ResourcesClientPage() {
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-r from-forest to-green text-white">
         <Container>
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               AI Implementation Toolkit
             </h1>
@@ -95,7 +95,7 @@ export default function ResourcesClientPage() {
               Free templates, guides, and frameworks to accelerate your AI journey.
               Download proven resources used by 15,000+ professionals.
             </p>
-            <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex flex-wrap gap-4 text-sm justify-center">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-white rounded-full"></span>
                 Strategic frameworks
@@ -120,7 +120,7 @@ export default function ResourcesClientPage() {
       {/* Category Filter */}
       <section className="py-8 border-b border-mist">
         <Container>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center items-center">
             <Button
               variant={selectedCategory === 'all' ? 'primary' : 'ghost'}
               size="sm"
@@ -185,7 +185,7 @@ export default function ResourcesClientPage() {
                       <CardFooter>
                         <Button
                           onClick={() => handleDownload(resource)}
-                          className="w-full"
+                          className="w-full text-center"
                           variant="primary"
                         >
                           {resource.downloadUrl ? 'Download Free' : 'Get Template'} →
