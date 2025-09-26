@@ -31,6 +31,7 @@ export function Footer() {
       { href: '/blog/mastering-cold-email-deliverability-proven-strategies-for-success', label: 'Cold Email Deliverability' },
       { href: '/blog/choosing-the-right-ai-sales-automation-tools-a-comprehensive-comparison', label: 'AI Sales Automation Guide' },
       { href: '/blog/mastering-customer-support-chatbot-implementation-for-enhanced-user-experience', label: 'Chatbot Implementation' },
+      { href: '/blog/best-ai-sales-tools-2025', label: 'Best AI Sales Tools 2025' },
     ],
   }
 

@@ -100,8 +100,7 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     blurb: 'Forecast payback and lifetime value of content investments.',
     kind: 'Calculator',
     tags: ['SEO', 'Content', 'ROI'],
-    cta: 'Analyze ROI',
-    highlight: true
+    cta: 'Analyze ROI'
   },
   {
     slug: '/arcade/affiliate-earnings',
@@ -109,7 +108,8 @@ export const ARCADE_ITEMS: ArcadeItem[] = [
     blurb: 'Project monthly and yearly affiliate commission revenue.',
     kind: 'Calculator',
     tags: ['Affiliate', 'Revenue', 'Forecast'],
-    cta: 'Forecast Earnings'
+    cta: 'Forecast Earnings',
+    highlight: true
   },
   {
     slug: '/arcade/price-guess',
