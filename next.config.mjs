@@ -10,9 +10,19 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/compare/_data',
+        destination: '/compare',
+        permanent: true,
+      },
+      {
+        source: '/compare/_lib',
+        destination: '/compare',
+        permanent: true,
+      },
+      {
         source: '/compare/_:path*',
         destination: '/compare',
-        permanent: false,
+        permanent: true,
       },
     ]
   },
