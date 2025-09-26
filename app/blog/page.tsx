@@ -20,6 +20,7 @@ import {
 import Link from 'next/link'
 import { MobileStickyQuizCTA } from '@/components/layout/MobileStickyQuizCTA'
 import BlogFilters from './BlogFilters'
+import { COMPARES } from '../../src/features/compare/registry'
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog')
 
@@ -44,6 +45,8 @@ type PostMeta = {
   published?: boolean
   excerpt?: string
   url?: string
+  type?: 'blog' | 'compare'
+  canonicalPath?: string
 }
 
 async function getAllPosts(): Promise<PostMeta[]> {
@@ -66,7 +69,9 @@ async function getAllPosts(): Promise<PostMeta[]> {
           author: data.author ?? 'AgentMastery Team',
           image: data.image,
           published: data.published !== false, // default true
+          type: 'blog' as const,
           url: `/blog/${slug}`,
+          canonicalPath: `/blog/${slug}`,
         } as PostMeta
       })
     )
@@ -83,7 +88,9 @@ async function getAllComparisons(): Promise<PostMeta[]> {
   try {
     const compareDir = path.join(process.cwd(), 'app', 'compare')
     const dirs = await fs.readdir(compareDir, { withFileTypes: true })
-    const comparisonDirs = dirs.filter(d => d.isDirectory()).map(d => d.name)
+    const comparisonDirs = dirs
+      .filter(d => d.isDirectory() && !d.name.startsWith('['))
+      .map(d => d.name)
 
     const comparisons = await Promise.all(
       comparisonDirs.map(async (dir) => {
@@ -105,6 +112,7 @@ async function getAllComparisons(): Promise<PostMeta[]> {
           return {
             slug: dir,
             url: `/compare/${dir}`,
+            canonicalPath: `/compare/${dir}`,
             title: title.replace(' | AgentMastery', ''),
             description,
             category: 'Comparisons',
@@ -112,6 +120,7 @@ async function getAllComparisons(): Promise<PostMeta[]> {
             image: `/api/og/comparison?toolA=${toolA}&toolB=${toolB}`,
             published: true,
             date: new Date().toISOString().split('T')[0],
+            type: 'compare' as const,
           } as PostMeta
         } catch (error) {
           console.error(`Error loading comparison ${dir}:`, error)
@@ -207,7 +216,7 @@ export default async function BlogPage() {
                     <h3 className="text-2xl md:text-3xl font-bold relative z-10">{featuredPost.title}</h3>
                     <p className="mt-2 text-white/90 line-clamp-3 relative z-10">{featuredPost.description || featuredPost.excerpt}</p>
                     <div className="mt-6 flex flex-wrap gap-3 relative z-10">
-                      <Link className="btn bg-white text-ink hover:bg-gray-100" href={`/blog/${featuredPost.slug}`}>Read Post</Link>
+                      <Link className="btn bg-white text-ink hover:bg-gray-100" href={featuredPost.canonicalPath || featuredPost.url || `/blog/${featuredPost.slug}`}>Read Post</Link>
                       <Link className="btn bg-white/20 text-white border border-white/30 hover:bg-white/30" href="/leaderboards">View Rankings</Link>
                     </div>
                   </article>
@@ -217,7 +226,7 @@ export default async function BlogPage() {
                       {latestPosts.slice(1, 6).map(post => (
                         <li key={post.slug}>
                           <Link
-                            href={`/blog/${post.slug}`}
+                            href={post.canonicalPath || post.url || `/blog/${post.slug}`}
                             className="text-sm text-gray-600 hover:text-green transition-colors line-clamp-2"
                           >
                             {post.title}
