@@ -58,7 +58,43 @@ const comparisonData = {
         "Limited customer support features",
         "Less suitable for product companies"
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "partial",
+      "automation": "yes",
+      "api": "yes",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "yes"
+    },
+    "toolB": {
+      "ai_capabilities": "partial",
+      "automation": "yes",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "yes"
     }
+  }
   },
   "slug": "drift-vs-intercom"
 }

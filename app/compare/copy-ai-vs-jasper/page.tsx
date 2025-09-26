@@ -58,7 +58,43 @@ const comparisonData = {
         "Limited long-form capabilities",
         "Fewer integration options"
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
     }
+  }
   },
   "slug": "copy-ai-vs-jasper"
 }

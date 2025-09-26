@@ -59,7 +59,43 @@ const comparisonData = {
         "Limited focus on database management and lead generation.",
         "Dependence on video quality and user bandwidth for effectiveness."
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "yes",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
     }
+  }
   },
   "slug": "apollo-vs-bombbomb"
 }

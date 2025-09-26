@@ -58,7 +58,43 @@ const comparisonData = {
         "Limited to video communication, lacking broader features.",
         "May not be suitable for users who prefer text-based content."
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "no"
     }
+  }
   },
   "slug": "jasper-vs-loom"
 }

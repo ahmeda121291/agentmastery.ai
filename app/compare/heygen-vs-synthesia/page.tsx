@@ -58,7 +58,43 @@ const comparisonData = {
         "Fewer language options",
         "Less enterprise features"
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "no",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "partial",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "no",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
     }
+  }
   },
   "slug": "heygen-vs-synthesia"
 }

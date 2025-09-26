@@ -58,7 +58,43 @@ const comparisonData = {
         "Limited to messaging automation, lacking comprehensive CRM features.",
         "May require ongoing management for optimal performance."
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "yes",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "partial",
+      "automation": "yes",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
     }
+  }
   },
   "slug": "manychat-vs-pipedrive"
 }

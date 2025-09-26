@@ -34,6 +34,42 @@ const comparisonData = {
       toolB: ['Best for WordPress users only']
     }
   },
+  availability: {
+    toolA: {
+      ai_capabilities: 'yes',
+      automation: 'partial',
+      api: 'no',
+      team: 'no',
+      analytics: 'partial',
+      support: 'partial',
+      mobile: 'no',
+      integrations: 'no',
+      data_export: 'yes',
+      workflows: 'no',
+      templates: 'yes',
+      white_label: 'no',
+      sso: 'no',
+      bulk_operations: 'yes',
+      real_time: 'no'
+    },
+    toolB: {
+      ai_capabilities: 'yes',
+      automation: 'partial',
+      api: 'no',
+      team: 'partial',
+      analytics: 'yes',
+      support: 'partial',
+      mobile: 'no',
+      integrations: 'partial',
+      data_export: 'yes',
+      workflows: 'partial',
+      templates: 'yes',
+      white_label: 'no',
+      sso: 'no',
+      bulk_operations: 'partial',
+      real_time: 'no'
+    }
+  },
   slug: 'aiseo-vs-getgenie'
 }
 

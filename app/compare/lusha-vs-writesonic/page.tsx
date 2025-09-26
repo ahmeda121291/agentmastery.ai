@@ -58,7 +58,43 @@ const comparisonData = {
         "Higher price point at $79/month.",
         "Focus primarily on B2B, which may not suit all users."
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "partial"
     }
+  }
   },
   "slug": "lusha-vs-writesonic"
 }

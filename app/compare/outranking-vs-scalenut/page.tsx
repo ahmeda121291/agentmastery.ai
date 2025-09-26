@@ -34,6 +34,42 @@ const comparisonData = {
       toolB: ['Less detailed SERP insights']
     }
   },
+  availability: {
+    toolA: {
+      ai_capabilities: "yes",
+      automation: "partial",
+      api: "no",
+      team: "partial",
+      analytics: "yes",
+      support: "partial",
+      mobile: "no",
+      integrations: "partial",
+      data_export: "yes",
+      workflows: "partial",
+      templates: "yes",
+      white_label: "no",
+      sso: "no",
+      bulk_operations: "partial",
+      real_time: "yes"
+    },
+    toolB: {
+      ai_capabilities: "yes",
+      automation: "partial",
+      api: "no",
+      team: "partial",
+      analytics: "yes",
+      support: "partial",
+      mobile: "no",
+      integrations: "partial",
+      data_export: "yes",
+      workflows: "partial",
+      templates: "yes",
+      white_label: "no",
+      sso: "no",
+      bulk_operations: "yes",
+      real_time: "yes"
+    }
+  },
   slug: 'outranking-vs-scalenut'
 }
 

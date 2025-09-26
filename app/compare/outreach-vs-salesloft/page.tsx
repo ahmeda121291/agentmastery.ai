@@ -58,7 +58,43 @@ const comparisonData = {
         "Steeper learning curve",
         "Can be overwhelming for small teams"
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "yes",
+      "automation": "yes",
+      "api": "partial",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "yes",
+      "bulk_operations": "yes",
+      "real_time": "yes"
+    },
+    "toolB": {
+      "ai_capabilities": "yes",
+      "automation": "yes",
+      "api": "partial",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "yes",
+      "bulk_operations": "yes",
+      "real_time": "yes"
     }
+  }
   },
   "slug": "outreach-vs-salesloft"
 }

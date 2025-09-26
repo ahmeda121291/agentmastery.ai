@@ -34,6 +34,42 @@ const comparisonData = {
       toolB: ['Limited API flexibility']
     }
   },
+  availability: {
+    toolA: {
+      ai_capabilities: "yes",
+      automation: "partial",
+      api: "yes",
+      team: "partial",
+      analytics: "partial",
+      support: "partial",
+      mobile: "no",
+      integrations: "partial",
+      data_export: "yes",
+      workflows: "partial",
+      templates: "yes",
+      white_label: "no",
+      sso: "no",
+      bulk_operations: "no",
+      real_time: "yes"
+    },
+    toolB: {
+      ai_capabilities: "yes",
+      automation: "yes",
+      api: "partial",
+      team: "partial",
+      analytics: "yes",
+      support: "partial",
+      mobile: "no",
+      integrations: "yes",
+      data_export: "yes",
+      workflows: "yes",
+      templates: "yes",
+      white_label: "no",
+      sso: "no",
+      bulk_operations: "partial",
+      real_time: "yes"
+    }
+  },
   slug: 'customgpt-vs-chatsimple'
 }
 

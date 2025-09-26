@@ -34,6 +34,42 @@ const comparisonData = {
       toolB: ['Higher price at scale']
     }
   },
+  availability: {
+    toolA: {
+      ai_capabilities: "yes",
+      automation: "partial",
+      api: "no",
+      team: "partial",
+      analytics: "partial",
+      support: "partial",
+      mobile: "no",
+      integrations: "partial",
+      data_export: "yes",
+      workflows: "partial",
+      templates: "yes",
+      white_label: "no",
+      sso: "no",
+      bulk_operations: "partial",
+      real_time: "no"
+    },
+    toolB: {
+      ai_capabilities: "yes",
+      automation: "partial",
+      api: "partial",
+      team: "yes",
+      analytics: "yes",
+      support: "yes",
+      mobile: "no",
+      integrations: "yes",
+      data_export: "yes",
+      workflows: "yes",
+      templates: "yes",
+      white_label: "partial",
+      sso: "partial",
+      bulk_operations: "yes",
+      real_time: "no"
+    }
+  },
   slug: 'pictory-vs-synthesia'
 }
 

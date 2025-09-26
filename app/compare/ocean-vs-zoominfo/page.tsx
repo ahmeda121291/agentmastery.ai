@@ -34,6 +34,42 @@ const comparisonData = {
       toolB: ['Very expensive ($15,000+ minimum)']
     }
   },
+  availability: {
+    toolA: {
+      ai_capabilities: "partial",
+      automation: "partial",
+      api: "partial",
+      team: "partial",
+      analytics: "yes",
+      support: "partial",
+      mobile: "yes",
+      integrations: "partial",
+      data_export: "yes",
+      workflows: "partial",
+      templates: "no",
+      white_label: "no",
+      sso: "no",
+      bulk_operations: "yes",
+      real_time: "partial"
+    },
+    toolB: {
+      ai_capabilities: "yes",
+      automation: "yes",
+      api: "yes",
+      team: "yes",
+      analytics: "yes",
+      support: "yes",
+      mobile: "yes",
+      integrations: "yes",
+      data_export: "yes",
+      workflows: "yes",
+      templates: "yes",
+      white_label: "partial",
+      sso: "yes",
+      bulk_operations: "yes",
+      real_time: "yes"
+    }
+  },
   slug: 'ocean-vs-zoominfo'
 }
 

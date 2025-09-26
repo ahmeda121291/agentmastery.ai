@@ -58,7 +58,43 @@ const comparisonData = {
         "No content generation",
         "Higher price point"
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "yes",
+      "automation": "partial",
+      "api": "no",
+      "team": "partial",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "partial",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "partial",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "yes",
+      "real_time": "partial"
     }
+  }
   },
   "slug": "aiseo-vs-surfer"
 }

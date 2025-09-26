@@ -60,7 +60,43 @@ const comparisonData = {
         "Steep learning curve and complexity",
         "Expensive with hidden implementation costs"
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "yes",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "yes",
+      "automation": "yes",
+      "api": "yes",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "yes",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "partial",
+      "sso": "yes",
+      "bulk_operations": "yes",
+      "real_time": "yes"
     }
+  }
   },
   "slug": "hubspot-vs-salesforce"
 }

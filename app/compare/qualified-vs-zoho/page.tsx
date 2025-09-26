@@ -58,7 +58,43 @@ const comparisonData = {
         "Higher price point at $250/month may be prohibitive for smaller businesses.",
         "Limited functionality outside of chatbots, making it less versatile than full CRMs."
       ]
+    },
+  "availability": {
+    "toolA": {
+      "ai_capabilities": "partial",
+      "automation": "partial",
+      "api": "no",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "no",
+      "bulk_operations": "partial",
+      "real_time": "partial"
+    },
+    "toolB": {
+      "ai_capabilities": "yes",
+      "automation": "yes",
+      "api": "partial",
+      "team": "yes",
+      "analytics": "yes",
+      "support": "partial",
+      "mobile": "partial",
+      "integrations": "yes",
+      "data_export": "yes",
+      "workflows": "yes",
+      "templates": "yes",
+      "white_label": "no",
+      "sso": "partial",
+      "bulk_operations": "yes",
+      "real_time": "yes"
     }
+  }
   },
   "slug": "qualified-vs-zoho"
 }
