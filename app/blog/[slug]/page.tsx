@@ -32,6 +32,7 @@ import Link from 'next/link'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
 import { ShareButtons } from '@/components/ShareButtons'
+import AnswerSnippet from '@/components/AnswerSnippet'
 
 // Dynamic import for client-side progress rail
 const ProgressRail = dynamic(() => import('@/components/blog/ProgressRail'), {
@@ -241,15 +242,19 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
         {/* Content Section */}
         <div className="container mx-auto px-4 py-12">
-          {/* Direct Answer Block for AEO */}
-          {(post.meta.summary || post.meta.excerpt) && (
-            <div className="max-w-4xl mx-auto mb-8">
-              <div className="rounded-lg border border-green/20 bg-green/5 p-4">
-                <p className="text-sm font-medium text-gray-900 mb-1">Summary:</p>
-                <p className="text-sm text-gray-700">{post.meta.summary || post.meta.excerpt}</p>
-              </div>
-            </div>
-          )}
+          {/* AEO Answer Snippet */}
+          <div className="max-w-4xl mx-auto">
+            <AnswerSnippet
+              title={`Key Takeaway: ${post.meta.title}`}
+              summary={post.meta.summary || post.meta.excerpt || post.meta.description || `In-depth analysis and insights about ${post.meta.title}`}
+              bullets={post.meta.keyPoints || post.meta.highlights}
+              schemaType="Article"
+              datePublished={post.meta.date}
+              dateModified={post.meta.lastModified || post.meta.date}
+              url={canonical(`/blog/${params.slug}`)}
+            />
+          </div>
+
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Tags */}

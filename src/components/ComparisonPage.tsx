@@ -13,6 +13,7 @@ import CompareTable from '@/components/CompareTable'
 import CompareTablePro from '@/components/CompareTablePro'
 import BestForBadges from '@/components/BestForBadges'
 import InlineCTA from '@/components/InlineCTA'
+import AnswerSnippet from '@/components/AnswerSnippet'
 
 interface ComparisonData {
   toolA: {
@@ -115,15 +116,20 @@ export default function ComparisonPage({ data }: { data: ComparisonData }) {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        {/* Direct Answer Block for AEO */}
-        {content.verdict && (
-          <div className="max-w-6xl mx-auto mb-6">
-            <div className="rounded-lg border border-green/20 bg-green/5 p-4">
-              <p className="text-sm font-medium text-gray-900 mb-1">Our Verdict:</p>
-              <p className="text-sm text-gray-700">{content.verdict}</p>
-            </div>
-          </div>
-        )}
+        {/* AEO Answer Snippet */}
+        <div className="max-w-6xl mx-auto">
+          <AnswerSnippet
+            title={`${toolA.name} vs ${toolB.name}: Which is Better?`}
+            summary={content.verdict || content.comparison || `Compare ${toolA.name} and ${toolB.name} to find the right tool for your needs.`}
+            bullets={[
+              `${toolA.name}: Starting at $${toolA.pricing}/month - ${content.pros.toolA[0]}`,
+              `${toolB.name}: Starting at $${toolB.pricing}/month - ${content.pros.toolB[0]}`,
+              `Key Difference: ${content.comparison ? content.comparison.split('.')[0] : 'Each tool serves different use cases'}`
+            ].filter(Boolean).slice(0, 3)}
+            schemaType="Review"
+            url={canonical(pagePath)}
+          />
+        </div>
 
         {/* Best For Badges */}
         <div className="max-w-6xl mx-auto mb-8">
