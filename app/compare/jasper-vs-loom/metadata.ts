@@ -1,11 +1,8 @@
 import { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/seo/metadata'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Jasper vs Loom: Which AI Tool Wins in 2025? | AgentMastery',
   description: 'Compare Jasper and Loom to find out which tool best suits your writing and video communication needs. Learn about features, pricing, and more.',
-  openGraph: {
-    title: 'Jasper vs Loom Comparison',
-    description: 'Compare Jasper and Loom to find out which tool best suits your writing and video communication needs. Learn about features, pricing, and more.',
-    images: ['/api/og/comparison?toolA=jasper&toolB=loom'],
-  },
-}
+  routeInfo: { pathname: '/compare/jasper-vs-loom' }
+});

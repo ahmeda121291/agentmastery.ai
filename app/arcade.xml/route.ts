@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
-import { SITE_URL } from '@/lib/seo'
+import { origin } from '@/lib/seo/canonical'
 import fs from 'node:fs'
 import path from 'node:path'
 
 export const runtime = 'nodejs'
 
 function urls() {
+  const SITE_URL = origin()
   const out: string[] = []
 
   // Add arcade main page

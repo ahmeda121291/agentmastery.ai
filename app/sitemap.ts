@@ -1,10 +1,12 @@
 import { MetadataRoute } from 'next'
 import { tools } from '@/data/tools'
 import { getAllPosts } from '@/lib/blog'
+import { COMPARES } from './compare/_data/compare-registry'
+import { origin } from '@/lib/seo/canonical'
 import fs from 'node:fs'
 import path from 'node:path'
 
-const BASE_URL = 'https://agentmastery.ai'
+const BASE_URL = origin()
 
 // Helper to get file modification time
 function getFileModTime(filePath: string): string {
@@ -60,6 +62,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${BASE_URL}/arcade`,
       lastModified: getRouteLastMod('arcade'),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/compare`,
+      lastModified: getRouteLastMod('compare'),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
@@ -125,21 +133,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     console.log('No blog posts found for sitemap')
   }
 
-  // Compare pages with lastmod from file
-  let comparePages: MetadataRoute.Sitemap = []
-  try {
-    const compareBase = path.join(process.cwd(), 'app', 'compare')
-    const entries = fs.readdirSync(compareBase, { withFileTypes: true })
-    const dirs = entries.filter(e => e.isDirectory()).map(d => d.name)
-    comparePages = dirs.map((dir) => ({
-      url: `${BASE_URL}/compare/${dir}`,
-      lastModified: getRouteLastMod(`compare/${dir}`),
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    }))
-  } catch (err) {
-    console.log('No compare pages found for sitemap')
-  }
+  // Compare pages - only canonical URLs from registry
+  const comparePages: MetadataRoute.Sitemap = COMPARES.map((compare) => ({
+    url: `${BASE_URL}/compare/${compare.canonical}`,
+    lastModified: getRouteLastMod(`compare/${compare.canonical}`),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
 
   // Arcade pages (calculators and interactive tools)
   let arcadePages: MetadataRoute.Sitemap = []

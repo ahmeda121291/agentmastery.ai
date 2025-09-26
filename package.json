@@ -19,7 +19,11 @@
     "generate:comparisons": "tsx scripts/generate_comparisons.ts",
     "generate:bulk": "tsx scripts/bulk_generate.ts",
     "fix:mdx": "tsx scripts/fix_mdx_links.ts",
-    "migrate:blog": "tsx scripts/migrate_blog_dir.ts"
+    "migrate:blog": "tsx scripts/migrate_blog_dir.ts",
+    "linkcheck": "tsx scripts/check-internal-links.ts",
+    "canonicalcheck": "tsx scripts/check-canonical.ts",
+    "sitemapcheck": "tsx scripts/check-sitemaps.ts",
+    "check:all": "npm run linkcheck && npm run canonicalcheck && npm run sitemapcheck"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -48,6 +52,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
+    "@types/jsdom": "21.1.7",
     "@types/node": "^20.19.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -55,6 +60,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "27.0.0",
     "postcss": "^8",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.1",

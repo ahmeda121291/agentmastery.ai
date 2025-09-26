@@ -1,11 +1,8 @@
 import { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/seo/metadata'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Apollo vs BombBomb: Which AI Tool Wins in 2025? | AgentMastery',
   description: 'Compare Apollo and BombBomb for lead generation vs. video communication; discover features, pricing, and pros/cons of each tool.',
-  openGraph: {
-    title: 'Apollo vs BombBomb Comparison',
-    description: 'Compare Apollo and BombBomb for lead generation vs. video communication; discover features, pricing, and pros/cons of each tool.',
-    images: ['/api/og/comparison?toolA=apollo&toolB=bombbomb'],
-  },
-}
+  routeInfo: { pathname: '/compare/apollo-vs-bombbomb' }
+});

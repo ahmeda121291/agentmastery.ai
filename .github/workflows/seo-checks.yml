@@ -1,0 +1,109 @@
+name: SEO & Link Checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  link-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check internal links
+        run: pnpm run linkcheck
+
+      - name: Upload link check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: link-check-report
+          path: reports/internal-link-check.md
+
+  canonical-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Next.js app
+        run: pnpm run build
+
+      - name: Check canonicals
+        run: pnpm run canonicalcheck
+        timeout-minutes: 5
+
+      - name: Upload canonical check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-check-report
+          path: reports/canonical-check.md
+
+  sitemap-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build and start server
+        run: |
+          pnpm run build
+          pnpm run start &
+          sleep 10
+        env:
+          PORT: 3000
+
+      - name: Check sitemaps
+        run: pnpm run sitemapcheck
+        env:
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+      - name: Upload sitemap check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitemap-check-report
+          path: reports/sitemap-check.md

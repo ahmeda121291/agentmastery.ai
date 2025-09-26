@@ -28,6 +28,7 @@ import {
   createSchemaScript
 } from '@/lib/jsonld'
 import { buildAffiliateUrl, canonical } from '@/lib/seo'
+import { buildPageMetadata } from '@/lib/seo/metadata'
 
 export async function generateStaticParams() {
   return tools.map((tool) => ({
@@ -39,21 +40,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const tool = tools.find(t => t.slug === params.slug)
   if (!tool) return { title: 'Tool Not Found' }
 
-  const canonicalUrl = canonical(`/tools/${params.slug}`)
-
-  return {
+  return buildPageMetadata({
     title: `${tool.name} Review 2024 - Pricing, Features & Alternatives | AgentMastery`,
     description: tool.blurb,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title: `${tool.name} - AI Tool Review`,
-      description: tool.blurb,
-      type: 'article',
-      url: canonicalUrl,
-    },
-  }
+    routeInfo: { pathname: `/tools/${params.slug}` }
+  })
 }
 
 export default function ToolDetailPage({ params }: { params: { slug: string } }) {

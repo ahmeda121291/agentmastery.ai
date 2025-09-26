@@ -92,7 +92,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
-        <link rel="canonical" href="https://agentmastery.ai" />
         <link rel="prefetch" href="/tools" />
         <link rel="prefetch" href="/quiz" />
         <link rel="prefetch" href="/leaderboards" />

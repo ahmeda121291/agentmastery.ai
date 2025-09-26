@@ -1,11 +1,8 @@
 import { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/seo/metadata'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Zoho CRM vs Qualified: Which AI Tool Wins in 2025? | AgentMastery',
   description: 'Compare Zoho CRM and Qualified to find the best tool for your sales and customer engagement needs. Explore features, pricing, and use cases.',
-  openGraph: {
-    title: 'Zoho CRM vs Qualified Comparison',
-    description: 'Compare Zoho CRM and Qualified to find the best tool for your sales and customer engagement needs. Explore features, pricing, and use cases.',
-    images: ['/api/og/comparison?toolA=zoho&toolB=qualified'],
-  },
-}
+  routeInfo: { pathname: '/compare/qualified-vs-zoho' }
+});

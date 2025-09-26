@@ -1,20 +1,15 @@
 import { NextResponse } from 'next/server'
-import { SITE_URL } from '@/lib/seo'
+import { origin } from '@/lib/seo/canonical'
+import { COMPARES } from '../compare/_data/compare-registry'
 import fs from 'node:fs'
 import path from 'node:path'
 
 export const runtime = 'nodejs'
 
 function urls() {
-  const compareDir = path.join(process.cwd(), 'app', 'compare')
-  const out: string[] = []
-  if (fs.existsSync(compareDir)) {
-    const dirs = fs.readdirSync(compareDir, { withFileTypes: true })
-      .filter(d => d.isDirectory())
-      .map(d => d.name)
-    dirs.forEach(dir => out.push(`${SITE_URL}/compare/${dir}`))
-  }
-  return out
+  const SITE_URL = origin()
+  // Only include canonical URLs from registry
+  return COMPARES.map(compare => `${SITE_URL}/compare/${compare.canonical}`)
 }
 
 export async function GET() {

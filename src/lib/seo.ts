@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
+import { origin, absUrl } from '@/lib/seo/canonical'
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || 'https://agentmastery.ai'
+export const SITE_URL = origin()
 
 export function canonical(path: string): string {
-  const p = path.startsWith('/') ? path : `/${path}`
-  return `${SITE_URL}${p}`
+  return absUrl(path)
 }
 
 interface BlogFrontmatter {
@@ -25,7 +25,7 @@ export function generateBlogMetadata(
   frontmatter: BlogFrontmatter,
   slug: string
 ): Metadata {
-  const url = `https://agentmastery.ai/blog/${slug}`
+  const url = absUrl(`/blog/${slug}`)
 
   // Generate dynamic OG image URL
   const ogImageUrl = frontmatter.image || `/api/og?${new URLSearchParams({
