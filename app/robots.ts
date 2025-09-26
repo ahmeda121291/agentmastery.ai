@@ -6,22 +6,20 @@ export default function robots(): MetadataRoute.Robots {
   const SITE_URL = origin()
 
   return {
+    // Keep it simple: allow everything except server APIs.
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/_next/',
-          '/static/',
-        ],
+        disallow: ['/api/'], // do NOT block /_next or /static; that causes "blocked resources" warnings
       },
-      // Allow major AI crawlers you actually want
+      // Explicitly allow AI crawlers you want (tweak to taste)
       { userAgent: 'GPTBot', allow: '/' },
       { userAgent: 'ChatGPT-User', allow: '/' },
       { userAgent: 'CCBot', allow: '/' },
+      { userAgent: 'OAI-SearchBot', allow: '/' },
+      { userAgent: 'Google-Extended', allow: '/' },
     ],
-    // Next supports string or string[]
     sitemap: [
       `${SITE_URL}/sitemap.xml`,
       `${SITE_URL}/arcade.xml`,
